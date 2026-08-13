@@ -1,0 +1,1047 @@
+openapi: 3.0.3
+
+info:
+  title: HEI Graduates Management API
+  version: 1.0.0
+
+servers:
+  - url: https://2gp6nuj34oahmnhowpq4hxfu3e0mzprv.lambda-url.eu-west-3.on.aws/
+
+tags:
+  - name: Users
+  - name: Students
+  - name: Teachers
+  - name: Courses
+  - name: Groups
+  - name: Promotions
+  - name: Exams
+  - name: Grades
+  - name: Grade History
+  - name: Transcripts
+  - name: Graduates
+
+paths:
+
+  /users:
+    get:
+      tags:
+        - Users
+      summary: Get all users
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Users retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+    post:
+      tags:
+        - Users
+      summary: Create a user
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /users/{id}:
+    get:
+      tags:
+        - Users
+      summary: Get a user
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: User retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags:
+        - Users
+      summary: Update a user
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /students:
+    get:
+      tags:
+        - Students
+      summary: Get all students
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Students retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Student'
+
+    post:
+      tags:
+        - Students
+      summary: Create a student
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Student'
+      responses:
+        '201':
+          description: Student created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+
+  /students/{id}:
+    get:
+      tags:
+        - Students
+      summary: Get a student
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Student retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags:
+        - Students
+      summary: Update a student
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Student'
+      responses:
+        '200':
+          description: Student updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+
+  /students/{id}/grades:
+    get:
+      tags:
+        - Students
+        - Grades
+      summary: Get student grades
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Grades retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Grade'
+
+  /students/{id}/group-history:
+    get:
+      tags:
+        - Students
+      summary: Get student group history
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Group history retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentGroupHistory'
+
+  /teachers:
+    get:
+      tags:
+        - Teachers
+      summary: Get all teachers
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Teachers retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Teacher'
+
+    post:
+      tags:
+        - Teachers
+      summary: Create a teacher
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Teacher'
+      responses:
+        '201':
+          description: Teacher created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Teacher'
+
+  /teachers/{id}:
+    get:
+      tags:
+        - Teachers
+      summary: Get a teacher
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Teacher retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Teacher'
+
+  /teachers/{id}/courses:
+    get:
+      tags:
+        - Teachers
+        - Courses
+      summary: Get teacher courses
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Courses retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+
+  /courses:
+    get:
+      tags:
+        - Courses
+      summary: Get all courses
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Courses retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+
+    post:
+      tags:
+        - Courses
+      summary: Create a course
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Course'
+      responses:
+        '201':
+          description: Course created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+
+  /courses/{id}:
+    get:
+      tags:
+        - Courses
+      summary: Get a course
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Course retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+
+    put:
+      tags:
+        - Courses
+      summary: Update a course
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Course'
+      responses:
+        '200':
+          description: Course updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+
+  /courses/{id}/teachers:
+    get:
+      tags:
+        - Courses
+        - Teachers
+      summary: Get course teachers
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Teachers retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Teacher'
+
+  /courses/{id}/groups:
+    get:
+      tags:
+        - Courses
+        - Groups
+      summary: Get course groups
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Groups retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Group'
+
+  /groups:
+    get:
+      tags:
+        - Groups
+      summary: Get all groups
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Groups retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Group'
+
+    post:
+      tags:
+        - Groups
+      summary: Create a group
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Group'
+      responses:
+        '201':
+          description: Group created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Group'
+
+  /groups/{id}:
+    get:
+      tags:
+        - Groups
+      summary: Get a group
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Group retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Group'
+
+    put:
+      tags:
+        - Groups
+      summary: Update a group
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Group'
+      responses:
+        '200':
+          description: Group updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Group'
+
+  /groups/{id}/courses:
+    get:
+      tags:
+        - Groups
+        - Courses
+      summary: Get group courses
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Courses retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+
+  /promotions:
+    get:
+      tags:
+        - Promotions
+      summary: Get all promotions
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Promotions retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Promotion'
+
+    post:
+      tags:
+        - Promotions
+      summary: Create a promotion
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Promotion'
+      responses:
+        '201':
+          description: Promotion created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promotion'
+
+  /promotions/{id}:
+    get:
+      tags:
+        - Promotions
+      summary: Get a promotion
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Promotion retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promotion'
+
+  /promotions/{id}/results:
+    get:
+      tags:
+        - Promotions
+      summary: Get promotion results
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Promotion results retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentPromotionResult'
+
+  /promotions/{id}/graduates:
+    get:
+      tags:
+        - Graduates
+      summary: Get promotion graduates
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Graduates retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Graduate'
+
+  /promotions/{id}/graduates/excel:
+    get:
+      tags:
+        - Graduates
+      summary: Download graduates Excel file
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Excel file
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+
+  /exams:
+    get:
+      tags:
+        - Exams
+      summary: Get all exams
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Exams retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Exam'
+
+    post:
+      tags:
+        - Exams
+      summary: Create an exam
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Exam'
+      responses:
+        '201':
+          description: Exam created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+
+  /exams/{id}:
+    get:
+      tags:
+        - Exams
+      summary: Get an exam
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Exam retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+
+  /grades:
+    get:
+      tags:
+        - Grades
+      summary: Get grades
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Grades retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Grade'
+
+    post:
+      tags:
+        - Grades
+      summary: Create a grade
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Grade'
+      responses:
+        '201':
+          description: Grade created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Grade'
+
+  /grades/{id}:
+    get:
+      tags:
+        - Grades
+      summary: Get a grade
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Grade retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Grade'
+
+    put:
+      tags:
+        - Grades
+      summary: Update a grade
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GradeModification'
+      responses:
+        '200':
+          description: Grade updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Grade'
+
+  /grades/{id}/history:
+    get:
+      tags:
+        - Grade History
+      summary: Get grade history
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Grade history retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GradeHistory'
+
+  /students/{id}/transcript:
+    get:
+      tags:
+        - Transcripts
+      summary: Get student transcript
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Transcript PDF
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+
+  /students/{id}/transcript/send:
+    post:
+      tags:
+        - Transcripts
+      summary: Send transcript by email
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '202':
+          description: Transcript sending accepted
+
+components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  responses:
+    NotFound:
+      description: Resource not found
+
+  schemas:
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        role:
+          type: string
+          enum:
+            - STUDENT
+            - TEACHER
+            - ADMIN
+
+    Student:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        registrationNumber:
+          type: string
+        promotionId:
+          type: string
+          format: uuid
+        specialtyId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+
+    Teacher:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        userId:
+          type: string
+          format: uuid
+
+    Course:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        code:
+          type: string
+        credits:
+          type: number
+          format: double
+
+    Group:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        promotionId:
+          type: string
+          format: uuid
+
+    Promotion:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        year:
+          type: integer
+
+    Exam:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        date:
+          type: string
+          format: date
+        courseId:
+          type: string
+          format: uuid
+        groupId:
+          type: string
+          format: uuid
+
+    Grade:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        value:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 20
+        date:
+          type: string
+          format: date-time
+        studentId:
+          type: string
+          format: uuid
+        examId:
+          type: string
+          format: uuid
+
+    GradeModification:
+      type: object
+      required:
+        - value
+        - reason
+      properties:
+        value:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 20
+        reason:
+          type: string
+
+    GradeHistory:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        gradeId:
+          type: string
+          format: uuid
+        oldValue:
+          type: number
+          format: double
+        newValue:
+          type: number
+          format: double
+        reason:
+          type: string
+        modifiedBy:
+          type: string
+          format: uuid
+        modifiedAt:
+          type: string
+          format: date-time
+
+    StudentGroupHistory:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        studentId:
+          type: string
+          format: uuid
+        groupId:
+          type: string
+          format: uuid
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+          nullable: true
+
+    StudentPromotionResult:
+      type: object
+      properties:
+        studentId:
+          type: string
+          format: uuid
+        studentName:
+          type: string
+        promotionId:
+          type: string
+          format: uuid
+        average:
+          type: number
+          format: double
+        status:
+          type: string
+
+    Graduate:
+      type: object
+      properties:
+        studentId:
+          type: string
+          format: uuid
+        registrationNumber:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        promotionId:
+          type: string
+          format: uuid
+        average:
+          type: number
+          format: double
