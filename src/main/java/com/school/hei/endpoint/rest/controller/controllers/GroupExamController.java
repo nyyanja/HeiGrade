@@ -1,7 +1,7 @@
 package com.school.hei.endpoint.rest.controller.controllers;
 
 import com.school.hei.model.GroupExam;
-import com.school.hei.service.services.GroupExamService;
+
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
