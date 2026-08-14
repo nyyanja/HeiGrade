@@ -1,7 +1,7 @@
 package com.school.hei.endpoint.rest.controller.controllers;
 
-import com.school.hei.model.Exam;
-import com.school.hei.service.services.ExamService;
+import com.school.hei.model.Admin;
+import com.school.hei.service.services.AdminService;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -17,36 +17,36 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/exams")
+@RequestMapping("/admins")
 @RequiredArgsConstructor
-public class ExamController {
+public class AdminController {
 
-  private final ExamService examService;
+  private final AdminService adminService;
 
   @GetMapping
-  public List<Exam> findAll() {
-    return examService.findAll();
+  public List<Admin> findAll() {
+    return adminService.findAll();
   }
 
   @GetMapping("/{id}")
-  public Exam findById(@PathVariable UUID id) {
-    return examService.findById(id);
+  public Admin findById(@PathVariable UUID id) {
+    return adminService.findById(id);
   }
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public Exam save(@RequestBody Exam exam) {
-    return examService.save(exam);
+  public Admin save(@RequestBody Admin admin) {
+    return adminService.save(admin);
   }
 
   @PutMapping("/{id}")
-  public Exam update(@PathVariable UUID id, @RequestBody Exam exam) {
-    return examService.update(id, exam);
+  public Admin update(@PathVariable UUID id, @RequestBody Admin admin) {
+    return adminService.update(id, admin);
   }
 
   @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void delete(@PathVariable UUID id) {
-    examService.delete(id);
+    adminService.delete(id);
   }
 }
