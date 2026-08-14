@@ -11,22 +11,21 @@ public class ExamValidator implements SaveValidator<Exam> {
   @Override
   public void accept(Exam exam) {
     if (exam == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "the parameter is null");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "exam cannot be null");
     }
     if (exam.getTitle() == null || exam.getTitle().isBlank()) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST, "the title is blank or null for exam");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "exam title is required");
     }
     if (exam.getDate() == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "exam date is null for exam");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "exam date is required");
     }
     if (exam.getCoeff() == null || exam.getCoeff() <= 0) {
       throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST, "the coeff cannot be less than zero (0) ");
+              HttpStatus.BAD_REQUEST, "exam coeff must be greater than 0");
     }
     if (exam.getCoeff() > 1) {
       throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST, "the coeff cannot be more than one (1)");
+              HttpStatus.BAD_REQUEST, "exam coeff cannot be greater than 1");
     }
   }
 }
