@@ -1,7 +1,7 @@
 package com.school.hei.endpoint.rest.controller.controllers;
 
-import com.school.hei.model.Exam;
-import com.school.hei.service.services.ExamService;
+import com.school.hei.model.Speciality;
+import com.school.hei.service.services.SpecialityService;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -17,36 +17,36 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/exams")
+@RequestMapping("/specialities")
 @RequiredArgsConstructor
-public class ExamController {
+public class SpecialityController {
 
-  private final ExamService examService;
+  private final SpecialityService specialityService;
 
   @GetMapping
-  public List<Exam> findAll() {
-    return examService.findAll();
+  public List<Speciality> findAll() {
+    return specialityService.findAll();
   }
 
   @GetMapping("/{id}")
-  public Exam findById(@PathVariable UUID id) {
-    return examService.findById(id);
+  public Speciality findById(@PathVariable UUID id) {
+    return specialityService.findById(id);
   }
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public Exam save(@RequestBody Exam exam) {
-    return examService.save(exam);
+  public Speciality save(@RequestBody Speciality speciality) {
+    return specialityService.save(speciality);
   }
 
   @PutMapping("/{id}")
-  public Exam update(@PathVariable UUID id, @RequestBody Exam exam) {
-    return examService.update(id, exam);
+  public Speciality update(@PathVariable UUID id, @RequestBody Speciality speciality) {
+    return specialityService.update(id, speciality);
   }
 
   @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void delete(@PathVariable UUID id) {
-    examService.delete(id);
+    specialityService.delete(id);
   }
 }
