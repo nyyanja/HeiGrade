@@ -1,8 +1,7 @@
 package com.school.hei.model;
 
-import java.util.UUID;
-
 import com.school.hei.enums.GroupSpeciality;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

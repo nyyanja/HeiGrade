@@ -1,4 +1,3 @@
 package com.school.hei.endpoint.rest.controller.controllers;
 
-public class GroupController {
-}
+public class GroupController {}

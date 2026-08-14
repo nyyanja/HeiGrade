@@ -10,13 +10,14 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class TeacherValidator implements SaveValidator<Teacher> {
 
-    private final UserValidator userValidator;
+  private final UserValidator userValidator;
 
-    @Override
-    public void accept(Teacher teacher) {
-        userValidator.validateCommonFields(teacher);
-        if (teacher.getSpeciality() == null || teacher.getSpeciality().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "the teacher special is blank or null it is not allowed");
-        }
+  @Override
+  public void accept(Teacher teacher) {
+    userValidator.validateCommonFields(teacher);
+    if (teacher.getSpeciality() == null || teacher.getSpeciality().isBlank()) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST, "the teacher special is blank or null it is not allowed");
     }
+  }
 }

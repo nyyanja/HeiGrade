@@ -9,20 +9,22 @@ import org.springframework.web.server.ResponseStatusException;
 @Component
 public class PromotionValidator implements SaveValidator<Promotion> {
 
-    @Override
-    public void accept(Promotion promotion) {
-        if (promotion == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "this promotion is null it cannot be saved");
-        }
-        if (promotion.getName() == null || promotion.getName().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "promotion name cannot be blank");
-        }
-        if (promotion.getYear() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, " year cannot be null for the class");
-        }
-        int currentYear = Year.now().getValue();
-        if (promotion.getYear() < 2000 || promotion.getYear() > currentYear + 1) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid year for the class");
-        }
+  @Override
+  public void accept(Promotion promotion) {
+    if (promotion == null) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST, "this promotion is null it cannot be saved");
     }
+    if (promotion.getName() == null || promotion.getName().isBlank()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "promotion name cannot be blank");
+    }
+    if (promotion.getYear() == null) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST, " year cannot be null for the class");
+    }
+    int currentYear = Year.now().getValue();
+    if (promotion.getYear() < 2000 || promotion.getYear() > currentYear + 1) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid year for the class");
+    }
+  }
 }

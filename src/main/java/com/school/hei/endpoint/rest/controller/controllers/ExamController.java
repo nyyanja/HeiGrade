@@ -1,4 +1,3 @@
 package com.school.hei.endpoint.rest.controller.controllers;
 
-public class ExamController {
-}
+public class ExamController {}

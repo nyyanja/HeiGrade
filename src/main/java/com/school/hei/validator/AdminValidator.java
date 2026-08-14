@@ -10,13 +10,14 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class AdminValidator implements SaveValidator<Admin> {
 
-    private final UserValidator userValidator;
+  private final UserValidator userValidator;
 
-    @Override
-    public void accept(Admin admin) {
-        userValidator.validateCommonFields(admin);
-        if (admin.getAdminReference() == null || admin.getAdminReference().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "admin reference is blank or null it is not allowed");
-        }
+  @Override
+  public void accept(Admin admin) {
+    userValidator.validateCommonFields(admin);
+    if (admin.getAdminReference() == null || admin.getAdminReference().isBlank()) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST, "admin reference is blank or null it is not allowed");
     }
+  }
 }

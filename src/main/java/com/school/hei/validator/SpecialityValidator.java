@@ -11,25 +11,29 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class SpecialityValidator implements SaveValidator<Speciality> {
 
-    private final SpecialityRepository specialityRepository;
+  private final SpecialityRepository specialityRepository;
 
-    @Override
-    public void accept(Speciality speciality) {
-        if (speciality == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "the special is null in the request it cannot be saved");
-        }
-        if (speciality.getName() == null || speciality.getName().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "special name is blank in the request it is not allowed");
-        }
-
-        specialityRepository
-                .findByNameIgnoreCase(speciality.getName())
-                .ifPresent(
-                        existing -> {
-                            boolean isSame = speciality.getId() != null && existing.getId().equals(speciality.getId());
-                            if (!isSame) {
-                                throw new ResponseStatusException(HttpStatus.CONFLICT, "the special has already been saved");
-                            }
-                        });
+  @Override
+  public void accept(Speciality speciality) {
+    if (speciality == null) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST, "the speciality is null in the request it cannot be saved");
     }
+    if (speciality.getName() == null) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST, "speciality name is required (EL, TN or COMMON_PART)");
+    }
+
+    specialityRepository
+        .findByNameIgnoreCase(speciality.getName().name())
+        .ifPresent(
+            existing -> {
+              boolean isSame =
+                  speciality.getId() != null && existing.getId().equals(speciality.getId());
+              if (!isSame) {
+                throw new ResponseStatusException(
+                    HttpStatus.CONFLICT, "this speciality has already been saved");
+              }
+            });
+  }
 }

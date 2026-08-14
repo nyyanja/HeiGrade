@@ -11,23 +11,26 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class StudentValidator implements SaveValidator<Student> {
 
-    private final UserValidator userValidator;
-    private final StudentRepository studentRepository;
+  private final UserValidator userValidator;
+  private final StudentRepository studentRepository;
 
-    @Override
-    public void accept(Student student) {
-        userValidator.validateCommonFields(student);
-        if (student.getReference() == null || student.getReference().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "the student reference cannot be blank or null");
-        }
-        studentRepository
-                .findByReference(student.getReference())
-                .ifPresent(
-                        existing -> {
-                            boolean isSameStudent = student.getId() != null && existing.getId().equals(student.getId());
-                            if (!isSameStudent) {
-                                throw new ResponseStatusException(HttpStatus.CONFLICT, "this student has already been saved");
-                            }
-                        });
+  @Override
+  public void accept(Student student) {
+    userValidator.validateCommonFields(student);
+    if (student.getReference() == null || student.getReference().isBlank()) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST, "the student reference cannot be blank or null");
     }
+    studentRepository
+        .findByReference(student.getReference())
+        .ifPresent(
+            existing -> {
+              boolean isSameStudent =
+                  student.getId() != null && existing.getId().equals(student.getId());
+              if (!isSameStudent) {
+                throw new ResponseStatusException(
+                    HttpStatus.CONFLICT, "this student has already been saved");
+              }
+            });
+  }
 }

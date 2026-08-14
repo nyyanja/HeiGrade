@@ -7,5 +7,4 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/grades")
 @RequiredArgsConstructor
-public class GradeController {
-}
+public class GradeController {}
