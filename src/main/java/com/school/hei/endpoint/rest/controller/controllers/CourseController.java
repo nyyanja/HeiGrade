@@ -7,5 +7,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/courses")
 @RequiredArgsConstructor
+<<<<<<< HEAD
 public class CourseController {
 }
+=======
+public class CourseController {}
+>>>>>>> 1abf3502f2fac246c52ba771ce2c520a69b0c1e6
