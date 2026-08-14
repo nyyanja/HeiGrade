@@ -1,7 +1,7 @@
 package com.school.hei.endpoint.rest.controller.controllers;
 
-import com.school.hei.model.Group;
-import com.school.hei.service.services.GroupService;
+import com.school.hei.model.SpecialityCourse;
+import com.school.hei.service.services.SpecialityCourseService;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -17,36 +17,37 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/groups")
+@RequestMapping("/speciality-courses")
 @RequiredArgsConstructor
-public class GroupController {
+public class SpecialityCourseController {
 
-    private final GroupService groupService;
+    private final SpecialityCourseService specialityCourseService;
 
     @GetMapping
-    public List<Group> findAll() {
-        return groupService.findAll();
+    public List<SpecialityCourse> findAll() {
+        return specialityCourseService.findAll();
     }
 
     @GetMapping("/{id}")
-    public Group findById(@PathVariable UUID id) {
-        return groupService.findById(id);
+    public SpecialityCourse findById(@PathVariable UUID id) {
+        return specialityCourseService.findById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Group save(@RequestBody Group group) {
-        return groupService.save(group);
+    public SpecialityCourse save(@RequestBody SpecialityCourse specialityCourse) {
+        return specialityCourseService.save(specialityCourse);
     }
 
     @PutMapping("/{id}")
-    public Group update(@PathVariable UUID id, @RequestBody Group group) {
-        return groupService.update(id, group);
+    public SpecialityCourse update(
+            @PathVariable UUID id, @RequestBody SpecialityCourse specialityCourse) {
+        return specialityCourseService.update(id, specialityCourse);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable UUID id) {
-        groupService.delete(id);
+        specialityCourseService.delete(id);
     }
 }

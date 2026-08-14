@@ -1,7 +1,7 @@
 package com.school.hei.endpoint.rest.controller.controllers;
 
-import com.school.hei.model.Group;
-import com.school.hei.service.services.GroupService;
+import com.school.hei.model.TeacherCourse;
+import com.school.hei.service.services.TeacherCourseService;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -17,36 +17,37 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/groups")
+@RequestMapping("/teacher-courses")
 @RequiredArgsConstructor
-public class GroupController {
+public class TeacherCourseController {
 
-    private final GroupService groupService;
+    private final TeacherCourseService teacherCourseService;
 
     @GetMapping
-    public List<Group> findAll() {
-        return groupService.findAll();
+    public List<TeacherCourse> findAll() {
+        return teacherCourseService.findAll();
     }
 
     @GetMapping("/{id}")
-    public Group findById(@PathVariable UUID id) {
-        return groupService.findById(id);
+    public TeacherCourse findById(@PathVariable UUID id) {
+        return teacherCourseService.findById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Group save(@RequestBody Group group) {
-        return groupService.save(group);
+    public TeacherCourse save(@RequestBody TeacherCourse teacherCourse) {
+        return teacherCourseService.save(teacherCourse);
     }
 
     @PutMapping("/{id}")
-    public Group update(@PathVariable UUID id, @RequestBody Group group) {
-        return groupService.update(id, group);
+    public TeacherCourse update(
+            @PathVariable UUID id, @RequestBody TeacherCourse teacherCourse) {
+        return teacherCourseService.update(id, teacherCourse);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable UUID id) {
-        groupService.delete(id);
+        teacherCourseService.delete(id);
     }
 }

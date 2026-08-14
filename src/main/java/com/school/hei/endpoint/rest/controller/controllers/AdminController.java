@@ -1,7 +1,7 @@
 package com.school.hei.endpoint.rest.controller.controllers;
 
-import com.school.hei.model.Group;
-import com.school.hei.service.services.GroupService;
+import com.school.hei.model.Admin;
+import com.school.hei.service.services.AdminService;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -17,36 +17,36 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/groups")
+@RequestMapping("/admins")
 @RequiredArgsConstructor
-public class GroupController {
+public class AdminController {
 
-    private final GroupService groupService;
+    private final AdminService adminService;
 
     @GetMapping
-    public List<Group> findAll() {
-        return groupService.findAll();
+    public List<Admin> findAll() {
+        return adminService.findAll();
     }
 
     @GetMapping("/{id}")
-    public Group findById(@PathVariable UUID id) {
-        return groupService.findById(id);
+    public Admin findById(@PathVariable UUID id) {
+        return adminService.findById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Group save(@RequestBody Group group) {
-        return groupService.save(group);
+    public Admin save(@RequestBody Admin admin) {
+        return adminService.save(admin);
     }
 
     @PutMapping("/{id}")
-    public Group update(@PathVariable UUID id, @RequestBody Group group) {
-        return groupService.update(id, group);
+    public Admin update(@PathVariable UUID id, @RequestBody Admin admin) {
+        return adminService.update(id, admin);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable UUID id) {
-        groupService.delete(id);
+        adminService.delete(id);
     }
 }
