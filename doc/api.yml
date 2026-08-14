@@ -9,12 +9,17 @@ servers:
 
 tags:
   - name: Users
+  - name: Admins
   - name: Students
   - name: Teachers
   - name: Courses
   - name: Groups
   - name: Promotions
+  - name: Specialities
   - name: Exams
+  - name: Group Exams
+  - name: Speciality Courses
+  - name: Teacher Courses
   - name: Grades
   - name: Grade History
   - name: Transcripts
@@ -100,6 +105,108 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
 
+    delete:
+      tags:
+        - Users
+      summary: Delete a user
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '204':
+          description: User deleted successfully
+
+  /admins:
+    get:
+      tags:
+        - Admins
+      summary: Get all administrators
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Administrators retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Admin'
+
+    post:
+      tags:
+        - Admins
+      summary: Create an administrator
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Admin'
+      responses:
+        '201':
+          description: Administrator created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Admin'
+
+  /admins/{id}:
+    get:
+      tags:
+        - Admins
+      summary: Get an administrator
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Administrator retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Admin'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags:
+        - Admins
+      summary: Update an administrator
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Admin'
+      responses:
+        '200':
+          description: Administrator updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Admin'
+
+    delete:
+      tags:
+        - Admins
+      summary: Delete an administrator
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '204':
+          description: Administrator deleted successfully
+
   /students:
     get:
       tags:
@@ -178,6 +285,18 @@ paths:
               schema:
                 $ref: '#/components/schemas/Student'
 
+    delete:
+      tags:
+        - Students
+      summary: Delete a student
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '204':
+          description: Student deleted successfully
+
   /students/{id}/grades:
     get:
       tags:
@@ -209,7 +328,7 @@ paths:
         - $ref: '#/components/parameters/Id'
       responses:
         '200':
-          description: Group history retrieved successfully
+          description: Student group history retrieved successfully
           content:
             application/json:
               schema:
@@ -270,6 +389,40 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Teacher'
+
+    put:
+      tags:
+        - Teachers
+      summary: Update a teacher
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Teacher'
+      responses:
+        '200':
+          description: Teacher updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Teacher'
+
+    delete:
+      tags:
+        - Teachers
+      summary: Delete a teacher
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '204':
+          description: Teacher deleted successfully
 
   /teachers/{id}/courses:
     get:
@@ -366,6 +519,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Course'
+
+    delete:
+      tags:
+        - Courses
+      summary: Delete a course
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '204':
+          description: Course deleted successfully
 
   /courses/{id}/teachers:
     get:
@@ -483,6 +648,18 @@ paths:
               schema:
                 $ref: '#/components/schemas/Group'
 
+    delete:
+      tags:
+        - Groups
+      summary: Delete a group
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '204':
+          description: Group deleted successfully
+
   /groups/{id}/courses:
     get:
       tags:
@@ -557,6 +734,40 @@ paths:
               schema:
                 $ref: '#/components/schemas/Promotion'
 
+    put:
+      tags:
+        - Promotions
+      summary: Update a promotion
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Promotion'
+      responses:
+        '200':
+          description: Promotion updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promotion'
+
+    delete:
+      tags:
+        - Promotions
+      summary: Delete a promotion
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '204':
+          description: Promotion deleted successfully
+
   /promotions/{id}/results:
     get:
       tags:
@@ -613,6 +824,94 @@ paths:
                 type: string
                 format: binary
 
+  /specialities:
+    get:
+      tags:
+        - Specialities
+      summary: Get all specialities
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Specialities retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Speciality'
+
+    post:
+      tags:
+        - Specialities
+      summary: Create a speciality
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Speciality'
+      responses:
+        '201':
+          description: Speciality created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Speciality'
+
+  /specialities/{id}:
+    get:
+      tags:
+        - Specialities
+      summary: Get a speciality
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Speciality retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Speciality'
+
+    put:
+      tags:
+        - Specialities
+      summary: Update a speciality
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Speciality'
+      responses:
+        '200':
+          description: Speciality updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Speciality'
+
+    delete:
+      tags:
+        - Specialities
+      summary: Delete a speciality
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '204':
+          description: Speciality deleted successfully
+
   /exams:
     get:
       tags:
@@ -667,11 +966,309 @@ paths:
               schema:
                 $ref: '#/components/schemas/Exam'
 
+    put:
+      tags:
+        - Exams
+      summary: Update an exam
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Exam'
+      responses:
+        '200':
+          description: Exam updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+
+    delete:
+      tags:
+        - Exams
+      summary: Delete an exam
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '204':
+          description: Exam deleted successfully
+
+  /group-exams:
+    get:
+      tags:
+        - Group Exams
+      summary: Get all group exams
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Group exams retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GroupExam'
+
+    post:
+      tags:
+        - Group Exams
+      summary: Create a group exam
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupExam'
+      responses:
+        '201':
+          description: Group exam created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupExam'
+
+  /group-exams/{id}:
+    get:
+      tags:
+        - Group Exams
+      summary: Get a group exam
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Group exam retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupExam'
+
+    put:
+      tags:
+        - Group Exams
+      summary: Update a group exam
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupExam'
+      responses:
+        '200':
+          description: Group exam updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupExam'
+
+    delete:
+      tags:
+        - Group Exams
+      summary: Delete a group exam
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '204':
+          description: Group exam deleted successfully
+
+  /speciality-courses:
+    get:
+      tags:
+        - Speciality Courses
+      summary: Get all speciality courses
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Speciality courses retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SpecialityCourse'
+
+    post:
+      tags:
+        - Speciality Courses
+      summary: Create a speciality course
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpecialityCourse'
+      responses:
+        '201':
+          description: Speciality course created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpecialityCourse'
+
+  /speciality-courses/{id}:
+    get:
+      tags:
+        - Speciality Courses
+      summary: Get a speciality course
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Speciality course retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpecialityCourse'
+
+    put:
+      tags:
+        - Speciality Courses
+      summary: Update a speciality course
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpecialityCourse'
+      responses:
+        '200':
+          description: Speciality course updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpecialityCourse'
+
+    delete:
+      tags:
+        - Speciality Courses
+      summary: Delete a speciality course
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '204':
+          description: Speciality course deleted successfully
+
+  /teacher-courses:
+    get:
+      tags:
+        - Teacher Courses
+      summary: Get all teacher courses
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Teacher courses retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TeacherCourse'
+
+    post:
+      tags:
+        - Teacher Courses
+      summary: Create a teacher course
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeacherCourse'
+      responses:
+        '201':
+          description: Teacher course created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeacherCourse'
+
+  /teacher-courses/{id}:
+    get:
+      tags:
+        - Teacher Courses
+      summary: Get a teacher course
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '200':
+          description: Teacher course retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeacherCourse'
+
+    put:
+      tags:
+        - Teacher Courses
+      summary: Update a teacher course
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeacherCourse'
+      responses:
+        '200':
+          description: Teacher course updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeacherCourse'
+
+    delete:
+      tags:
+        - Teacher Courses
+      summary: Delete a teacher course
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '204':
+          description: Teacher course deleted successfully
+
   /grades:
     get:
       tags:
         - Grades
-      summary: Get grades
+      summary: Get all grades
       security:
         - bearerAuth: []
       responses:
@@ -742,6 +1339,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Grade'
+
+    delete:
+      tags:
+        - Grades
+      summary: Delete a grade
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        '204':
+          description: Grade deleted successfully
 
   /grades/{id}/history:
     get:
@@ -822,59 +1431,53 @@ components:
         id:
           type: string
           format: uuid
+        firstName:
+          type: string
+        lastName:
+          type: string
+        birthday:
+          type: string
+          format: date
+        sex:
+          type: string
+          enum:
+            - MALE
+            - FEMALE
+        address:
+          type: string
         email:
           type: string
           format: email
-        password:
-          type: string
         role:
           type: string
           enum:
-            - STUDENT
             - TEACHER
+            - STUDENT
             - ADMIN
 
+    Admin:
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          properties:
+            adminReference:
+              type: string
+
     Student:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        firstName:
-          type: string
-        lastName:
-          type: string
-        email:
-          type: string
-          format: email
-        registrationNumber:
-          type: string
-        promotionId:
-          type: string
-          format: uuid
-        specialtyId:
-          type: string
-          format: uuid
-        userId:
-          type: string
-          format: uuid
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          properties:
+            reference:
+              type: string
 
     Teacher:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        firstName:
-          type: string
-        lastName:
-          type: string
-        email:
-          type: string
-          format: email
-        userId:
-          type: string
-          format: uuid
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          properties:
+            speciality:
+              type: string
 
     Course:
       type: object
@@ -882,13 +1485,12 @@ components:
         id:
           type: string
           format: uuid
-        name:
+        reference:
           type: string
-        code:
+        title:
           type: string
-        credits:
-          type: number
-          format: double
+        credit:
+          type: integer
 
     Group:
       type: object
@@ -898,9 +1500,10 @@ components:
           format: uuid
         name:
           type: string
-        promotionId:
-          type: string
-          format: uuid
+        promotion:
+          $ref: '#/components/schemas/Promotion'
+        speciality:
+          $ref: '#/components/schemas/Speciality'
 
     Promotion:
       type: object
@@ -913,7 +1516,7 @@ components:
         year:
           type: integer
 
-    Exam:
+    Speciality:
       type: object
       properties:
         id:
@@ -921,15 +1524,58 @@ components:
           format: uuid
         name:
           type: string
+          enum:
+            - EL
+            - TN
+            - COMMON_PART
+
+    Exam:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
         date:
           type: string
           format: date
-        courseId:
+        coeff:
+          type: number
+          format: double
+        title:
+          type: string
+
+    GroupExam:
+      type: object
+      properties:
+        id:
           type: string
           format: uuid
-        groupId:
+        group:
+          $ref: '#/components/schemas/Group'
+        exam:
+          $ref: '#/components/schemas/Exam'
+
+    SpecialityCourse:
+      type: object
+      properties:
+        id:
           type: string
           format: uuid
+        speciality:
+          $ref: '#/components/schemas/Speciality'
+        course:
+          $ref: '#/components/schemas/Course'
+
+    TeacherCourse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        teacher:
+          $ref: '#/components/schemas/Teacher'
+        course:
+          $ref: '#/components/schemas/Course'
 
     Grade:
       type: object
@@ -944,13 +1590,11 @@ components:
           maximum: 20
         date:
           type: string
-          format: date-time
-        studentId:
-          type: string
-          format: uuid
-        examId:
-          type: string
-          format: uuid
+          format: date
+        student:
+          $ref: '#/components/schemas/Student'
+        exam:
+          $ref: '#/components/schemas/Exam'
 
     GradeModification:
       type: object
@@ -972,9 +1616,9 @@ components:
         id:
           type: string
           format: uuid
-        gradeId:
+        date:
           type: string
-          format: uuid
+          format: date-time
         oldValue:
           type: number
           format: double
@@ -983,12 +1627,10 @@ components:
           format: double
         reason:
           type: string
+        grade:
+          $ref: '#/components/schemas/Grade'
         modifiedBy:
-          type: string
-          format: uuid
-        modifiedAt:
-          type: string
-          format: date-time
+          $ref: '#/components/schemas/User'
 
     StudentGroupHistory:
       type: object
