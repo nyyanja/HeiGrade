@@ -1,7 +1,7 @@
 package com.school.hei.endpoint.rest.controller.controllers;
 
-import com.school.hei.model.Exam;
-import com.school.hei.service.services.ExamService;
+import com.school.hei.model.GroupExam;
+import com.school.hei.service.services.GroupExamService;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -17,36 +17,36 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/exams")
+@RequestMapping("/group-exams")
 @RequiredArgsConstructor
-public class ExamController {
+public class GroupExamController {
 
-  private final ExamService examService;
+  private final GroupExamService groupExamService;
 
   @GetMapping
-  public List<Exam> findAll() {
-    return examService.findAll();
+  public List<GroupExam> findAll() {
+    return groupExamService.findAll();
   }
 
   @GetMapping("/{id}")
-  public Exam findById(@PathVariable UUID id) {
-    return examService.findById(id);
+  public GroupExam findById(@PathVariable UUID id) {
+    return groupExamService.findById(id);
   }
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public Exam save(@RequestBody Exam exam) {
-    return examService.save(exam);
+  public GroupExam save(@RequestBody GroupExam groupExam) {
+    return groupExamService.save(groupExam);
   }
 
   @PutMapping("/{id}")
-  public Exam update(@PathVariable UUID id, @RequestBody Exam exam) {
-    return examService.update(id, exam);
+  public GroupExam update(@PathVariable UUID id, @RequestBody GroupExam groupExam) {
+    return groupExamService.update(id, groupExam);
   }
 
   @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void delete(@PathVariable UUID id) {
-    examService.delete(id);
+    groupExamService.delete(id);
   }
 }
