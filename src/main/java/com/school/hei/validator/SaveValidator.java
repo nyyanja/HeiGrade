@@ -1,4 +1,4 @@
 package com.school.hei.validator;
 
-public interface SaveValidator {
-}
+import java.util.function.Consumer;
+public interface SaveValidator<T> extends Consumer<T> {}
