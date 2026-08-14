@@ -32,7 +32,7 @@ public class JGroup {
   private String name;
 
   @ManyToOne
-  @JoinColumn(name = "promotion_id", nullable = false)
+  @JoinColumn(name = "promotion_id")
   private JPromotion promotion;
 
   @ManyToOne
