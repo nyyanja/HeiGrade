@@ -21,32 +21,32 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class GroupExamController {
 
-    private final GroupExamService groupExamService;
+  private final GroupExamService groupExamService;
 
-    @GetMapping
-    public List<GroupExam> findAll() {
-        return groupExamService.findAll();
-    }
+  @GetMapping
+  public List<GroupExam> findAll() {
+    return groupExamService.findAll();
+  }
 
-    @GetMapping("/{id}")
-    public GroupExam findById(@PathVariable UUID id) {
-        return groupExamService.findById(id);
-    }
+  @GetMapping("/{id}")
+  public GroupExam findById(@PathVariable UUID id) {
+    return groupExamService.findById(id);
+  }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public GroupExam save(@RequestBody GroupExam groupExam) {
-        return groupExamService.save(groupExam);
-    }
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  public GroupExam save(@RequestBody GroupExam groupExam) {
+    return groupExamService.save(groupExam);
+  }
 
-    @PutMapping("/{id}")
-    public GroupExam update(@PathVariable UUID id, @RequestBody GroupExam groupExam) {
-        return groupExamService.update(id, groupExam);
-    }
+  @PutMapping("/{id}")
+  public GroupExam update(@PathVariable UUID id, @RequestBody GroupExam groupExam) {
+    return groupExamService.update(id, groupExam);
+  }
 
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable UUID id) {
-        groupExamService.delete(id);
-    }
+  @DeleteMapping("/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void delete(@PathVariable UUID id) {
+    groupExamService.delete(id);
+  }
 }

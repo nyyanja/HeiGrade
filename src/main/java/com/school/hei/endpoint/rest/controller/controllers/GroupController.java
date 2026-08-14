@@ -21,32 +21,32 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class GroupController {
 
-    private final GroupService groupService;
+  private final GroupService groupService;
 
-    @GetMapping
-    public List<Group> findAll() {
-        return groupService.findAll();
-    }
+  @GetMapping
+  public List<Group> findAll() {
+    return groupService.findAll();
+  }
 
-    @GetMapping("/{id}")
-    public Group findById(@PathVariable UUID id) {
-        return groupService.findById(id);
-    }
+  @GetMapping("/{id}")
+  public Group findById(@PathVariable UUID id) {
+    return groupService.findById(id);
+  }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Group save(@RequestBody Group group) {
-        return groupService.save(group);
-    }
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  public Group save(@RequestBody Group group) {
+    return groupService.save(group);
+  }
 
-    @PutMapping("/{id}")
-    public Group update(@PathVariable UUID id, @RequestBody Group group) {
-        return groupService.update(id, group);
-    }
+  @PutMapping("/{id}")
+  public Group update(@PathVariable UUID id, @RequestBody Group group) {
+    return groupService.update(id, group);
+  }
 
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable UUID id) {
-        groupService.delete(id);
-    }
+  @DeleteMapping("/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void delete(@PathVariable UUID id) {
+    groupService.delete(id);
+  }
 }

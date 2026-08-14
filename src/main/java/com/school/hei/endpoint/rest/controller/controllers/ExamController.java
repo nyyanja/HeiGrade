@@ -21,32 +21,32 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ExamController {
 
-    private final ExamService examService;
+  private final ExamService examService;
 
-    @GetMapping
-    public List<Exam> findAll() {
-        return examService.findAll();
-    }
+  @GetMapping
+  public List<Exam> findAll() {
+    return examService.findAll();
+  }
 
-    @GetMapping("/{id}")
-    public Exam findById(@PathVariable UUID id) {
-        return examService.findById(id);
-    }
+  @GetMapping("/{id}")
+  public Exam findById(@PathVariable UUID id) {
+    return examService.findById(id);
+  }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Exam save(@RequestBody Exam exam) {
-        return examService.save(exam);
-    }
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  public Exam save(@RequestBody Exam exam) {
+    return examService.save(exam);
+  }
 
-    @PutMapping("/{id}")
-    public Exam update(@PathVariable UUID id, @RequestBody Exam exam) {
-        return examService.update(id, exam);
-    }
+  @PutMapping("/{id}")
+  public Exam update(@PathVariable UUID id, @RequestBody Exam exam) {
+    return examService.update(id, exam);
+  }
 
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable UUID id) {
-        examService.delete(id);
-    }
+  @DeleteMapping("/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void delete(@PathVariable UUID id) {
+    examService.delete(id);
+  }
 }

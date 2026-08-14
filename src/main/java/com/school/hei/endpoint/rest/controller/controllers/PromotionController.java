@@ -21,32 +21,32 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class PromotionController {
 
-    private final PromotionService promotionService;
+  private final PromotionService promotionService;
 
-    @GetMapping
-    public List<Promotion> findAll() {
-        return promotionService.findAll();
-    }
+  @GetMapping
+  public List<Promotion> findAll() {
+    return promotionService.findAll();
+  }
 
-    @GetMapping("/{id}")
-    public Promotion findById(@PathVariable UUID id) {
-        return promotionService.findById(id);
-    }
+  @GetMapping("/{id}")
+  public Promotion findById(@PathVariable UUID id) {
+    return promotionService.findById(id);
+  }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Promotion save(@RequestBody Promotion promotion) {
-        return promotionService.save(promotion);
-    }
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  public Promotion save(@RequestBody Promotion promotion) {
+    return promotionService.save(promotion);
+  }
 
-    @PutMapping("/{id}")
-    public Promotion update(@PathVariable UUID id, @RequestBody Promotion promotion) {
-        return promotionService.update(id, promotion);
-    }
+  @PutMapping("/{id}")
+  public Promotion update(@PathVariable UUID id, @RequestBody Promotion promotion) {
+    return promotionService.update(id, promotion);
+  }
 
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable UUID id) {
-        promotionService.delete(id);
-    }
+  @DeleteMapping("/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void delete(@PathVariable UUID id) {
+    promotionService.delete(id);
+  }
 }

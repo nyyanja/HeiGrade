@@ -21,33 +21,33 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class SpecialityCourseController {
 
-    private final SpecialityCourseService specialityCourseService;
+  private final SpecialityCourseService specialityCourseService;
 
-    @GetMapping
-    public List<SpecialityCourse> findAll() {
-        return specialityCourseService.findAll();
-    }
+  @GetMapping
+  public List<SpecialityCourse> findAll() {
+    return specialityCourseService.findAll();
+  }
 
-    @GetMapping("/{id}")
-    public SpecialityCourse findById(@PathVariable UUID id) {
-        return specialityCourseService.findById(id);
-    }
+  @GetMapping("/{id}")
+  public SpecialityCourse findById(@PathVariable UUID id) {
+    return specialityCourseService.findById(id);
+  }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public SpecialityCourse save(@RequestBody SpecialityCourse specialityCourse) {
-        return specialityCourseService.save(specialityCourse);
-    }
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  public SpecialityCourse save(@RequestBody SpecialityCourse specialityCourse) {
+    return specialityCourseService.save(specialityCourse);
+  }
 
-    @PutMapping("/{id}")
-    public SpecialityCourse update(
-            @PathVariable UUID id, @RequestBody SpecialityCourse specialityCourse) {
-        return specialityCourseService.update(id, specialityCourse);
-    }
+  @PutMapping("/{id}")
+  public SpecialityCourse update(
+      @PathVariable UUID id, @RequestBody SpecialityCourse specialityCourse) {
+    return specialityCourseService.update(id, specialityCourse);
+  }
 
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable UUID id) {
-        specialityCourseService.delete(id);
-    }
+  @DeleteMapping("/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void delete(@PathVariable UUID id) {
+    specialityCourseService.delete(id);
+  }
 }

@@ -21,32 +21,32 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AdminController {
 
-    private final AdminService adminService;
+  private final AdminService adminService;
 
-    @GetMapping
-    public List<Admin> findAll() {
-        return adminService.findAll();
-    }
+  @GetMapping
+  public List<Admin> findAll() {
+    return adminService.findAll();
+  }
 
-    @GetMapping("/{id}")
-    public Admin findById(@PathVariable UUID id) {
-        return adminService.findById(id);
-    }
+  @GetMapping("/{id}")
+  public Admin findById(@PathVariable UUID id) {
+    return adminService.findById(id);
+  }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Admin save(@RequestBody Admin admin) {
-        return adminService.save(admin);
-    }
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  public Admin save(@RequestBody Admin admin) {
+    return adminService.save(admin);
+  }
 
-    @PutMapping("/{id}")
-    public Admin update(@PathVariable UUID id, @RequestBody Admin admin) {
-        return adminService.update(id, admin);
-    }
+  @PutMapping("/{id}")
+  public Admin update(@PathVariable UUID id, @RequestBody Admin admin) {
+    return adminService.update(id, admin);
+  }
 
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable UUID id) {
-        adminService.delete(id);
-    }
+  @DeleteMapping("/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void delete(@PathVariable UUID id) {
+    adminService.delete(id);
+  }
 }

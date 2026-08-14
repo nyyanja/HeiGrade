@@ -21,32 +21,32 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class TeacherController {
 
-    private final TeacherService teacherService;
+  private final TeacherService teacherService;
 
-    @GetMapping
-    public List<Teacher> findAll() {
-        return teacherService.findAll();
-    }
+  @GetMapping
+  public List<Teacher> findAll() {
+    return teacherService.findAll();
+  }
 
-    @GetMapping("/{id}")
-    public Teacher findById(@PathVariable UUID id) {
-        return teacherService.findById(id);
-    }
+  @GetMapping("/{id}")
+  public Teacher findById(@PathVariable UUID id) {
+    return teacherService.findById(id);
+  }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Teacher save(@RequestBody Teacher teacher) {
-        return teacherService.save(teacher);
-    }
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  public Teacher save(@RequestBody Teacher teacher) {
+    return teacherService.save(teacher);
+  }
 
-    @PutMapping("/{id}")
-    public Teacher update(@PathVariable UUID id, @RequestBody Teacher teacher) {
-        return teacherService.update(id, teacher);
-    }
+  @PutMapping("/{id}")
+  public Teacher update(@PathVariable UUID id, @RequestBody Teacher teacher) {
+    return teacherService.update(id, teacher);
+  }
 
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable UUID id) {
-        teacherService.delete(id);
-    }
+  @DeleteMapping("/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void delete(@PathVariable UUID id) {
+    teacherService.delete(id);
+  }
 }

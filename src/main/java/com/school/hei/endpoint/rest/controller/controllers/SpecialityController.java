@@ -21,32 +21,32 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class SpecialityController {
 
-    private final SpecialityService specialityService;
+  private final SpecialityService specialityService;
 
-    @GetMapping
-    public List<Speciality> findAll() {
-        return specialityService.findAll();
-    }
+  @GetMapping
+  public List<Speciality> findAll() {
+    return specialityService.findAll();
+  }
 
-    @GetMapping("/{id}")
-    public Speciality findById(@PathVariable UUID id) {
-        return specialityService.findById(id);
-    }
+  @GetMapping("/{id}")
+  public Speciality findById(@PathVariable UUID id) {
+    return specialityService.findById(id);
+  }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Speciality save(@RequestBody Speciality speciality) {
-        return specialityService.save(speciality);
-    }
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  public Speciality save(@RequestBody Speciality speciality) {
+    return specialityService.save(speciality);
+  }
 
-    @PutMapping("/{id}")
-    public Speciality update(@PathVariable UUID id, @RequestBody Speciality speciality) {
-        return specialityService.update(id, speciality);
-    }
+  @PutMapping("/{id}")
+  public Speciality update(@PathVariable UUID id, @RequestBody Speciality speciality) {
+    return specialityService.update(id, speciality);
+  }
 
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable UUID id) {
-        specialityService.delete(id);
-    }
+  @DeleteMapping("/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void delete(@PathVariable UUID id) {
+    specialityService.delete(id);
+  }
 }

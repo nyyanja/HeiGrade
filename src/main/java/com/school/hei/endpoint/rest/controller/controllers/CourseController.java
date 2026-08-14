@@ -13,32 +13,32 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class CourseController {
 
-    private final CourseService courseService;
+  private final CourseService courseService;
 
-    @GetMapping
-    public List<Course> findAll() {
-        return courseService.findAll();
-    }
+  @GetMapping
+  public List<Course> findAll() {
+    return courseService.findAll();
+  }
 
-    @GetMapping("/{id}")
-    public Course findById(@PathVariable UUID id) {
-        return courseService.findById(id);
-    }
+  @GetMapping("/{id}")
+  public Course findById(@PathVariable UUID id) {
+    return courseService.findById(id);
+  }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Course save(@RequestBody Course course) {
-        return courseService.save(course);
-    }
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  public Course save(@RequestBody Course course) {
+    return courseService.save(course);
+  }
 
-    @PutMapping("/{id}")
-    public Course update(@PathVariable UUID id, @RequestBody Course course) {
-        return courseService.update(id, course);
-    }
+  @PutMapping("/{id}")
+  public Course update(@PathVariable UUID id, @RequestBody Course course) {
+    return courseService.update(id, course);
+  }
 
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable UUID id) {
-        courseService.delete(id);
-    }
+  @DeleteMapping("/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void delete(@PathVariable UUID id) {
+    courseService.delete(id);
+  }
 }

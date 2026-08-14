@@ -21,32 +21,32 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class StudentController {
 
-    private final StudentService studentService;
+  private final StudentService studentService;
 
-    @GetMapping
-    public List<Student> findAll() {
-        return studentService.findAll();
-    }
+  @GetMapping
+  public List<Student> findAll() {
+    return studentService.findAll();
+  }
 
-    @GetMapping("/{id}")
-    public Student findById(@PathVariable UUID id) {
-        return studentService.findById(id);
-    }
+  @GetMapping("/{id}")
+  public Student findById(@PathVariable UUID id) {
+    return studentService.findById(id);
+  }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Student save(@RequestBody Student student) {
-        return studentService.save(student);
-    }
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  public Student save(@RequestBody Student student) {
+    return studentService.save(student);
+  }
 
-    @PutMapping("/{id}")
-    public Student update(@PathVariable UUID id, @RequestBody Student student) {
-        return studentService.update(id, student);
-    }
+  @PutMapping("/{id}")
+  public Student update(@PathVariable UUID id, @RequestBody Student student) {
+    return studentService.update(id, student);
+  }
 
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable UUID id) {
-        studentService.delete(id);
-    }
+  @DeleteMapping("/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void delete(@PathVariable UUID id) {
+    studentService.delete(id);
+  }
 }

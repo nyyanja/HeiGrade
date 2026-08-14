@@ -21,32 +21,32 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class GradeController {
 
-    private final GradeService gradeService;
+  private final GradeService gradeService;
 
-    @GetMapping
-    public List<Grade> findAll() {
-        return gradeService.findAll();
-    }
+  @GetMapping
+  public List<Grade> findAll() {
+    return gradeService.findAll();
+  }
 
-    @GetMapping("/{id}")
-    public Grade findById(@PathVariable UUID id) {
-        return gradeService.findById(id);
-    }
+  @GetMapping("/{id}")
+  public Grade findById(@PathVariable UUID id) {
+    return gradeService.findById(id);
+  }
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Grade save(@RequestBody Grade grade) {
-        return gradeService.save(grade);
-    }
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  public Grade save(@RequestBody Grade grade) {
+    return gradeService.save(grade);
+  }
 
-    @PutMapping("/{id}")
-    public Grade update(@PathVariable UUID id, @RequestBody Grade grade) {
-        return gradeService.update(id, grade);
-    }
+  @PutMapping("/{id}")
+  public Grade update(@PathVariable UUID id, @RequestBody Grade grade) {
+    return gradeService.update(id, grade);
+  }
 
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable UUID id) {
-        gradeService.delete(id);
-    }
+  @DeleteMapping("/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void delete(@PathVariable UUID id) {
+    gradeService.delete(id);
+  }
 }
