@@ -20,7 +20,7 @@ public class StudentMapper {
         .email(entity.getEmail())
         .role(entity.getRole())
         .reference(entity.getReference())
-        .groupId(entity.getGroup() != null ? entity.getGroup().getId() : null)
+        .group(GroupMapper.toModel(entity.getGroup()))
         .build();
   }
 
