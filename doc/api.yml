@@ -1618,6 +1618,191 @@ paths:
         '204':
           description: Group exam deleted successfully
 
+  /exams/course/{courseId}/remaining-coeff:
+    get:
+      tags:
+        - Exams
+        - Courses
+      summary: Get remaining exam coefficient for a course
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Remaining coefficient retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: number
+                format: double
+        '404':
+          description: Course not found
+
+  /exams/course/{courseId}:
+    get:
+      tags:
+        - Exams
+        - Courses
+      summary: Get exams by course
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Exams retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Exam'
+        '404':
+          description: Course not found
+
+  /exams/title/{title}:
+    get:
+      tags:
+        - Exams
+      summary: Search exams by title
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: title
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Exams retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Exam'
+        '400':
+          description: Title is required
+
+  /exams/date/{date}:
+    get:
+      tags:
+        - Exams
+      summary: Get exams by date
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: date
+          in: path
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Exams retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Exam'
+        '400':
+          description: Date is required
+
+  /exams/coeff/{coeff}:
+    get:
+      tags:
+        - Exams
+      summary: Get exams by coefficient
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: coeff
+          in: path
+          required: true
+          schema:
+            type: number
+            format: double
+            exclusiveMinimum: 0
+      responses:
+        '200':
+          description: Exams retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Exam'
+        '400':
+          description: Coefficient must be greater than 0
+
+  /exams/group/{groupId}:
+    get:
+      tags:
+        - Exams
+        - Groups
+      summary: Get exams by group
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Exams retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Exam'
+        '404':
+          description: Group not found
+
+  /exams/speciality/{specialityId}:
+    get:
+      tags:
+        - Exams
+        - Specialities
+      summary: Get exams by speciality
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: specialityId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Exams retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Exam'
+        '404':
+          description: Speciality not found
+
   /speciality-courses:
     get:
       tags:
@@ -2085,6 +2270,12 @@ components:
           format: double
         title:
           type: string
+        course:
+          $ref: '#/components/schemas/Course'
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/Group'
 
     GroupExam:
       type: object
