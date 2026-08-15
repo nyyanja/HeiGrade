@@ -983,6 +983,112 @@ paths:
               schema:
                 $ref: '#/components/schemas/Group'
 
+  /groups/speciality/{specialityId}:
+    get:
+      tags:
+        - Groups
+        - Specialities
+      summary: Get groups by speciality
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: specialityId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Groups retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Group'
+        '404':
+          description: Speciality not found
+
+  /groups/exam/{examId}:
+    get:
+      tags:
+        - Groups
+        - Exams
+      summary: Get groups by exam
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: examId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Groups retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Group'
+        '404':
+          description: Exam not found
+
+  /groups/course/{courseId}:
+    get:
+      tags:
+        - Groups
+        - Courses
+      summary: Get groups by course
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Groups retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Group'
+        '404':
+          description: Course not found
+
+  /groups/name/{name}:
+    get:
+      tags:
+        - Groups
+      summary: Search groups by name
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Groups retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Group'
+        '400':
+          description: Name is required
+
   /groups/{id}:
     get:
       tags:
@@ -1886,6 +1992,10 @@ components:
           $ref: '#/components/schemas/Promotion'
         speciality:
           $ref: '#/components/schemas/Speciality'
+        students:
+          type: array
+          items:
+            $ref: '#/components/schemas/Student'
 
     Promotion:
       type: object
