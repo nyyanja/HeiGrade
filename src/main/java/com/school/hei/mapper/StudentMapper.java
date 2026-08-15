@@ -39,6 +39,7 @@ public class StudentMapper {
         .email(model.getEmail())
         .role(model.getRole())
         .reference(model.getReference())
+        .group(GroupMapper.toEntity(model.getGroup()))
         .build();
   }
 }
