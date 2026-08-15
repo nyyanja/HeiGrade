@@ -680,7 +680,7 @@ paths:
         - Courses
       summary: Get all courses
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         '200':
           description: Courses retrieved successfully
@@ -696,7 +696,7 @@ paths:
         - Courses
       summary: Create a course
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       requestBody:
         required: true
         content:
@@ -710,6 +710,142 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Course'
+        '400':
+          description: Invalid course data
+        '404':
+          description: Teacher or speciality not found
+
+  /courses/teacher/{teacherId}:
+    get:
+      tags:
+        - Courses
+        - Teachers
+      summary: Get courses by teacher
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: teacherId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Courses retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+        '404':
+          description: Teacher not found
+
+  /courses/speciality/{specialityId}:
+    get:
+      tags:
+        - Courses
+        - Specialities
+      summary: Get courses by speciality
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: specialityId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Courses retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+        '404':
+          description: Speciality not found
+
+  /courses/credit/{credit}:
+    get:
+      tags:
+        - Courses
+      summary: Get courses by credit
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: credit
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Courses retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+        '400':
+          description: Credit must be greater than 0
+
+  /courses/group/{groupId}:
+    get:
+      tags:
+        - Courses
+        - Groups
+      summary: Get courses by group
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Courses retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+        '404':
+          description: Group not found
+
+  /courses/title/{title}:
+    get:
+      tags:
+        - Courses
+      summary: Search courses by title
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: title
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Courses retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+        '400':
+          description: Title is required
 
   /courses/{id}:
     get:
@@ -717,7 +853,7 @@ paths:
         - Courses
       summary: Get a course
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - $ref: '#/components/parameters/Id'
       responses:
@@ -727,13 +863,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Course'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
     put:
       tags:
         - Courses
       summary: Update a course
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - $ref: '#/components/parameters/Id'
       requestBody:
@@ -749,18 +887,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Course'
+        '400':
+          description: Invalid course data
+        '404':
+          description: Course, teacher or speciality not found
 
     delete:
       tags:
         - Courses
       summary: Delete a course
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - $ref: '#/components/parameters/Id'
       responses:
         '204':
           description: Course deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
 
   /courses/{id}/teachers:
     get:
@@ -769,7 +913,7 @@ paths:
         - Teachers
       summary: Get course teachers
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - $ref: '#/components/parameters/Id'
       responses:
@@ -789,7 +933,7 @@ paths:
         - Groups
       summary: Get course groups
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - $ref: '#/components/parameters/Id'
       responses:
