@@ -509,7 +509,7 @@ paths:
         - Teachers
       summary: Get all teachers
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       responses:
         '200':
           description: Teachers retrieved successfully
@@ -525,7 +525,7 @@ paths:
         - Teachers
       summary: Create a teacher
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       requestBody:
         required: true
         content:
@@ -540,13 +540,90 @@ paths:
               schema:
                 $ref: '#/components/schemas/Teacher'
 
+  /teachers/speciality/{speciality}:
+    get:
+      tags:
+        - Teachers
+      summary: Get teachers by speciality
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: speciality
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Teachers retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Teacher'
+        '400':
+          description: Speciality is required
+
+  /teachers/name/{name}:
+    get:
+      tags:
+        - Teachers
+      summary: Search teachers by name
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Teachers retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Teacher'
+        '400':
+          description: Name is required
+
+  /teachers/course/{courseId}:
+    get:
+      tags:
+        - Teachers
+        - Courses
+      summary: Get teachers by course
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Teachers retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Teacher'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
   /teachers/{id}:
     get:
       tags:
         - Teachers
       summary: Get a teacher
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - $ref: '#/components/parameters/Id'
       responses:
@@ -556,13 +633,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Teacher'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
     put:
       tags:
         - Teachers
       summary: Update a teacher
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - $ref: '#/components/parameters/Id'
       requestBody:
@@ -578,38 +657,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Teacher'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
     delete:
       tags:
         - Teachers
       summary: Delete a teacher
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - $ref: '#/components/parameters/Id'
       responses:
         '204':
           description: Teacher deleted successfully
-
-  /teachers/{id}/courses:
-    get:
-      tags:
-        - Teachers
-        - Courses
-      summary: Get teacher courses
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
-      responses:
-        '200':
-          description: Courses retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Course'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
   /courses:
     get:
