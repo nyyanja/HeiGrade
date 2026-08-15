@@ -33,6 +33,22 @@ public class PromotionService {
                     HttpStatus.NOT_FOUND, "promotion not found with id " + id));
   }
 
+  public List<Promotion> findByYear(Integer year) {
+    if (year == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "year is required");
+    }
+    return promotionRepository.findByYear(year).stream().map(PromotionMapper::toModel).toList();
+  }
+
+  public List<Promotion> findByName(String name) {
+    if (name == null || name.isBlank()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "name is required");
+    }
+    return promotionRepository.findByNameContainingIgnoreCase(name).stream()
+        .map(PromotionMapper::toModel)
+        .toList();
+  }
+
   public Promotion save(Promotion promotion) {
     promotionValidator.accept(promotion);
 

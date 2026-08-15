@@ -12,19 +12,17 @@ public class PromotionValidator implements SaveValidator<Promotion> {
   @Override
   public void accept(Promotion promotion) {
     if (promotion == null) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST, "this promotion is null it cannot be saved");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "promotion cannot be null");
     }
     if (promotion.getName() == null || promotion.getName().isBlank()) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "promotion name cannot be blank");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "promotion name is required");
     }
     if (promotion.getYear() == null) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST, " year cannot be null for the class");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "promotion year is required");
     }
     int currentYear = Year.now().getValue();
     if (promotion.getYear() < 2000 || promotion.getYear() > currentYear + 1) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid year for the class");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "invalid promotion year");
     }
   }
 }

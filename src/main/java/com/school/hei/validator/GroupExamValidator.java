@@ -20,21 +20,19 @@ public class GroupExamValidator implements SaveValidator<GroupExam> {
   @Override
   public void accept(GroupExam groupExam) {
     if (groupExam == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "the parameter cannot be null");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "group exam cannot be null");
     }
     if (groupExam.getGroup() == null || groupExam.getGroup().getId() == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "the group id cannot be null");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "group is required");
     }
     if (groupExam.getExam() == null || groupExam.getExam().getId() == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "the exam id cannot be null");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "exam is required");
     }
     if (!groupRepository.existsById(groupExam.getGroup().getId())) {
-      throw new ResponseStatusException(
-          HttpStatus.NOT_FOUND, "group with id " + groupExam.getGroup().getId() + " is not found");
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "group not found");
     }
     if (!examRepository.existsById(groupExam.getExam().getId())) {
-      throw new ResponseStatusException(
-          HttpStatus.NOT_FOUND, "group with id " + groupExam.getExam().getId() + " is not found");
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "exam not found");
     }
 
     groupExamRepository
@@ -45,7 +43,7 @@ public class GroupExamValidator implements SaveValidator<GroupExam> {
                   groupExam.getId() != null && existing.getId().equals(groupExam.getId());
               if (!isSame) {
                 throw new ResponseStatusException(
-                    HttpStatus.CONFLICT, "this group exam already exists");
+                    HttpStatus.CONFLICT, "this exam is already linked to this group");
               }
             });
   }
