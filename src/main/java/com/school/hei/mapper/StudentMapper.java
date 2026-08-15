@@ -30,16 +30,16 @@ public class StudentMapper {
     }
 
     return JStudent.builder()
-            .id(model.getId())
-            .firstName(model.getFirstName())
-            .lastName(model.getLastName())
-            .birthday(model.getBirthday())
-            .sex(model.getSex())
-            .address(model.getAddress())
-            .email(model.getEmail())
-            .role(model.getRole())
-            .reference(model.getReference())
-            .group(GroupMapper.toEntity(model.getGroup()))
-            .build();
+        .id(model.getId())
+        .firstName(model.getFirstName())
+        .lastName(model.getLastName())
+        .birthday(model.getBirthday())
+        .sex(model.getSex())
+        .address(model.getAddress())
+        .email(model.getEmail())
+        .role(model.getRole())
+        .reference(model.getReference())
+        .group(GroupMapper.toEntity(model.getGroup()))
+        .build();
   }
 }

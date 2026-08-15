@@ -15,22 +15,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/student-group-histories")
 public class StudentGroupHistoryController {
 
-    private final StudentGroupHistoryService studentGroupHistoryService;
+  private final StudentGroupHistoryService studentGroupHistoryService;
 
-    @GetMapping("/{id}")
-    public StudentGroupHistory findById(@PathVariable UUID id) {
-        return studentGroupHistoryService.findById(id);
-    }
+  @GetMapping("/{id}")
+  public StudentGroupHistory findById(@PathVariable UUID id) {
+    return studentGroupHistoryService.findById(id);
+  }
 
-    @GetMapping("/student/{studentId}")
-    public List<StudentGroupHistory> findByStudent(
-            @PathVariable UUID studentId) {
-        return studentGroupHistoryService.findByStudent(studentId);
-    }
+  @GetMapping("/student/{studentId}")
+  public List<StudentGroupHistory> findByStudent(@PathVariable UUID studentId) {
+    return studentGroupHistoryService.findByStudent(studentId);
+  }
 
-    @GetMapping("/group/{groupId}")
-    public List<StudentGroupHistory> findByGroup(
-            @PathVariable UUID groupId) {
-        return studentGroupHistoryService.findByGroup(groupId);
-    }
+  @GetMapping("/group/{groupId}")
+  public List<StudentGroupHistory> findByGroup(@PathVariable UUID groupId) {
+    return studentGroupHistoryService.findByGroup(groupId);
+  }
 }

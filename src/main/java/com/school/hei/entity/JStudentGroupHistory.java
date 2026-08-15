@@ -18,21 +18,21 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class JStudentGroupHistory {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "student_id", nullable = false)
-    private JStudent student;
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "student_id", nullable = false)
+  private JStudent student;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "group_id", nullable = false)
-    private JGroup group;
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "group_id", nullable = false)
+  private JGroup group;
 
-    @Column(name = "start_date", nullable = false)
-    private LocalDate startDate;
+  @Column(name = "start_date", nullable = false)
+  private LocalDate startDate;
 
-    @Column(name = "end_date")
-    private LocalDate endDate;
+  @Column(name = "end_date")
+  private LocalDate endDate;
 }

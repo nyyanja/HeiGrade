@@ -31,71 +31,57 @@ public class StudentService {
   private final StudentGroupHistoryRepository studentGroupHistoryRepository;
 
   public List<Student> findAll() {
-    return studentRepository.findAll().stream()
-            .map(StudentMapper::toModel)
-            .toList();
+    return studentRepository.findAll().stream().map(StudentMapper::toModel).toList();
   }
 
   public Student findById(UUID id) {
     return studentRepository
-            .findById(id)
-            .map(StudentMapper::toModel)
-            .orElseThrow(
-                    () ->
-                            new ResponseStatusException(
-                                    HttpStatus.NOT_FOUND,
-                                    "student not found with id " + id));
+        .findById(id)
+        .map(StudentMapper::toModel)
+        .orElseThrow(
+            () ->
+                new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "student not found with id " + id));
   }
 
   public Student findByReference(String reference) {
     return studentRepository
-            .findByReference(reference)
-            .map(StudentMapper::toModel)
-            .orElseThrow(
-                    () ->
-                            new ResponseStatusException(
-                                    HttpStatus.NOT_FOUND,
-                                    "student not found with reference " + reference));
+        .findByReference(reference)
+        .map(StudentMapper::toModel)
+        .orElseThrow(
+            () ->
+                new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "student not found with reference " + reference));
   }
 
   public List<Student> findByName(String name) {
     if (name == null || name.isBlank()) {
-      throw new ResponseStatusException(
-              HttpStatus.BAD_REQUEST,
-              "name is required");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "name is required");
     }
 
     return studentRepository
-            .findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(
-                    name, name)
-            .stream()
-            .map(StudentMapper::toModel)
-            .toList();
+        .findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(name, name)
+        .stream()
+        .map(StudentMapper::toModel)
+        .toList();
   }
 
   public List<Student> findByGroup(UUID groupId) {
     if (!groupRepository.existsById(groupId)) {
-      throw new ResponseStatusException(
-              HttpStatus.NOT_FOUND,
-              "group not found");
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "group not found");
     }
 
-    return studentRepository.findByGroup_Id(groupId).stream()
-            .map(StudentMapper::toModel)
-            .toList();
+    return studentRepository.findByGroup_Id(groupId).stream().map(StudentMapper::toModel).toList();
   }
 
   public List<Student> findBySpeciality(UUID specialityId) {
     if (!specialityRepository.existsById(specialityId)) {
-      throw new ResponseStatusException(
-              HttpStatus.NOT_FOUND,
-              "speciality not found");
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "speciality not found");
     }
 
-    return studentRepository.findByGroup_Speciality_Id(specialityId)
-            .stream()
-            .map(StudentMapper::toModel)
-            .toList();
+    return studentRepository.findByGroup_Speciality_Id(specialityId).stream()
+        .map(StudentMapper::toModel)
+        .toList();
   }
 
   @Transactional
@@ -116,56 +102,46 @@ public class StudentService {
   @Transactional
   public List<Student> saveAll(List<Student> students) {
     if (students == null || students.isEmpty()) {
-      throw new ResponseStatusException(
-              HttpStatus.BAD_REQUEST,
-              "at least one student is required");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "at least one student is required");
     }
 
     students.forEach(studentValidator::accept);
 
     List<JStudent> entities =
-            students.stream()
-                    .map(
-                            student -> {
-                              JStudent entity = StudentMapper.toEntity(student);
-                              setGroup(entity, student);
-                              return entity;
-                            })
-                    .toList();
+        students.stream()
+            .map(
+                student -> {
+                  JStudent entity = StudentMapper.toEntity(student);
+                  setGroup(entity, student);
+                  return entity;
+                })
+            .toList();
 
     List<JStudent> savedStudents = studentRepository.saveAll(entities);
 
     savedStudents.forEach(this::createInitialGroupHistory);
 
-    return savedStudents.stream()
-            .map(StudentMapper::toModel)
-            .toList();
+    return savedStudents.stream().map(StudentMapper::toModel).toList();
   }
 
   @Transactional
   public Student update(UUID id, Student student) {
 
     JStudent existingStudent =
-            studentRepository
-                    .findById(id)
-                    .orElseThrow(
-                            () ->
-                                    new ResponseStatusException(
-                                            HttpStatus.NOT_FOUND,
-                                            "student not found with id " + id));
+        studentRepository
+            .findById(id)
+            .orElseThrow(
+                () ->
+                    new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "student not found with id " + id));
 
     UUID oldGroupId =
-            existingStudent.getGroup() == null
-                    ? null
-                    : existingStudent.getGroup().getId();
+        existingStudent.getGroup() == null ? null : existingStudent.getGroup().getId();
 
     student.setId(id);
     studentValidator.accept(student);
 
-    UUID newGroupId =
-            student.getGroup() == null
-                    ? null
-                    : student.getGroup().getId();
+    UUID newGroupId = student.getGroup() == null ? null : student.getGroup().getId();
 
     JStudent entity = StudentMapper.toEntity(student);
 
@@ -174,10 +150,7 @@ public class StudentService {
     JStudent updatedStudent = studentRepository.save(entity);
 
     if (!Objects.equals(oldGroupId, newGroupId)) {
-      updateGroupHistory(
-              updatedStudent,
-              oldGroupId,
-              newGroupId);
+      updateGroupHistory(updatedStudent, oldGroupId, newGroupId);
     }
 
     return StudentMapper.toModel(updatedStudent);
@@ -185,9 +158,7 @@ public class StudentService {
 
   public void delete(UUID id) {
     if (!studentRepository.existsById(id)) {
-      throw new ResponseStatusException(
-              HttpStatus.NOT_FOUND,
-              "student not found with id " + id);
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "student not found with id " + id);
     }
 
     studentRepository.deleteById(id);
@@ -202,13 +173,12 @@ public class StudentService {
     UUID groupId = student.getGroup().getId();
 
     JGroup group =
-            groupRepository
-                    .findById(groupId)
-                    .orElseThrow(
-                            () ->
-                                    new ResponseStatusException(
-                                            HttpStatus.NOT_FOUND,
-                                            "group not found with id " + groupId));
+        groupRepository
+            .findById(groupId)
+            .orElseThrow(
+                () ->
+                    new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "group not found with id " + groupId));
 
     entity.setGroup(group);
   }
@@ -219,35 +189,32 @@ public class StudentService {
     }
 
     studentGroupHistoryRepository.save(
-            JStudentGroupHistory.builder()
-                    .student(student)
-                    .group(student.getGroup())
-                    .startDate(LocalDate.now())
-                    .endDate(null)
-                    .build());
+        JStudentGroupHistory.builder()
+            .student(student)
+            .group(student.getGroup())
+            .startDate(LocalDate.now())
+            .endDate(null)
+            .build());
   }
 
-  private void updateGroupHistory(
-          JStudent student,
-          UUID oldGroupId,
-          UUID newGroupId) {
+  private void updateGroupHistory(JStudent student, UUID oldGroupId, UUID newGroupId) {
 
     studentGroupHistoryRepository
-            .findByStudent_IdAndEndDateIsNull(student.getId())
-            .ifPresent(
-                    history -> {
-                      history.setEndDate(LocalDate.now());
-                      studentGroupHistoryRepository.save(history);
-                    });
+        .findByStudent_IdAndEndDateIsNull(student.getId())
+        .ifPresent(
+            history -> {
+              history.setEndDate(LocalDate.now());
+              studentGroupHistoryRepository.save(history);
+            });
 
     if (newGroupId != null && student.getGroup() != null) {
       studentGroupHistoryRepository.save(
-              JStudentGroupHistory.builder()
-                      .student(student)
-                      .group(student.getGroup())
-                      .startDate(LocalDate.now())
-                      .endDate(null)
-                      .build());
+          JStudentGroupHistory.builder()
+              .student(student)
+              .group(student.getGroup())
+              .startDate(LocalDate.now())
+              .endDate(null)
+              .build());
     }
   }
 }

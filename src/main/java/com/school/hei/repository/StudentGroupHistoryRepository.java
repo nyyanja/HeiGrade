@@ -6,12 +6,11 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface StudentGroupHistoryRepository
-        extends JpaRepository<JStudentGroupHistory, UUID> {
+public interface StudentGroupHistoryRepository extends JpaRepository<JStudentGroupHistory, UUID> {
 
-    List<JStudentGroupHistory> findByStudent_Id(UUID studentId);
+  List<JStudentGroupHistory> findByStudent_Id(UUID studentId);
 
-    List<JStudentGroupHistory> findByGroup_Id(UUID groupId);
+  List<JStudentGroupHistory> findByGroup_Id(UUID groupId);
 
-    Optional<JStudentGroupHistory> findByStudent_IdAndEndDateIsNull(UUID studentId);
+  Optional<JStudentGroupHistory> findByStudent_IdAndEndDateIsNull(UUID studentId);
 }

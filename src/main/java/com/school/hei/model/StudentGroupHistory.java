@@ -15,13 +15,13 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class StudentGroupHistory {
 
-    private UUID id;
+  private UUID id;
 
-    private Student student;
+  private Student student;
 
-    private Group group;
+  private Group group;
 
-    private LocalDate startDate;
+  private LocalDate startDate;
 
-    private LocalDate endDate;
+  private LocalDate endDate;
 }
