@@ -44,6 +44,16 @@ public class PromotionController {
     return promotionService.update(id, promotion);
   }
 
+  @GetMapping("/year/{year}")
+  public List<Promotion> findByYear(@PathVariable Integer year) {
+    return promotionService.findByYear(year);
+  }
+
+  @GetMapping("/name/{name}")
+  public List<Promotion> findByName(@PathVariable String name) {
+    return promotionService.findByName(name);
+  }
+
   @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void delete(@PathVariable UUID id) {

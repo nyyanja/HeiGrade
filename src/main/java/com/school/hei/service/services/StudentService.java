@@ -81,6 +81,20 @@ public class StudentService {
     return StudentMapper.toModel(studentRepository.save(entity));
   }
 
+  public List<Student> saveAll(List<Student> students) {
+    if (students == null || students.isEmpty()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "at least one student is required");
+    }
+
+    students.forEach(studentValidator::accept);
+
+    return studentRepository
+        .saveAll(students.stream().map(StudentMapper::toEntity).toList())
+        .stream()
+        .map(StudentMapper::toModel)
+        .toList();
+  }
+
   public Student update(UUID id, Student student) {
     findById(id);
 
