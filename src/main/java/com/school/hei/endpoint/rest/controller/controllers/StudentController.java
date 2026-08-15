@@ -59,6 +59,12 @@ public class StudentController {
     return studentService.save(student);
   }
 
+  @PostMapping("/batch")
+  @ResponseStatus(HttpStatus.CREATED)
+  public List<Student> saveAll(@RequestBody List<Student> students) {
+    return studentService.saveAll(students);
+  }
+
   @PutMapping("/{id}")
   public Student update(@PathVariable UUID id, @RequestBody Student student) {
     return studentService.update(id, student);
