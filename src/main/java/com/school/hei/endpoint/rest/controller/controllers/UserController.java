@@ -1,5 +1,6 @@
 package com.school.hei.endpoint.rest.controller.controllers;
 
+import com.school.hei.enums.Role;
 import com.school.hei.model.User;
 import com.school.hei.service.services.UserService;
 import java.util.List;
@@ -26,6 +27,21 @@ public class UserController {
   @GetMapping
   public List<User> findAll() {
     return userService.findAll();
+  }
+
+  @GetMapping("/role/{role}")
+  public List<User> findByRole(@PathVariable Role role) {
+    return userService.findByRole(role);
+  }
+
+  @GetMapping("/name/{name}")
+  public List<User> findByName(@PathVariable String name) {
+    return userService.findByName(name);
+  }
+
+  @GetMapping("/group/{groupId}")
+  public List<User> findByGroup(@PathVariable UUID groupId) {
+    return userService.findByGroup(groupId);
   }
 
   @GetMapping("/{id}")

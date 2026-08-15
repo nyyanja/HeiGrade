@@ -18,35 +18,33 @@ public class GradeHistoryValidator implements SaveValidator<GradeHistory> {
   @Override
   public void accept(GradeHistory gradeHistory) {
     if (gradeHistory == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "the parameter is null");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "grade history cannot be null");
     }
     if (gradeHistory.getReason() == null || gradeHistory.getReason().isBlank()) {
       throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST,
-          "the reason is blank or null it is not valid because the reason have to be described");
+          HttpStatus.BAD_REQUEST, "reason is required for grade history");
     }
     if (gradeHistory.getOldValue() == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "the old value is null");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "old value is required");
     }
     if (gradeHistory.getNewValue() == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "the new value is null");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "new value is required");
     }
     if (gradeHistory.getNewValue().equals(gradeHistory.getOldValue())) {
       throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST, "the new value is the same as the old value it is not allowed");
+          HttpStatus.BAD_REQUEST, "new value must be different from old value");
     }
     if (gradeHistory.getGrade() == null || gradeHistory.getGrade().getId() == null) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST, "the grade id is null or empty it is not allowed");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "grade is required");
     }
     if (gradeHistory.getModifiedBy() == null || gradeHistory.getModifiedBy().getId() == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "the modifier hev to be tracked ");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "modifier is required");
     }
     if (!gradeRepository.existsById(gradeHistory.getGrade().getId())) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "grade does not exist");
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "grade not found");
     }
     if (!userRepository.existsById(gradeHistory.getModifiedBy().getId())) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "modifier does not exist");
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "modifier not found");
     }
   }
 }

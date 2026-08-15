@@ -53,7 +53,6 @@ public class AdminService {
     if (!adminRepository.existsById(id)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "admin not found with id " + id);
     }
-
     adminRepository.deleteById(id);
   }
 }

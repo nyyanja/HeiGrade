@@ -14,4 +14,5 @@ import lombok.experimental.SuperBuilder;
 public class Student extends User {
 
   private String reference;
+  private Group group;
 }

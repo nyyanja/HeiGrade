@@ -1,8 +1,12 @@
 package com.school.hei.service.services;
 
 import com.school.hei.entity.JUser;
+import com.school.hei.enums.Role;
+import com.school.hei.mapper.StudentMapper;
 import com.school.hei.mapper.UserMapper;
 import com.school.hei.model.User;
+import com.school.hei.repository.GroupRepository;
+import com.school.hei.repository.StudentRepository;
 import com.school.hei.repository.UserRepository;
 import com.school.hei.validator.UserValidator;
 import java.util.List;
@@ -18,6 +22,8 @@ public class UserService {
 
   private final UserRepository userRepository;
   private final UserValidator userValidator;
+  private final StudentRepository studentRepository;
+  private final GroupRepository groupRepository;
 
   public List<User> findAll() {
     return userRepository.findAll().stream().map(UserMapper::toModel).toList();
@@ -55,5 +61,33 @@ public class UserService {
     }
 
     userRepository.deleteById(id);
+  }
+
+  public List<User> findByRole(Role role) {
+    if (role == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "role is required");
+    }
+    return userRepository.findByRole(role).stream().map(UserMapper::toModel).toList();
+  }
+
+  public List<User> findByName(String name) {
+    if (name == null || name.isBlank()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "name is required");
+    }
+    return userRepository
+        .findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(name, name)
+        .stream()
+        .map(UserMapper::toModel)
+        .toList();
+  }
+
+  public List<User> findByGroup(UUID groupId) {
+    if (!groupRepository.existsById(groupId)) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "group not found");
+    }
+    return studentRepository.findByGroup_Id(groupId).stream()
+        .map(StudentMapper::toModel)
+        .map(student -> (User) student)
+        .toList();
   }
 }

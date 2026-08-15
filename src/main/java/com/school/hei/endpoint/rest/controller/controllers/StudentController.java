@@ -28,6 +28,26 @@ public class StudentController {
     return studentService.findAll();
   }
 
+  @GetMapping("/reference/{reference}")
+  public Student findByReference(@PathVariable String reference) {
+    return studentService.findByReference(reference);
+  }
+
+  @GetMapping("/name/{name}")
+  public List<Student> findByName(@PathVariable String name) {
+    return studentService.findByName(name);
+  }
+
+  @GetMapping("/group/{groupId}")
+  public List<Student> findByGroup(@PathVariable UUID groupId) {
+    return studentService.findByGroup(groupId);
+  }
+
+  @GetMapping("/speciality/{specialityId}")
+  public List<Student> findBySpeciality(@PathVariable UUID specialityId) {
+    return studentService.findBySpeciality(specialityId);
+  }
+
   @GetMapping("/{id}")
   public Student findById(@PathVariable UUID id) {
     return studentService.findById(id);
@@ -37,6 +57,12 @@ public class StudentController {
   @ResponseStatus(HttpStatus.CREATED)
   public Student save(@RequestBody Student student) {
     return studentService.save(student);
+  }
+
+  @PostMapping("/batch")
+  @ResponseStatus(HttpStatus.CREATED)
+  public List<Student> saveAll(@RequestBody List<Student> students) {
+    return studentService.saveAll(students);
   }
 
   @PutMapping("/{id}")
