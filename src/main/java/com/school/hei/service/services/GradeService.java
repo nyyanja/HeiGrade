@@ -64,11 +64,11 @@ public class GradeService {
     }
 
     return gradeRepository
-            .findById(id)
-            .map(GradeMapper::toModel)
-            .orElseThrow(
-                    () ->
-                            new ResponseStatusException(HttpStatus.NOT_FOUND, "grade not found with id " + id));
+        .findById(id)
+        .map(GradeMapper::toModel)
+        .orElseThrow(
+            () ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "grade not found with id " + id));
   }
 
   @Transactional
@@ -128,18 +128,18 @@ public class GradeService {
 
     if (reason == null || reason.isBlank()) {
       throw new ResponseStatusException(
-              HttpStatus.BAD_REQUEST, "a reason is required to modify a grade");
+          HttpStatus.BAD_REQUEST, "a reason is required to modify a grade");
     }
     if (modifiedById == null) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "modifier is required");
     }
     JGrade existingEntity =
-            gradeRepository
-                    .findById(id)
-                    .orElseThrow(
-                            () ->
-                                    new ResponseStatusException(
-                                            HttpStatus.NOT_FOUND, "grade not found with id " + id));
+        gradeRepository
+            .findById(id)
+            .orElseThrow(
+                () ->
+                    new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "grade not found with id " + id));
 
     if (!userRepository.existsById(modifiedById)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "modifier not found");
@@ -159,14 +159,14 @@ public class GradeService {
     if (valueChanged) {
 
       JGradeHistory history =
-              JGradeHistory.builder()
-                      .date(LocalDateTime.now())
-                      .oldValue(oldValue)
-                      .newValue(newValue)
-                      .reason(reason)
-                      .grade(existingEntity)
-                      .modifiedBy(JUser.builder().id(modifiedById).build())
-                      .build();
+          JGradeHistory.builder()
+              .date(LocalDateTime.now())
+              .oldValue(oldValue)
+              .newValue(newValue)
+              .reason(reason)
+              .grade(existingEntity)
+              .modifiedBy(JUser.builder().id(modifiedById).build())
+              .build();
       gradeHistoryValidator.accept(GradeHistoryMapper.toModel(history));
 
       gradeHistoryRepository.save(history);
@@ -217,8 +217,8 @@ public class GradeService {
     requireExistingCourse(courseId);
 
     return gradeRepository.findByStudentIdAndCourseId(studentId, courseId).stream()
-            .map(GradeMapper::toModel)
-            .toList();
+        .map(GradeMapper::toModel)
+        .toList();
   }
 
   public List<Grade> findByGroup(UUID groupId) {
@@ -234,8 +234,8 @@ public class GradeService {
     requireExistingExam(examId);
 
     return gradeRepository.findByGroupIdAndExamId(groupId, examId).stream()
-            .map(GradeMapper::toModel)
-            .toList();
+        .map(GradeMapper::toModel)
+        .toList();
   }
 
   public List<Grade> findByGroupAndCourse(UUID groupId, UUID courseId) {
@@ -244,8 +244,8 @@ public class GradeService {
     requireExistingCourse(courseId);
 
     return gradeRepository.findByGroupIdAndCourseId(groupId, courseId).stream()
-            .map(GradeMapper::toModel)
-            .toList();
+        .map(GradeMapper::toModel)
+        .toList();
   }
 
   public List<Grade> findBySpeciality(UUID specialityId) {
@@ -253,8 +253,8 @@ public class GradeService {
     requireExistingSpeciality(specialityId);
 
     return gradeRepository.findBySpecialityId(specialityId).stream()
-            .map(GradeMapper::toModel)
-            .toList();
+        .map(GradeMapper::toModel)
+        .toList();
   }
 
   public List<Grade> findBySpecialityAndExam(UUID specialityId, UUID examId) {
@@ -263,8 +263,8 @@ public class GradeService {
     requireExistingExam(examId);
 
     return gradeRepository.findBySpecialityIdAndExamId(specialityId, examId).stream()
-            .map(GradeMapper::toModel)
-            .toList();
+        .map(GradeMapper::toModel)
+        .toList();
   }
 
   public List<Grade> findBySpecialityAndCourse(UUID specialityId, UUID courseId) {
@@ -273,8 +273,8 @@ public class GradeService {
     requireExistingCourse(courseId);
 
     return gradeRepository.findBySpecialityIdAndCourseId(specialityId, courseId).stream()
-            .map(GradeMapper::toModel)
-            .toList();
+        .map(GradeMapper::toModel)
+        .toList();
   }
 
   public Grade findByStudentAndExam(UUID studentId, UUID examId) {
@@ -283,12 +283,12 @@ public class GradeService {
     requireExistingExam(examId);
 
     return gradeRepository
-            .findByStudent_IdAndExam_Id(studentId, examId)
-            .map(GradeMapper::toModel)
-            .orElseThrow(
-                    () ->
-                            new ResponseStatusException(
-                                    HttpStatus.NOT_FOUND, "grade not found for this student and exam"));
+        .findByStudent_IdAndExam_Id(studentId, examId)
+        .map(GradeMapper::toModel)
+        .orElseThrow(
+            () ->
+                new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "grade not found for this student and exam"));
   }
 
   public List<Grade> findByDate(LocalDate date) {
@@ -311,8 +311,8 @@ public class GradeService {
     }
 
     return gradeRepository.findByValueGreaterThanEqual(minValue).stream()
-            .map(GradeMapper::toModel)
-            .toList();
+        .map(GradeMapper::toModel)
+        .toList();
   }
 
   private void requireExistingExam(UUID examId) {
@@ -375,14 +375,14 @@ public class GradeService {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "group id is required");
     }
     return groupRepository
-            .findById(groupId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "group not found"));
+        .findById(groupId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "group not found"));
   }
 
   private List<JExam> findExamsForGroupAndCourse(UUID groupId, UUID courseId) {
     return examRepository.findByGroupId(groupId).stream()
-            .filter(exam -> exam.getCourse() != null && courseId.equals(exam.getCourse().getId()))
-            .toList();
+        .filter(exam -> exam.getCourse() != null && courseId.equals(exam.getCourse().getId()))
+        .toList();
   }
 
   @Transactional(readOnly = true)
@@ -407,9 +407,9 @@ public class GradeService {
 
     for (JCourse course : courses) {
       double coeffSum =
-              findExamsForGroupAndCourse(groupId, course.getId()).stream()
-                      .mapToDouble(JExam::getCoeff)
-                      .sum();
+          findExamsForGroupAndCourse(groupId, course.getId()).stream()
+              .mapToDouble(JExam::getCoeff)
+              .sum();
       if (Math.abs(coeffSum - COEFF_TOTAL) > COEFF_EPSILON) {
         return false;
       }
@@ -473,10 +473,10 @@ public class GradeService {
 
     if (!isGroupYearComplete(groupId)) {
       throw new ResponseStatusException(
-              HttpStatus.BAD_REQUEST,
-              "group year is not complete: sum of course credits of the group's speciality "
-                      + "must be 60 and sum of exam coefficients linked to this group must be 1 "
-                      + "for each course");
+          HttpStatus.BAD_REQUEST,
+          "group year is not complete: sum of course credits of the group's speciality "
+              + "must be 60 and sum of exam coefficients linked to this group must be 1 "
+              + "for each course");
     }
 
     return gradeRepository.findByGroupId(groupId).stream().map(GradeMapper::toModel).toList();
@@ -519,8 +519,7 @@ public class GradeService {
 
     if (!isGroupYearComplete(groupId)) {
       throw new ResponseStatusException(
-              HttpStatus.BAD_REQUEST,
-              "group year is not complete: cannot compute year average");
+          HttpStatus.BAD_REQUEST, "group year is not complete: cannot compute year average");
     }
 
     UUID specialityId = group.getSpeciality().getId();

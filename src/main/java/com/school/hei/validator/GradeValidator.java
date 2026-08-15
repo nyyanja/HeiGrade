@@ -40,38 +40,38 @@ public class GradeValidator implements SaveValidator<Grade> {
     UUID examId = grade.getExam().getId();
 
     JStudent student =
-            studentRepository
-                    .findById(studentId)
-                    .orElseThrow(
-                            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "student not found"));
+        studentRepository
+            .findById(studentId)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "student not found"));
 
     if (!examRepository.existsById(examId)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "exam not found");
     }
     if (student.getGroup() == null || student.getGroup().getId() == null) {
       throw new ResponseStatusException(
-              HttpStatus.BAD_REQUEST, "student has no group and therefore cannot receive a grade");
+          HttpStatus.BAD_REQUEST, "student has no group and therefore cannot receive a grade");
     }
 
     UUID groupId = student.getGroup().getId();
     boolean isAuthorized =
-            groupExamRepository.findByGroup_IdAndExam_Id(groupId, examId).isPresent();
+        groupExamRepository.findByGroup_IdAndExam_Id(groupId, examId).isPresent();
 
     if (!isAuthorized) {
       throw new ResponseStatusException(
-              HttpStatus.FORBIDDEN,
-              "student's group is not authorized for this exam (no group-exam association)");
+          HttpStatus.FORBIDDEN,
+          "student's group is not authorized for this exam (no group-exam association)");
     }
 
     gradeRepository
-            .findByStudent_IdAndExam_Id(studentId, examId)
-            .ifPresent(
-                    existing -> {
-                      boolean isSame = grade.getId() != null && existing.getId().equals(grade.getId());
-                      if (!isSame) {
-                        throw new ResponseStatusException(
-                                HttpStatus.CONFLICT, "grade already exists for this student and exam");
-                      }
-                    });
+        .findByStudent_IdAndExam_Id(studentId, examId)
+        .ifPresent(
+            existing -> {
+              boolean isSame = grade.getId() != null && existing.getId().equals(grade.getId());
+              if (!isSame) {
+                throw new ResponseStatusException(
+                    HttpStatus.CONFLICT, "grade already exists for this student and exam");
+              }
+            });
   }
 }
