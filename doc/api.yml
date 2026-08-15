@@ -1865,6 +1865,14 @@ components:
           type: string
         credit:
           type: integer
+        teachers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Teacher'
+        specialities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Speciality'
 
     Group:
       type: object
