@@ -16,8 +16,7 @@ public class SpecialityValidator implements SaveValidator<Speciality> {
   @Override
   public void accept(Speciality speciality) {
     if (speciality == null) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST, "the speciality is null in the request it cannot be saved");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "speciality cannot be null");
     }
     if (speciality.getName() == null) {
       throw new ResponseStatusException(
@@ -31,8 +30,7 @@ public class SpecialityValidator implements SaveValidator<Speciality> {
               boolean isSame =
                   speciality.getId() != null && existing.getId().equals(speciality.getId());
               if (!isSame) {
-                throw new ResponseStatusException(
-                    HttpStatus.CONFLICT, "this speciality has already been saved");
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "speciality already exists");
               }
             });
   }

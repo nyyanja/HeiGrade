@@ -1,5 +1,6 @@
 package com.school.hei.model;
 
+import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,4 +19,7 @@ public class Course {
   private String reference;
   private String title;
   private Integer credit;
+
+  private List<Teacher> teachers;
+  private List<Speciality> specialities;
 }

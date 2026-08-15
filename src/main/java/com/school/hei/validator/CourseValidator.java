@@ -16,20 +16,17 @@ public class CourseValidator implements SaveValidator<Course> {
   @Override
   public void accept(Course course) {
     if (course == null) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST, "the course is null it is not allowed");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "course cannot be null");
     }
     if (course.getReference() == null || course.getReference().isBlank()) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST, "course's is blank or null it is not allowed");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "course reference is required");
     }
     if (course.getTitle() == null || course.getTitle().isBlank()) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST, "course's title cannot be blank or null");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "course title is required");
     }
     if (course.getCredit() == null || course.getCredit() <= 0) {
       throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST, "the course credit cannot be less than 0");
+          HttpStatus.BAD_REQUEST, "course credit must be greater than 0");
     }
 
     courseRepository
@@ -40,7 +37,7 @@ public class CourseValidator implements SaveValidator<Course> {
                   course.getId() != null && existing.getId().equals(course.getId());
               if (!isSameCourse) {
                 throw new ResponseStatusException(
-                    HttpStatus.CONFLICT, "this course has already been saved");
+                    HttpStatus.CONFLICT, "course reference already used");
               }
             });
   }

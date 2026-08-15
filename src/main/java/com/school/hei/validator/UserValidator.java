@@ -20,21 +20,19 @@ public class UserValidator {
 
   public void validateCommonFields(User user) {
     if (user == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "the user can not be null");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "user cannot be null");
     }
     if (isBlank(user.getFirstName())) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "FirstName can not be blank");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "first name is required");
     }
     if (isBlank(user.getEmail())) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "L'email is required");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "email is required");
     }
     if (!EMAIL_PATTERN.matcher(user.getEmail()).matches()) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "the email format is invalid");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "email format is invalid");
     }
     if (user.getBirthday() != null && user.getBirthday().isAfter(LocalDate.now())) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST,
-          "the birthday is in the past can not be null or after the current date");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "birthday cannot be in the future");
     }
     if (user.getSex() == null) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "sex is required");
@@ -46,7 +44,7 @@ public class UserValidator {
             existing -> {
               boolean isSameUser = user.getId() != null && existing.getId().equals(user.getId());
               if (!isSameUser) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "this email already used");
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "email already used");
               }
             });
   }

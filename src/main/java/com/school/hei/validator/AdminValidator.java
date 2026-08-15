@@ -16,8 +16,7 @@ public class AdminValidator implements SaveValidator<Admin> {
   public void accept(Admin admin) {
     userValidator.validateCommonFields(admin);
     if (admin.getAdminReference() == null || admin.getAdminReference().isBlank()) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST, "admin reference is blank or null it is not allowed");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "admin reference is required");
     }
   }
 }
