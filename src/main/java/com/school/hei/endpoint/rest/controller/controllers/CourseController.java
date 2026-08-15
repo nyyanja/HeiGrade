@@ -20,6 +20,31 @@ public class CourseController {
     return courseService.findAll();
   }
 
+  @GetMapping("/teacher/{teacherId}")
+  public List<Course> findByTeacher(@PathVariable UUID teacherId) {
+    return courseService.findByTeacher(teacherId);
+  }
+
+  @GetMapping("/speciality/{specialityId}")
+  public List<Course> findBySpeciality(@PathVariable UUID specialityId) {
+    return courseService.findBySpeciality(specialityId);
+  }
+
+  @GetMapping("/credit/{credit}")
+  public List<Course> findByCredit(@PathVariable Integer credit) {
+    return courseService.findByCredit(credit);
+  }
+
+  @GetMapping("/group/{groupId}")
+  public List<Course> findByGroup(@PathVariable UUID groupId) {
+    return courseService.findByGroup(groupId);
+  }
+
+  @GetMapping("/title/{title}")
+  public List<Course> findByTitle(@PathVariable String title) {
+    return courseService.findByTitle(title);
+  }
+
   @GetMapping("/{id}")
   public Course findById(@PathVariable UUID id) {
     return courseService.findById(id);

@@ -28,6 +28,26 @@ public class GroupController {
     return groupService.findAll();
   }
 
+  @GetMapping("/speciality/{specialityId}")
+  public List<Group> findBySpeciality(@PathVariable UUID specialityId) {
+    return groupService.findBySpeciality(specialityId);
+  }
+
+  @GetMapping("/exam/{examId}")
+  public List<Group> findByExam(@PathVariable UUID examId) {
+    return groupService.findByExam(examId);
+  }
+
+  @GetMapping("/course/{courseId}")
+  public List<Group> findByCourse(@PathVariable UUID courseId) {
+    return groupService.findByCourse(courseId);
+  }
+
+  @GetMapping("/name/{name}")
+  public List<Group> findByName(@PathVariable String name) {
+    return groupService.findByName(name);
+  }
+
   @GetMapping("/{id}")
   public Group findById(@PathVariable UUID id) {
     return groupService.findById(id);
