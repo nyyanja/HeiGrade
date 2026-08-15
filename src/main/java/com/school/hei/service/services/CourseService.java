@@ -4,6 +4,8 @@ import com.school.hei.entity.JCourse;
 import com.school.hei.entity.JSpecialityCourse;
 import com.school.hei.entity.JTeacherCourse;
 import com.school.hei.mapper.CourseMapper;
+import com.school.hei.mapper.SpecialityMapper;
+import com.school.hei.mapper.TeacherMapper;
 import com.school.hei.model.Course;
 import com.school.hei.model.Speciality;
 import com.school.hei.model.Teacher;
@@ -30,19 +32,19 @@ public class CourseService {
   private final GroupRepository groupRepository;
 
   public List<Course> findAll() {
-    return courseRepository.findAll().stream().map(CourseMapper::toModel).toList();
+    return courseRepository.findAll().stream().map(this::toModelWithRelations).toList();
   }
 
   public Course findById(UUID id) {
-    return courseRepository
+    JCourse entity =
+        courseRepository
             .findById(id)
-            .map(CourseMapper::toModel)
             .orElseThrow(
-                    () ->
-                            new ResponseStatusException(
-                                    HttpStatus.NOT_FOUND, "course not found with id " + id));
+                () ->
+                    new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "course not found with id " + id));
+    return toModelWithRelations(entity);
   }
-
 
   @Transactional
   public Course save(Course course) {
@@ -56,13 +58,40 @@ public class CourseService {
     saveTeacherCourses(course, savedCourse);
     saveSpecialityCourses(course, savedCourse);
 
-    return CourseMapper.toModel(savedCourse);
+    return toModelWithRelations(savedCourse);
+  }
+
+  @Transactional
+  public Course update(UUID id, Course course) {
+    findById(id);
+    course.setId(id);
+    courseValidator.accept(course);
+    validateTeachers(course);
+    validateSpecialities(course);
+
+    JCourse savedCourse = courseRepository.save(CourseMapper.toEntity(course));
+
+    teacherCourseRepository.deleteByCourse_Id(id);
+    specialityCourseRepository.deleteByCourse_Id(id);
+    saveTeacherCourses(course, savedCourse);
+    saveSpecialityCourses(course, savedCourse);
+
+    return toModelWithRelations(savedCourse);
+  }
+
+  public void delete(UUID id) {
+    if (!courseRepository.existsById(id)) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found with id " + id);
+    }
+    teacherCourseRepository.deleteByCourse_Id(id);
+    specialityCourseRepository.deleteByCourse_Id(id);
+    courseRepository.deleteById(id);
   }
 
   private void validateTeachers(Course course) {
     if (course.getTeachers() == null || course.getTeachers().isEmpty()) {
       throw new ResponseStatusException(
-              HttpStatus.BAD_REQUEST, "at least one teacher is required to create a course");
+          HttpStatus.BAD_REQUEST, "at least one teacher is required to create a course");
     }
     for (Teacher teacher : course.getTeachers()) {
       if (teacher == null || teacher.getId() == null) {
@@ -77,7 +106,7 @@ public class CourseService {
   private void validateSpecialities(Course course) {
     if (course.getSpecialities() == null || course.getSpecialities().isEmpty()) {
       throw new ResponseStatusException(
-              HttpStatus.BAD_REQUEST, "at least one speciality is required to create a course");
+          HttpStatus.BAD_REQUEST, "at least one speciality is required to create a course");
     }
     for (Speciality speciality : course.getSpecialities()) {
       if (speciality == null || speciality.getId() == null) {
@@ -92,10 +121,10 @@ public class CourseService {
   private void saveTeacherCourses(Course course, JCourse savedCourse) {
     for (Teacher teacher : course.getTeachers()) {
       JTeacherCourse entity =
-              JTeacherCourse.builder()
-                      .teacher(teacherRepository.getReferenceById(teacher.getId()))
-                      .course(savedCourse)
-                      .build();
+          JTeacherCourse.builder()
+              .teacher(teacherRepository.getReferenceById(teacher.getId()))
+              .course(savedCourse)
+              .build();
       teacherCourseRepository.save(entity);
     }
   }
@@ -103,34 +132,32 @@ public class CourseService {
   private void saveSpecialityCourses(Course course, JCourse savedCourse) {
     for (Speciality speciality : course.getSpecialities()) {
       JSpecialityCourse entity =
-              JSpecialityCourse.builder()
-                      .speciality(specialityRepository.getReferenceById(speciality.getId()))
-                      .course(savedCourse)
-                      .build();
+          JSpecialityCourse.builder()
+              .speciality(specialityRepository.getReferenceById(speciality.getId()))
+              .course(savedCourse)
+              .build();
       specialityCourseRepository.save(entity);
     }
   }
 
-  public Course update(UUID id, Course course) {
-    findById(id);
-    course.setId(id);
-    courseValidator.accept(course);
-    return CourseMapper.toModel(courseRepository.save(CourseMapper.toEntity(course)));
+  private Course toModelWithRelations(JCourse entity) {
+    Course model = CourseMapper.toModel(entity);
+    model.setTeachers(
+        teacherCourseRepository.findByCourse_Id(entity.getId()).stream()
+            .map(tc -> TeacherMapper.toModel(tc.getTeacher()))
+            .toList());
+    model.setSpecialities(
+        specialityCourseRepository.findByCourse_Id(entity.getId()).stream()
+            .map(sc -> SpecialityMapper.toModel(sc.getSpeciality()))
+            .toList());
+    return model;
   }
 
-  public void delete(UUID id) {
-    if (!courseRepository.existsById(id)) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found with id " + id);
-    }
-    courseRepository.deleteById(id);
-  }
   public List<Course> findByTeacher(UUID teacherId) {
     if (!teacherRepository.existsById(teacherId)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "teacher not found");
     }
-    return courseRepository.findByTeacherId(teacherId).stream()
-            .map(CourseMapper::toModel)
-            .toList();
+    return courseRepository.findByTeacherId(teacherId).stream().map(CourseMapper::toModel).toList();
   }
 
   public List<Course> findBySpeciality(UUID specialityId) {
@@ -138,26 +165,32 @@ public class CourseService {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "speciality not found");
     }
     return courseRepository.findBySpecialityId(specialityId).stream()
-            .map(CourseMapper::toModel)
-            .toList();
+        .map(CourseMapper::toModel)
+        .toList();
   }
+
   public List<Course> findByCredit(Integer credit) {
     if (credit == null || credit <= 0) {
-      throw new ResponseStatusException(
-              HttpStatus.BAD_REQUEST, "credit must be greater than 0");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "credit must be greater than 0");
     }
-    return courseRepository.findByCredit(credit).stream()
-            .map(CourseMapper::toModel)
-            .toList();
+    return courseRepository.findByCredit(credit).stream().map(CourseMapper::toModel).toList();
   }
+
   public List<Course> findByGroup(UUID groupId) {
     var group =
-            groupRepository
-                    .findById(groupId)
-                    .orElseThrow(
-                            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "group not found"));
+        groupRepository
+            .findById(groupId)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "group not found"));
+    return findBySpeciality(group.getSpeciality().getId());
+  }
 
-    UUID specialityId = group.getSpeciality().getId();
-    return findBySpeciality(specialityId);
+  public List<Course> findByTitle(String title) {
+    if (title == null || title.isBlank()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "title is required");
+    }
+    return courseRepository.findByTitleContainingIgnoreCase(title).stream()
+        .map(CourseMapper::toModel)
+        .toList();
   }
 }

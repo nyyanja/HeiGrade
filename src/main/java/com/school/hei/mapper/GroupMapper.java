@@ -9,7 +9,6 @@ public class GroupMapper {
     if (entity == null) {
       return null;
     }
-
     return Group.builder()
         .id(entity.getId())
         .name(entity.getName())
@@ -22,7 +21,6 @@ public class GroupMapper {
     if (model == null) {
       return null;
     }
-
     return JGroup.builder()
         .id(model.getId())
         .name(model.getName())

@@ -11,27 +11,27 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class SpecialityValidator implements SaveValidator<Speciality> {
 
-    private final SpecialityRepository specialityRepository;
+  private final SpecialityRepository specialityRepository;
 
-    @Override
-    public void accept(Speciality speciality) {
-        if (speciality == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "speciality cannot be null");
-        }
-        if (speciality.getName() == null) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "speciality name is required (EL, TN or COMMON_PART)");
-        }
-
-        specialityRepository
-                .findByNameIgnoreCase(speciality.getName().name())
-                .ifPresent(
-                        existing -> {
-                            boolean isSame =
-                                    speciality.getId() != null && existing.getId().equals(speciality.getId());
-                            if (!isSame) {
-                                throw new ResponseStatusException(HttpStatus.CONFLICT, "speciality already exists");
-                            }
-                        });
+  @Override
+  public void accept(Speciality speciality) {
+    if (speciality == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "speciality cannot be null");
     }
+    if (speciality.getName() == null) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST, "speciality name is required (EL, TN or COMMON_PART)");
+    }
+
+    specialityRepository
+        .findByNameIgnoreCase(speciality.getName().name())
+        .ifPresent(
+            existing -> {
+              boolean isSame =
+                  speciality.getId() != null && existing.getId().equals(speciality.getId());
+              if (!isSame) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "speciality already exists");
+              }
+            });
+  }
 }

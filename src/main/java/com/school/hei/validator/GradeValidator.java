@@ -2,6 +2,7 @@ package com.school.hei.validator;
 
 import com.school.hei.model.Grade;
 import com.school.hei.repository.ExamRepository;
+import com.school.hei.repository.GradeRepository;
 import com.school.hei.repository.StudentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ public class GradeValidator implements SaveValidator<Grade> {
 
   private final StudentRepository studentRepository;
   private final ExamRepository examRepository;
+  private final GradeRepository gradeRepository;
 
   @Override
   public void accept(Grade grade) {
@@ -35,5 +37,15 @@ public class GradeValidator implements SaveValidator<Grade> {
     if (!examRepository.existsById(grade.getExam().getId())) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "exam not found");
     }
+    gradeRepository
+        .findByStudent_IdAndExam_Id(grade.getStudent().getId(), grade.getExam().getId())
+        .ifPresent(
+            existing -> {
+              boolean isSame = grade.getId() != null && existing.getId().equals(grade.getId());
+              if (!isSame) {
+                throw new ResponseStatusException(
+                    HttpStatus.CONFLICT, "grade already exists for this student and exam");
+              }
+            });
   }
 }

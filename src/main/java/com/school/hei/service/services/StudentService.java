@@ -3,6 +3,8 @@ package com.school.hei.service.services;
 import com.school.hei.entity.JStudent;
 import com.school.hei.mapper.StudentMapper;
 import com.school.hei.model.Student;
+import com.school.hei.repository.GroupRepository;
+import com.school.hei.repository.SpecialityRepository;
 import com.school.hei.repository.StudentRepository;
 import com.school.hei.validator.StudentValidator;
 import java.util.List;
@@ -18,6 +20,8 @@ public class StudentService {
 
   private final StudentRepository studentRepository;
   private final StudentValidator studentValidator;
+  private final GroupRepository groupRepository;
+  private final SpecialityRepository specialityRepository;
 
   public List<Student> findAll() {
     return studentRepository.findAll().stream().map(StudentMapper::toModel).toList();
@@ -31,6 +35,43 @@ public class StudentService {
             () ->
                 new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "student not found with id " + id));
+  }
+
+  public Student findByReference(String reference) {
+    return studentRepository
+        .findByReference(reference)
+        .map(StudentMapper::toModel)
+        .orElseThrow(
+            () ->
+                new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "student not found with reference " + reference));
+  }
+
+  public List<Student> findByName(String name) {
+    if (name == null || name.isBlank()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "name is required");
+    }
+    return studentRepository
+        .findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(name, name)
+        .stream()
+        .map(StudentMapper::toModel)
+        .toList();
+  }
+
+  public List<Student> findByGroup(UUID groupId) {
+    if (!groupRepository.existsById(groupId)) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "group not found");
+    }
+    return studentRepository.findByGroup_Id(groupId).stream().map(StudentMapper::toModel).toList();
+  }
+
+  public List<Student> findBySpeciality(UUID specialityId) {
+    if (!specialityRepository.existsById(specialityId)) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "speciality not found");
+    }
+    return studentRepository.findByGroup_Speciality_Id(specialityId).stream()
+        .map(StudentMapper::toModel)
+        .toList();
   }
 
   public Student save(Student student) {

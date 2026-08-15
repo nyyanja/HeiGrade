@@ -14,7 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class UserValidator {
 
   private static final Pattern EMAIL_PATTERN =
-          Pattern.compile("^[\\w.+-]+@[\\w-]+\\.[a-zA-Z]{2,}$");
+      Pattern.compile("^[\\w.+-]+@[\\w-]+\\.[a-zA-Z]{2,}$");
 
   private final UserRepository userRepository;
 
@@ -32,22 +32,21 @@ public class UserValidator {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "email format is invalid");
     }
     if (user.getBirthday() != null && user.getBirthday().isAfter(LocalDate.now())) {
-      throw new ResponseStatusException(
-              HttpStatus.BAD_REQUEST, "birthday cannot be in the future");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "birthday cannot be in the future");
     }
     if (user.getSex() == null) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "sex is required");
     }
 
     userRepository
-            .findByEmailIgnoreCase(user.getEmail())
-            .ifPresent(
-                    existing -> {
-                      boolean isSameUser = user.getId() != null && existing.getId().equals(user.getId());
-                      if (!isSameUser) {
-                        throw new ResponseStatusException(HttpStatus.CONFLICT, "email already used");
-                      }
-                    });
+        .findByEmailIgnoreCase(user.getEmail())
+        .ifPresent(
+            existing -> {
+              boolean isSameUser = user.getId() != null && existing.getId().equals(user.getId());
+              if (!isSameUser) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "email already used");
+              }
+            });
   }
 
   private boolean isBlank(String value) {

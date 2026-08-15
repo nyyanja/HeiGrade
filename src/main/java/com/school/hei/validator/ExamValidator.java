@@ -1,12 +1,17 @@
 package com.school.hei.validator;
 
 import com.school.hei.model.Exam;
+import com.school.hei.repository.CourseRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
 @Component
+@RequiredArgsConstructor
 public class ExamValidator implements SaveValidator<Exam> {
+
+  private final CourseRepository courseRepository;
 
   @Override
   public void accept(Exam exam) {
@@ -21,11 +26,13 @@ public class ExamValidator implements SaveValidator<Exam> {
     }
     if (exam.getCoeff() == null || exam.getCoeff() <= 0) {
       throw new ResponseStatusException(
-              HttpStatus.BAD_REQUEST, "exam coeff must be greater than 0");
+          HttpStatus.BAD_REQUEST, "exam coeff must be greater than 0");
     }
-    if (exam.getCoeff() > 1) {
-      throw new ResponseStatusException(
-              HttpStatus.BAD_REQUEST, "exam coeff cannot be greater than 1");
+    if (exam.getCourse() == null || exam.getCourse().getId() == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "exam course is required");
+    }
+    if (!courseRepository.existsById(exam.getCourse().getId())) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found");
     }
   }
 }

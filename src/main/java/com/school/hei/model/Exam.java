@@ -1,6 +1,7 @@
 package com.school.hei.model;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,4 +20,6 @@ public class Exam {
   private LocalDate date;
   private Double coeff;
   private String title;
+  private Course course;
+  private List<Group> groups;
 }

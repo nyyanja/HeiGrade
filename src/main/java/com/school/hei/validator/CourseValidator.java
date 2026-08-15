@@ -26,19 +26,19 @@ public class CourseValidator implements SaveValidator<Course> {
     }
     if (course.getCredit() == null || course.getCredit() <= 0) {
       throw new ResponseStatusException(
-              HttpStatus.BAD_REQUEST, "course credit must be greater than 0");
+          HttpStatus.BAD_REQUEST, "course credit must be greater than 0");
     }
 
     courseRepository
-            .findByReferenceIgnoreCase(course.getReference())
-            .ifPresent(
-                    existing -> {
-                      boolean isSameCourse =
-                              course.getId() != null && existing.getId().equals(course.getId());
-                      if (!isSameCourse) {
-                        throw new ResponseStatusException(
-                                HttpStatus.CONFLICT, "course reference already used");
-                      }
-                    });
+        .findByReferenceIgnoreCase(course.getReference())
+        .ifPresent(
+            existing -> {
+              boolean isSameCourse =
+                  course.getId() != null && existing.getId().equals(course.getId());
+              if (!isSameCourse) {
+                throw new ResponseStatusException(
+                    HttpStatus.CONFLICT, "course reference already used");
+              }
+            });
   }
 }

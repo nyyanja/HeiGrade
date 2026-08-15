@@ -22,7 +22,7 @@ public class GradeHistoryValidator implements SaveValidator<GradeHistory> {
     }
     if (gradeHistory.getReason() == null || gradeHistory.getReason().isBlank()) {
       throw new ResponseStatusException(
-              HttpStatus.BAD_REQUEST, "reason is required for grade history");
+          HttpStatus.BAD_REQUEST, "reason is required for grade history");
     }
     if (gradeHistory.getOldValue() == null) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "old value is required");
@@ -32,7 +32,7 @@ public class GradeHistoryValidator implements SaveValidator<GradeHistory> {
     }
     if (gradeHistory.getNewValue().equals(gradeHistory.getOldValue())) {
       throw new ResponseStatusException(
-              HttpStatus.BAD_REQUEST, "new value must be different from old value");
+          HttpStatus.BAD_REQUEST, "new value must be different from old value");
     }
     if (gradeHistory.getGrade() == null || gradeHistory.getGrade().getId() == null) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "grade is required");

@@ -1,7 +1,6 @@
 package com.school.hei.endpoint.rest.controller.controllers;
 
 import com.school.hei.model.SpecialityCourse;
-import com.school.hei.service.services.SpecialityCourseService;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
