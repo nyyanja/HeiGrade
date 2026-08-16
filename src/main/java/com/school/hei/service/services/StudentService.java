@@ -60,6 +60,7 @@ public class StudentService {
     if (name == null || name.isBlank()) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "name is required");
     }
+
     return studentRepository
         .findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(name, name)
         .stream()
@@ -71,6 +72,7 @@ public class StudentService {
     if (!groupRepository.existsById(groupId)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "group not found");
     }
+
     return studentRepository.findByGroup_Id(groupId).stream().map(StudentMapper::toModel).toList();
   }
 
@@ -78,6 +80,7 @@ public class StudentService {
     if (!specialityRepository.existsById(specialityId)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "speciality not found");
     }
+
     return studentRepository.findByGroup_Speciality_Id(specialityId).stream()
         .map(StudentMapper::toModel)
         .toList();
