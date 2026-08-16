@@ -38,7 +38,6 @@ public class ExamService {
   private final GroupExamRepository groupExamRepository;
   private final CourseAccessService courseAccessService;
 
-
   public List<Exam> findAll() {
     List<JExam> exams = examRepository.findAll();
     return filterExamsForCurrentUser(exams).stream().map(this::toModelWithGroups).toList();
@@ -46,12 +45,12 @@ public class ExamService {
 
   public Exam findById(UUID id) {
     JExam entity =
-            examRepository
-                    .findById(id)
-                    .orElseThrow(
-                            () ->
-                                    new ResponseStatusException(
-                                            HttpStatus.NOT_FOUND, "exam not found with id " + id));
+        examRepository
+            .findById(id)
+            .orElseThrow(
+                () ->
+                    new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "exam not found with id " + id));
     assertCanReadExam(entity);
     return toModelWithGroups(entity);
   }
@@ -61,9 +60,7 @@ public class ExamService {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found");
     }
     courseAccessService.assertCanAccessCourse(courseId);
-    return examRepository.findByCourse_Id(courseId).stream()
-            .map(this::toModelWithGroups)
-            .toList();
+    return examRepository.findByCourse_Id(courseId).stream().map(this::toModelWithGroups).toList();
   }
 
   public List<Exam> findByTitle(String title) {
@@ -112,9 +109,10 @@ public class ExamService {
     }
     courseAccessService.assertCanAccessCourse(courseId);
     double used =
-            examRepository.findByCourse_Id(courseId).stream().mapToDouble(JExam::getCoeff).sum();
+        examRepository.findByCourse_Id(courseId).stream().mapToDouble(JExam::getCoeff).sum();
     return COEFF_TOTAL - used;
   }
+
   @Transactional
   public Exam save(Exam exam) {
     examValidator.accept(exam);
@@ -156,8 +154,8 @@ public class ExamService {
     if (courseAccessService.isTeacher()) {
       Set<UUID> courseIds = courseAccessService.taughtCourseIds();
       return exams.stream()
-              .filter(e -> e.getCourse() != null && courseIds.contains(e.getCourse().getId()))
-              .toList();
+          .filter(e -> e.getCourse() != null && courseIds.contains(e.getCourse().getId()))
+          .toList();
     }
     if (courseAccessService.isStudent()) {
       return exams;
@@ -185,7 +183,7 @@ public class ExamService {
   private void validateGroups(Exam exam) {
     if (exam.getGroups() == null || exam.getGroups().isEmpty()) {
       throw new ResponseStatusException(
-              HttpStatus.BAD_REQUEST, "at least one group is required to create an exam");
+          HttpStatus.BAD_REQUEST, "at least one group is required to create an exam");
     }
     for (Group group : exam.getGroups()) {
       if (group == null || group.getId() == null) {
@@ -200,27 +198,27 @@ public class ExamService {
   private void validateCoeffSum(Exam exam, UUID excludedExamId) {
     UUID courseId = exam.getCourse().getId();
     double existingSum =
-            examRepository.findByCourse_Id(courseId).stream()
-                    .filter(e -> excludedExamId == null || !e.getId().equals(excludedExamId))
-                    .mapToDouble(JExam::getCoeff)
-                    .sum();
+        examRepository.findByCourse_Id(courseId).stream()
+            .filter(e -> excludedExamId == null || !e.getId().equals(excludedExamId))
+            .mapToDouble(JExam::getCoeff)
+            .sum();
     double total = existingSum + exam.getCoeff();
     if (total > COEFF_TOTAL + COEFF_EPSILON) {
       throw new ResponseStatusException(
-              HttpStatus.BAD_REQUEST,
-              String.format(
-                      "the sum of exam coefficients for this course would reach %.2f, it cannot exceed 1",
-                      total));
+          HttpStatus.BAD_REQUEST,
+          String.format(
+              "the sum of exam coefficients for this course would reach %.2f, it cannot exceed 1",
+              total));
     }
   }
 
   private void saveGroupExams(Exam exam, JExam savedExam) {
     for (Group group : exam.getGroups()) {
       JGroupExam entity =
-              JGroupExam.builder()
-                      .group(groupRepository.getReferenceById(group.getId()))
-                      .exam(savedExam)
-                      .build();
+          JGroupExam.builder()
+              .group(groupRepository.getReferenceById(group.getId()))
+              .exam(savedExam)
+              .build();
       groupExamRepository.save(entity);
     }
   }
@@ -228,9 +226,9 @@ public class ExamService {
   private Exam toModelWithGroups(JExam entity) {
     Exam model = ExamMapper.toModel(entity);
     model.setGroups(
-            groupExamRepository.findByExam_Id(entity.getId()).stream()
-                    .map(ge -> GroupMapper.toModel(ge.getGroup()))
-                    .toList());
+        groupExamRepository.findByExam_Id(entity.getId()).stream()
+            .map(ge -> GroupMapper.toModel(ge.getGroup()))
+            .toList());
     return model;
   }
 }
