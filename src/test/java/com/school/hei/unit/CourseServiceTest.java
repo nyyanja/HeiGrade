@@ -20,19 +20,19 @@ import com.school.hei.repository.SpecialityCourseRepository;
 import com.school.hei.repository.SpecialityRepository;
 import com.school.hei.repository.TeacherCourseRepository;
 import com.school.hei.repository.TeacherRepository;
+import com.school.hei.security.CourseAccessService;
 import com.school.hei.service.services.CourseService;
 import com.school.hei.validator.CourseValidator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
-import com.school.hei.security.CourseAccessService;
-import org.junit.jupiter.api.BeforeEach;
 
 @ExtendWith(MockitoExtension.class)
 class CourseServiceTest {
@@ -58,6 +58,7 @@ class CourseServiceTest {
   void setUp() {
     lenient().when(courseAccessService.isAdmin()).thenReturn(true);
   }
+
   @Test
   void should_find_all_courses() {
     UUID courseId = UUID.randomUUID();

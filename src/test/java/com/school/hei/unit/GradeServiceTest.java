@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import com.school.hei.security.CourseAccessService;
 
 import com.school.hei.entity.JCourse;
 import com.school.hei.entity.JExam;
@@ -25,6 +24,7 @@ import com.school.hei.repository.GroupRepository;
 import com.school.hei.repository.SpecialityRepository;
 import com.school.hei.repository.StudentRepository;
 import com.school.hei.repository.UserRepository;
+import com.school.hei.security.CourseAccessService;
 import com.school.hei.service.services.GradeService;
 import com.school.hei.validator.GradeHistoryValidator;
 import com.school.hei.validator.GradeValidator;
@@ -55,7 +55,6 @@ class GradeServiceTest {
   @Mock private SpecialityRepository specialityRepository;
   @Mock private UserRepository userRepository;
   @Mock private CourseAccessService courseAccessService;
-
 
   @InjectMocks private GradeService gradeService;
 
@@ -381,8 +380,8 @@ class GradeServiceTest {
     when(gradeRepository.findById(gradeId)).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> gradeService.delete(gradeId))
-            .isInstanceOf(ResponseStatusException.class)
-            .hasMessageContaining("grade not found");
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("grade not found");
   }
 
   @Test
@@ -659,7 +658,7 @@ class GradeServiceTest {
   }
 
   @Test
-  void should_retuhttps://github.com/nyyanja/HeiGrade/pull/26/conflict?name=src%252Ftest%252Fjava%252Fcom%252Fschool%252Fhei%252Funit%252FGradeServiceTest.java&base_oid=675b7f6af267e52ab4ccbdbb6aa4c26c977a9273&head_oid=23a6819cc010b49caca11c12ecf270bf340b2d6drn_false_when_no_courses_exist_for_level() {
+  void should_return_false_when_no_courses_exist_for_level() {
     JSpeciality speciality = JSpeciality.builder().id(specialityId).build();
 
     JGroup group = JGroup.builder().id(groupId).name("Group K1").speciality(speciality).build();
