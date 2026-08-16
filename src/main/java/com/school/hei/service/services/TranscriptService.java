@@ -15,6 +15,7 @@ import com.school.hei.repository.GroupExamRepository;
 import com.school.hei.repository.GroupRepository;
 import com.school.hei.repository.StudentGroupHistoryRepository;
 import com.school.hei.repository.StudentRepository;
+import com.school.hei.security.CourseAccessService;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,8 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-
-import com.school.hei.security.CourseAccessService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -151,7 +150,7 @@ public class TranscriptService {
     validateLevel(level);
     if (courseAccessService.isStudent()) {
       throw new ResponseStatusException(
-              HttpStatus.FORBIDDEN, "students cannot list all transcripts");
+          HttpStatus.FORBIDDEN, "students cannot list all transcripts");
     }
     List<Transcript> result = new ArrayList<>();
     for (JStudent student : studentRepository.findAll()) {
@@ -302,6 +301,7 @@ public class TranscriptService {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "level must be 1, 2 or 3");
     }
   }
+
   private void assertCanAccessTranscript(UUID studentId) {
     if (courseAccessService.isAdmin() || courseAccessService.isTeacher()) {
       return;
