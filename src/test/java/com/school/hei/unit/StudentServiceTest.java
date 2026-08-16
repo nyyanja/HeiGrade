@@ -14,6 +14,7 @@ import com.school.hei.repository.GroupRepository;
 import com.school.hei.repository.SpecialityRepository;
 import com.school.hei.repository.StudentGroupHistoryRepository;
 import com.school.hei.repository.StudentRepository;
+import com.school.hei.security.CourseAccessService;
 import com.school.hei.service.services.StudentService;
 import com.school.hei.validator.SpecialityChangeValidator;
 import com.school.hei.validator.StudentValidator;
@@ -21,6 +22,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -43,7 +45,14 @@ class StudentServiceTest {
 
   @Mock private SpecialityChangeValidator specialityChangeValidator;
 
+  @Mock private CourseAccessService courseAccessService;
+
   @InjectMocks private StudentService studentService;
+
+  @BeforeEach
+  void setUp() {
+    lenient().when(courseAccessService.isAdmin()).thenReturn(true);
+  }
 
   @Test
   void should_find_all_students() {

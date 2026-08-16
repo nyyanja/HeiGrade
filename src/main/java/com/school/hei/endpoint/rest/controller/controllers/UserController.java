@@ -1,6 +1,7 @@
 package com.school.hei.endpoint.rest.controller.controllers;
 
 import com.school.hei.enums.Role;
+import com.school.hei.model.CreateUserRequest;
 import com.school.hei.model.User;
 import com.school.hei.service.services.UserService;
 import java.util.List;
@@ -51,8 +52,8 @@ public class UserController {
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public User save(@RequestBody User user) {
-    return userService.save(user);
+  public User save(@RequestBody CreateUserRequest request) {
+    return userService.save(request);
   }
 
   @PutMapping("/{id}")
