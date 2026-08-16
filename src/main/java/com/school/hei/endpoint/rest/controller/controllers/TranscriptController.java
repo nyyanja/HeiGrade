@@ -11,26 +11,45 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/transcripts")
 @RequiredArgsConstructor
+@RequestMapping("/transcripts")
 public class TranscriptController {
 
   private final TranscriptService transcriptService;
 
-  @GetMapping
-  public List<Transcript> getAllCompletedTranscripts() {
-    return transcriptService.getAllCompletedTranscripts();
+  @GetMapping("/student/{studentId}/L1")
+  public Transcript getL1Transcript(@PathVariable UUID studentId) {
+
+    return transcriptService.getStudentTranscript(studentId, 1);
   }
 
-  @GetMapping("/student/{studentId}")
-  public Transcript getStudentTranscript(@PathVariable UUID studentId) {
+  @GetMapping("/student/{studentId}/L2")
+  public Transcript getL2Transcript(@PathVariable UUID studentId) {
 
-    return transcriptService.getStudentTranscript(studentId);
+    return transcriptService.getStudentTranscript(studentId, 2);
   }
 
-  @GetMapping("/group/{groupId}")
-  public List<Transcript> getGroupTranscripts(@PathVariable UUID groupId) {
+  @GetMapping("/student/{studentId}/L3")
+  public Transcript getL3Transcript(@PathVariable UUID studentId) {
 
-    return transcriptService.getGroupTranscripts(groupId);
+    return transcriptService.getStudentTranscript(studentId, 3);
+  }
+
+  @GetMapping("/L1")
+  public List<Transcript> getAllL1Transcripts() {
+
+    return transcriptService.getAllTranscripts(1);
+  }
+
+  @GetMapping("/L2")
+  public List<Transcript> getAllL2Transcripts() {
+
+    return transcriptService.getAllTranscripts(2);
+  }
+
+  @GetMapping("/L3")
+  public List<Transcript> getAllL3Transcripts() {
+
+    return transcriptService.getAllTranscripts(3);
   }
 }

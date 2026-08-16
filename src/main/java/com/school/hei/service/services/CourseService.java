@@ -193,4 +193,11 @@ public class CourseService {
         .map(CourseMapper::toModel)
         .toList();
   }
+
+  public List<Course> findByLevel(Integer level) {
+    if (level == null || level < 1 || level > 3) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "level must be 1, 2 or 3");
+    }
+    return courseRepository.findByLevel(level).stream().map(this::toModelWithRelations).toList();
+  }
 }

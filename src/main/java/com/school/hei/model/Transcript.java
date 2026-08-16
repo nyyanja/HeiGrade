@@ -16,15 +16,18 @@ import lombok.experimental.SuperBuilder;
 public class Transcript {
 
   private UUID studentId;
+
   private String reference;
+
   private String firstName;
+
   private String lastName;
 
-  private UUID groupId;
-  private String groupName;
+  private Integer level;
 
   private List<TranscriptCourseLine> courses;
 
   private Double generalAverage;
+
   private Integer totalCredit;
 }

@@ -15,6 +15,7 @@ public class CourseMapper {
         .reference(entity.getReference())
         .title(entity.getTitle())
         .credit(entity.getCredit())
+        .level(entity.getLevel())
         .build();
   }
 
@@ -28,6 +29,7 @@ public class CourseMapper {
         .reference(model.getReference())
         .title(model.getTitle())
         .credit(model.getCredit())
+        .level(model.getLevel())
         .build();
   }
 }

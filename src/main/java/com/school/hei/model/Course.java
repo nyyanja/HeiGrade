@@ -19,6 +19,7 @@ public class Course {
   private String reference;
   private String title;
   private Integer credit;
+  private Integer level;
 
   private List<Teacher> teachers;
   private List<Speciality> specialities;
