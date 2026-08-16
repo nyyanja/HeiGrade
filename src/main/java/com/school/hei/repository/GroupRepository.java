@@ -27,4 +27,6 @@ public interface GroupRepository extends JpaRepository<JGroup, UUID> {
   List<JGroup> findByCourseId(@Param("courseId") UUID courseId);
 
   List<JGroup> findByNameContainingIgnoreCase(String name);
+
+  List<JGroup> findByPromotion_Id(UUID promotionId);
 }
