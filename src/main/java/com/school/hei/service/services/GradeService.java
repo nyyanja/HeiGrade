@@ -56,11 +56,13 @@ public class GradeService {
   private final SpecialityRepository specialityRepository;
   private final UserRepository userRepository;
 
+  @Transactional(readOnly = true)
   public List<Grade> findAll() {
     List<JGrade> entities = gradeRepository.findAll();
     return filterGradesForCurrentUser(entities).stream().map(GradeMapper::toModel).toList();
   }
 
+  @Transactional(readOnly = true)
   public Grade findById(UUID id) {
     if (id == null) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "grade id is required");
@@ -243,50 +245,71 @@ public class GradeService {
     if (id == null) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "grade id is required");
     }
+
     if (reason == null || reason.isBlank()) {
       throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST, "a reason is required to modify a grade");
+              HttpStatus.BAD_REQUEST, "a reason is required to modify a grade");
     }
+
     if (modifiedById == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "modifier is required");
+      throw new ResponseStatusException(
+              HttpStatus.BAD_REQUEST, "modifier is required");
+    }
+
+    if (grade == null) {
+      throw new ResponseStatusException(
+              HttpStatus.BAD_REQUEST, "grade cannot be null");
     }
 
     JGrade existingEntity =
-        gradeRepository
-            .findById(id)
-            .orElseThrow(
-                () ->
-                    new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "grade not found with id " + id));
+            gradeRepository
+                    .findById(id)
+                    .orElseThrow(
+                            () ->
+                                    new ResponseStatusException(
+                                            HttpStatus.NOT_FOUND,
+                                            "grade not found with id " + id));
 
-    courseAccessService.assertCanAccessCourse(resolveCourseIdFromExistingGrade(existingEntity));
+    courseAccessService.assertCanAccessCourse(
+            resolveCourseIdFromExistingGrade(existingEntity));
 
-    if (!userRepository.existsById(modifiedById)) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "modifier not found");
-    }
-    if (grade == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "grade cannot be null");
-    }
+    JUser modifiedBy =
+            userRepository
+                    .findById(modifiedById)
+                    .orElseThrow(
+                            () ->
+                                    new ResponseStatusException(
+                                            HttpStatus.NOT_FOUND,
+                                            "modifier not found"));
+
     grade.setId(id);
     gradeValidator.accept(grade);
 
     Double oldValue = existingEntity.getValue();
     Double newValue = grade.getValue();
+
     if (!oldValue.equals(newValue)) {
       JGradeHistory history =
-          JGradeHistory.builder()
-              .date(LocalDateTime.now())
-              .oldValue(oldValue)
-              .newValue(newValue)
-              .reason(reason)
-              .grade(existingEntity)
-              .modifiedBy(JUser.builder().id(modifiedById).build())
-              .build();
+              JGradeHistory.builder()
+                      .date(LocalDateTime.now())
+                      .oldValue(oldValue)
+                      .newValue(newValue)
+                      .reason(reason)
+                      .grade(existingEntity)
+                      .modifiedBy(modifiedBy)
+                      .build();
+
       gradeHistoryValidator.accept(GradeHistoryMapper.toModel(history));
       gradeHistoryRepository.save(history);
     }
 
-    return GradeMapper.toModel(gradeRepository.save(GradeMapper.toEntity(grade)));
+    existingEntity.setValue(newValue);
+
+    if (grade.getDate() != null) {
+      existingEntity.setDate(grade.getDate());
+    }
+
+    return GradeMapper.toModel(gradeRepository.save(existingEntity));
   }
 
   public void delete(UUID id) {
