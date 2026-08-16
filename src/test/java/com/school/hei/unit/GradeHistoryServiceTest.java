@@ -30,188 +30,156 @@ import org.springframework.web.server.ResponseStatusException;
 @ExtendWith(MockitoExtension.class)
 class GradeHistoryServiceTest {
 
-    @Mock
-    private GradeHistoryRepository gradeHistoryRepository;
+  @Mock private GradeHistoryRepository gradeHistoryRepository;
 
-    @Mock
-    private GradeHistoryValidator gradeHistoryValidator;
+  @Mock private GradeHistoryValidator gradeHistoryValidator;
 
-    @InjectMocks
-    private GradeHistoryService gradeHistoryService;
+  @InjectMocks private GradeHistoryService gradeHistoryService;
 
-    private UUID historyId;
-    private UUID gradeId;
-    private UUID userId;
+  private UUID historyId;
+  private UUID gradeId;
+  private UUID userId;
 
-    private JGradeHistory historyEntity;
+  private JGradeHistory historyEntity;
 
-    @BeforeEach
-    void setUp() {
-        historyId = UUID.randomUUID();
-        gradeId = UUID.randomUUID();
-        userId = UUID.randomUUID();
+  @BeforeEach
+  void setUp() {
+    historyId = UUID.randomUUID();
+    gradeId = UUID.randomUUID();
+    userId = UUID.randomUUID();
 
-        JGrade grade =
-                JGrade.builder()
-                        .id(gradeId)
-                        .value(15.0)
-                        .build();
+    JGrade grade = JGrade.builder().id(gradeId).value(15.0).build();
 
-        JUser user =
-                JUser.builder()
-                        .id(userId)
-                        .firstName("John")
-                        .lastName("Doe")
-                        .email("john.doe@gmail.com")
-                        .sex(Sex.MALE)
-                        .role(Role.TEACHER)
-                        .build();
+    JUser user =
+        JUser.builder()
+            .id(userId)
+            .firstName("John")
+            .lastName("Doe")
+            .email("john.doe@gmail.com")
+            .sex(Sex.MALE)
+            .role(Role.TEACHER)
+            .build();
 
-        historyEntity =
-                JGradeHistory.builder()
-                        .id(historyId)
-                        .date(LocalDateTime.of(2026, 8, 1, 10, 30))
-                        .oldValue(10.0)
-                        .newValue(15.0)
-                        .reason("Correction")
-                        .grade(grade)
-                        .modifiedBy(user)
-                        .build();
-    }
+    historyEntity =
+        JGradeHistory.builder()
+            .id(historyId)
+            .date(LocalDateTime.of(2026, 8, 1, 10, 30))
+            .oldValue(10.0)
+            .newValue(15.0)
+            .reason("Correction")
+            .grade(grade)
+            .modifiedBy(user)
+            .build();
+  }
 
-    // ============================================================
-    // FIND ALL
-    // ============================================================
+  @Test
+  void should_find_all_grade_histories() {
+    when(gradeHistoryRepository.findAll()).thenReturn(List.of(historyEntity));
 
-    @Test
-    void should_find_all_grade_histories() {
-        when(gradeHistoryRepository.findAll())
-                .thenReturn(List.of(historyEntity));
+    List<GradeHistory> result = gradeHistoryService.findAll();
 
-        List<GradeHistory> result = gradeHistoryService.findAll();
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).getId()).isEqualTo(historyId);
+    assertThat(result.get(0).getOldValue()).isEqualTo(10.0);
+    assertThat(result.get(0).getNewValue()).isEqualTo(15.0);
+    assertThat(result.get(0).getReason()).isEqualTo("Correction");
 
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getId()).isEqualTo(historyId);
-        assertThat(result.get(0).getOldValue()).isEqualTo(10.0);
-        assertThat(result.get(0).getNewValue()).isEqualTo(15.0);
-        assertThat(result.get(0).getReason()).isEqualTo("Correction");
+    verify(gradeHistoryRepository).findAll();
+  }
 
-        verify(gradeHistoryRepository).findAll();
-    }
+  @Test
+  void should_return_empty_list_when_no_grade_histories() {
+    when(gradeHistoryRepository.findAll()).thenReturn(List.of());
 
-    @Test
-    void should_return_empty_list_when_no_grade_histories() {
-        when(gradeHistoryRepository.findAll())
-                .thenReturn(List.of());
+    List<GradeHistory> result = gradeHistoryService.findAll();
 
-        List<GradeHistory> result = gradeHistoryService.findAll();
+    assertThat(result).isEmpty();
 
-        assertThat(result).isEmpty();
+    verify(gradeHistoryRepository).findAll();
+  }
 
-        verify(gradeHistoryRepository).findAll();
-    }
+  @Test
+  void should_find_grade_history_by_id() {
+    when(gradeHistoryRepository.findById(historyId)).thenReturn(Optional.of(historyEntity));
 
-    // ============================================================
-    // FIND BY ID
-    // ============================================================
+    GradeHistory result = gradeHistoryService.findById(historyId);
 
-    @Test
-    void should_find_grade_history_by_id() {
-        when(gradeHistoryRepository.findById(historyId))
-                .thenReturn(Optional.of(historyEntity));
+    assertThat(result).isNotNull();
+    assertThat(result.getId()).isEqualTo(historyId);
+    assertThat(result.getOldValue()).isEqualTo(10.0);
+    assertThat(result.getNewValue()).isEqualTo(15.0);
+    assertThat(result.getReason()).isEqualTo("Correction");
 
-        GradeHistory result = gradeHistoryService.findById(historyId);
+    verify(gradeHistoryRepository).findById(historyId);
+  }
 
-        assertThat(result).isNotNull();
-        assertThat(result.getId()).isEqualTo(historyId);
-        assertThat(result.getOldValue()).isEqualTo(10.0);
-        assertThat(result.getNewValue()).isEqualTo(15.0);
-        assertThat(result.getReason()).isEqualTo("Correction");
+  @Test
+  void should_throw_when_grade_history_does_not_exist() {
+    when(gradeHistoryRepository.findById(historyId)).thenReturn(Optional.empty());
 
-        verify(gradeHistoryRepository).findById(historyId);
-    }
+    assertThatThrownBy(() -> gradeHistoryService.findById(historyId))
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("grade history not found");
 
-    @Test
-    void should_throw_when_grade_history_does_not_exist() {
-        when(gradeHistoryRepository.findById(historyId))
-                .thenReturn(Optional.empty());
+    verify(gradeHistoryRepository).findById(historyId);
+  }
 
-        assertThatThrownBy(() -> gradeHistoryService.findById(historyId))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("grade history not found");
+  @Test
+  void should_save_grade_history() {
+    GradeHistory history = GradeHistoryMapper.toModel(historyEntity);
 
-        verify(gradeHistoryRepository).findById(historyId);
-    }
+    when(gradeHistoryRepository.save(any(JGradeHistory.class))).thenReturn(historyEntity);
 
-    // ============================================================
-    // SAVE
-    // ============================================================
+    GradeHistory result = gradeHistoryService.save(history);
 
-    @Test
-    void should_save_grade_history() {
-        GradeHistory history =
-                GradeHistoryMapper.toModel(historyEntity);
+    assertThat(result).isNotNull();
+    assertThat(result.getId()).isEqualTo(historyId);
+    assertThat(result.getOldValue()).isEqualTo(10.0);
+    assertThat(result.getNewValue()).isEqualTo(15.0);
+    assertThat(result.getReason()).isEqualTo("Correction");
 
-        when(gradeHistoryRepository.save(any(JGradeHistory.class)))
-                .thenReturn(historyEntity);
+    verify(gradeHistoryValidator).accept(history);
+    verify(gradeHistoryRepository).save(any(JGradeHistory.class));
+  }
 
-        GradeHistory result = gradeHistoryService.save(history);
+  @Test
+  void should_set_current_date_when_saving_history_without_date() {
+    GradeHistory history = GradeHistoryMapper.toModel(historyEntity);
 
-        assertThat(result).isNotNull();
-        assertThat(result.getId()).isEqualTo(historyId);
-        assertThat(result.getOldValue()).isEqualTo(10.0);
-        assertThat(result.getNewValue()).isEqualTo(15.0);
-        assertThat(result.getReason()).isEqualTo("Correction");
+    history.setDate(null);
 
-        verify(gradeHistoryValidator).accept(history);
-        verify(gradeHistoryRepository).save(any(JGradeHistory.class));
-    }
+    when(gradeHistoryRepository.save(any(JGradeHistory.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
-    @Test
-    void should_set_current_date_when_saving_history_without_date() {
-        GradeHistory history =
-                GradeHistoryMapper.toModel(historyEntity);
+    GradeHistory result = gradeHistoryService.save(history);
 
-        history.setDate(null);
+    assertThat(result.getDate()).isNotNull();
+    assertThat(result.getDate()).isBeforeOrEqualTo(LocalDateTime.now());
+    assertThat(result.getDate()).isAfter(LocalDateTime.now().minusSeconds(5));
 
-        when(gradeHistoryRepository.save(any(JGradeHistory.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+    verify(gradeHistoryValidator).accept(history);
+    verify(gradeHistoryRepository).save(any(JGradeHistory.class));
+  }
 
-        GradeHistory result = gradeHistoryService.save(history);
+  @Test
+  void should_delete_grade_history() {
+    when(gradeHistoryRepository.existsById(historyId)).thenReturn(true);
 
-        assertThat(result.getDate()).isNotNull();
-        assertThat(result.getDate()).isBeforeOrEqualTo(LocalDateTime.now());
-        assertThat(result.getDate()).isAfter(LocalDateTime.now().minusSeconds(5));
+    gradeHistoryService.delete(historyId);
 
-        verify(gradeHistoryValidator).accept(history);
-        verify(gradeHistoryRepository).save(any(JGradeHistory.class));
-    }
+    verify(gradeHistoryRepository).existsById(historyId);
+    verify(gradeHistoryRepository).deleteById(historyId);
+  }
 
-    // ============================================================
-    // DELETE
-    // ============================================================
+  @Test
+  void should_throw_when_deleting_non_existing_grade_history() {
+    when(gradeHistoryRepository.existsById(historyId)).thenReturn(false);
 
-    @Test
-    void should_delete_grade_history() {
-        when(gradeHistoryRepository.existsById(historyId))
-                .thenReturn(true);
+    assertThatThrownBy(() -> gradeHistoryService.delete(historyId))
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("grade history not found");
 
-        gradeHistoryService.delete(historyId);
-
-        verify(gradeHistoryRepository).existsById(historyId);
-        verify(gradeHistoryRepository).deleteById(historyId);
-    }
-
-    @Test
-    void should_throw_when_deleting_non_existing_grade_history() {
-        when(gradeHistoryRepository.existsById(historyId))
-                .thenReturn(false);
-
-        assertThatThrownBy(() -> gradeHistoryService.delete(historyId))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("grade history not found");
-
-        verify(gradeHistoryRepository).existsById(historyId);
-        verify(gradeHistoryRepository, never()).deleteById(any());
-    }
+    verify(gradeHistoryRepository).existsById(historyId);
+    verify(gradeHistoryRepository, never()).deleteById(any());
+  }
 }

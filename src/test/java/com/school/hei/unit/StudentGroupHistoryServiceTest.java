@@ -1,4 +1,3 @@
 package com.school.hei.unit;
 
-public class StudentGroupHistoryServiceTest {
-}
+public class StudentGroupHistoryServiceTest {}

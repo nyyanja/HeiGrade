@@ -1,7 +1,7 @@
 package com.school.hei.unit;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 import com.school.hei.model.Grade;
@@ -21,235 +21,190 @@ import org.springframework.web.server.ResponseStatusException;
 @ExtendWith(MockitoExtension.class)
 class GradeHistoryValidatorTest {
 
-    @Mock
-    private GradeRepository gradeRepository;
+  @Mock private GradeRepository gradeRepository;
 
-    @Mock
-    private UserRepository userRepository;
+  @Mock private UserRepository userRepository;
 
-    private GradeHistoryValidator validator;
+  private GradeHistoryValidator validator;
 
-    private UUID gradeId;
-    private UUID userId;
+  private UUID gradeId;
+  private UUID userId;
 
-    @BeforeEach
-    void setUp() {
-        validator = new GradeHistoryValidator(gradeRepository, userRepository);
+  @BeforeEach
+  void setUp() {
+    validator = new GradeHistoryValidator(gradeRepository, userRepository);
 
-        gradeId = UUID.randomUUID();
-        userId = UUID.randomUUID();
-    }
+    gradeId = UUID.randomUUID();
+    userId = UUID.randomUUID();
+  }
 
-    private GradeHistory validHistory() {
-        return GradeHistory.builder()
-                .id(UUID.randomUUID())
-                .oldValue(10.0)
-                .newValue(15.0)
-                .reason("Correction")
-                .grade(
-                        Grade.builder()
-                                .id(gradeId)
-                                .build())
-                .modifiedBy(
-                        User.builder()
-                                .id(userId)
-                                .build())
-                .build();
-    }
+  private GradeHistory validHistory() {
+    return GradeHistory.builder()
+        .id(UUID.randomUUID())
+        .oldValue(10.0)
+        .newValue(15.0)
+        .reason("Correction")
+        .grade(Grade.builder().id(gradeId).build())
+        .modifiedBy(User.builder().id(userId).build())
+        .build();
+  }
 
-    // ============================================================
-    // VALIDATION SUCCESS
-    // ============================================================
+  @Test
+  void should_accept_valid_grade_history() {
+    GradeHistory history = validHistory();
 
-    @Test
-    void should_accept_valid_grade_history() {
-        GradeHistory history = validHistory();
+    when(gradeRepository.existsById(gradeId)).thenReturn(true);
+    when(userRepository.existsById(userId)).thenReturn(true);
 
-        when(gradeRepository.existsById(gradeId)).thenReturn(true);
-        when(userRepository.existsById(userId)).thenReturn(true);
+    assertThatCode(() -> validator.accept(history)).doesNotThrowAnyException();
 
-        assertThatCode(() -> validator.accept(history))
-                .doesNotThrowAnyException();
+    verify(gradeRepository).existsById(gradeId);
+    verify(userRepository).existsById(userId);
+  }
 
-        verify(gradeRepository).existsById(gradeId);
-        verify(userRepository).existsById(userId);
-    }
+  @Test
+  void should_reject_null_grade_history() {
+    assertThatThrownBy(() -> validator.accept(null))
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("grade history cannot be null");
 
-    // ============================================================
-    // NULL HISTORY
-    // ============================================================
+    verifyNoInteractions(gradeRepository, userRepository);
+  }
 
-    @Test
-    void should_reject_null_grade_history() {
-        assertThatThrownBy(() -> validator.accept(null))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("grade history cannot be null");
+  @Test
+  void should_reject_null_reason() {
+    GradeHistory history = validHistory();
+    history.setReason(null);
 
-        verifyNoInteractions(gradeRepository, userRepository);
-    }
+    assertThatThrownBy(() -> validator.accept(history))
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("reason is required for grade history");
 
-    // ============================================================
-    // REASON
-    // ============================================================
+    verifyNoInteractions(gradeRepository, userRepository);
+  }
 
-    @Test
-    void should_reject_null_reason() {
-        GradeHistory history = validHistory();
-        history.setReason(null);
+  @Test
+  void should_reject_blank_reason() {
+    GradeHistory history = validHistory();
+    history.setReason("   ");
 
-        assertThatThrownBy(() -> validator.accept(history))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("reason is required for grade history");
+    assertThatThrownBy(() -> validator.accept(history))
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("reason is required for grade history");
 
-        verifyNoInteractions(gradeRepository, userRepository);
-    }
+    verifyNoInteractions(gradeRepository, userRepository);
+  }
 
-    @Test
-    void should_reject_blank_reason() {
-        GradeHistory history = validHistory();
-        history.setReason("   ");
+  @Test
+  void should_reject_null_old_value() {
+    GradeHistory history = validHistory();
+    history.setOldValue(null);
 
-        assertThatThrownBy(() -> validator.accept(history))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("reason is required for grade history");
+    assertThatThrownBy(() -> validator.accept(history))
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("old value is required");
 
-        verifyNoInteractions(gradeRepository, userRepository);
-    }
+    verifyNoInteractions(gradeRepository, userRepository);
+  }
 
-    // ============================================================
-    // OLD VALUE
-    // ============================================================
+  @Test
+  void should_reject_null_new_value() {
+    GradeHistory history = validHistory();
+    history.setNewValue(null);
 
-    @Test
-    void should_reject_null_old_value() {
-        GradeHistory history = validHistory();
-        history.setOldValue(null);
+    assertThatThrownBy(() -> validator.accept(history))
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("new value is required");
 
-        assertThatThrownBy(() -> validator.accept(history))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("old value is required");
+    verifyNoInteractions(gradeRepository, userRepository);
+  }
 
-        verifyNoInteractions(gradeRepository, userRepository);
-    }
+  @Test
+  void should_reject_same_old_and_new_value() {
+    GradeHistory history = validHistory();
+    history.setNewValue(history.getOldValue());
 
-    // ============================================================
-    // NEW VALUE
-    // ============================================================
+    assertThatThrownBy(() -> validator.accept(history))
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("new value must be different from old value");
 
-    @Test
-    void should_reject_null_new_value() {
-        GradeHistory history = validHistory();
-        history.setNewValue(null);
+    verifyNoInteractions(gradeRepository, userRepository);
+  }
 
-        assertThatThrownBy(() -> validator.accept(history))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("new value is required");
+  @Test
+  void should_reject_null_grade() {
+    GradeHistory history = validHistory();
+    history.setGrade(null);
 
-        verifyNoInteractions(gradeRepository, userRepository);
-    }
+    assertThatThrownBy(() -> validator.accept(history))
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("grade is required");
 
-    @Test
-    void should_reject_same_old_and_new_value() {
-        GradeHistory history = validHistory();
-        history.setNewValue(history.getOldValue());
+    verifyNoInteractions(gradeRepository, userRepository);
+  }
 
-        assertThatThrownBy(() -> validator.accept(history))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("new value must be different from old value");
+  @Test
+  void should_reject_grade_without_id() {
+    GradeHistory history = validHistory();
+    history.setGrade(Grade.builder().build());
 
-        verifyNoInteractions(gradeRepository, userRepository);
-    }
+    assertThatThrownBy(() -> validator.accept(history))
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("grade is required");
 
-    // ============================================================
-    // GRADE
-    // ============================================================
+    verifyNoInteractions(gradeRepository, userRepository);
+  }
 
-    @Test
-    void should_reject_null_grade() {
-        GradeHistory history = validHistory();
-        history.setGrade(null);
+  @Test
+  void should_reject_null_modifier() {
+    GradeHistory history = validHistory();
+    history.setModifiedBy(null);
 
-        assertThatThrownBy(() -> validator.accept(history))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("grade is required");
+    assertThatThrownBy(() -> validator.accept(history))
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("modifier is required");
 
-        verifyNoInteractions(gradeRepository, userRepository);
-    }
+    verifyNoInteractions(gradeRepository, userRepository);
+  }
 
-    @Test
-    void should_reject_grade_without_id() {
-        GradeHistory history = validHistory();
-        history.setGrade(Grade.builder().build());
+  @Test
+  void should_reject_modifier_without_id() {
+    GradeHistory history = validHistory();
+    history.setModifiedBy(User.builder().build());
 
-        assertThatThrownBy(() -> validator.accept(history))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("grade is required");
+    assertThatThrownBy(() -> validator.accept(history))
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("modifier is required");
 
-        verifyNoInteractions(gradeRepository, userRepository);
-    }
+    verifyNoInteractions(gradeRepository, userRepository);
+  }
 
-    // ============================================================
-    // MODIFIER
-    // ============================================================
+  @Test
+  void should_reject_when_grade_does_not_exist() {
+    GradeHistory history = validHistory();
 
-    @Test
-    void should_reject_null_modifier() {
-        GradeHistory history = validHistory();
-        history.setModifiedBy(null);
+    when(gradeRepository.existsById(gradeId)).thenReturn(false);
 
-        assertThatThrownBy(() -> validator.accept(history))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("modifier is required");
+    assertThatThrownBy(() -> validator.accept(history))
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("grade not found");
 
-        verifyNoInteractions(gradeRepository, userRepository);
-    }
+    verify(gradeRepository).existsById(gradeId);
+    verifyNoInteractions(userRepository);
+  }
 
-    @Test
-    void should_reject_modifier_without_id() {
-        GradeHistory history = validHistory();
-        history.setModifiedBy(User.builder().build());
+  @Test
+  void should_reject_when_modifier_does_not_exist() {
+    GradeHistory history = validHistory();
 
-        assertThatThrownBy(() -> validator.accept(history))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("modifier is required");
+    when(gradeRepository.existsById(gradeId)).thenReturn(true);
+    when(userRepository.existsById(userId)).thenReturn(false);
 
-        verifyNoInteractions(gradeRepository, userRepository);
-    }
+    assertThatThrownBy(() -> validator.accept(history))
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("modifier not found");
 
-    // ============================================================
-    // GRADE EXISTENCE
-    // ============================================================
-
-    @Test
-    void should_reject_when_grade_does_not_exist() {
-        GradeHistory history = validHistory();
-
-        when(gradeRepository.existsById(gradeId)).thenReturn(false);
-
-        assertThatThrownBy(() -> validator.accept(history))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("grade not found");
-
-        verify(gradeRepository).existsById(gradeId);
-        verifyNoInteractions(userRepository);
-    }
-
-    // ============================================================
-    // MODIFIER EXISTENCE
-    // ============================================================
-
-    @Test
-    void should_reject_when_modifier_does_not_exist() {
-        GradeHistory history = validHistory();
-
-        when(gradeRepository.existsById(gradeId)).thenReturn(true);
-        when(userRepository.existsById(userId)).thenReturn(false);
-
-        assertThatThrownBy(() -> validator.accept(history))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("modifier not found");
-
-        verify(gradeRepository).existsById(gradeId);
-        verify(userRepository).existsById(userId);
-    }
+    verify(gradeRepository).existsById(gradeId);
+    verify(userRepository).existsById(userId);
+  }
 }

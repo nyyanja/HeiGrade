@@ -25,271 +25,266 @@ import org.springframework.web.server.ResponseStatusException;
 @ExtendWith(MockitoExtension.class)
 class TeacherServiceTest {
 
-    @Mock private TeacherRepository teacherRepository;
+  @Mock private TeacherRepository teacherRepository;
 
-    @Mock private TeacherValidator teacherValidator;
+  @Mock private TeacherValidator teacherValidator;
 
-    @Mock private CourseRepository courseRepository;
+  @Mock private CourseRepository courseRepository;
 
-    @InjectMocks private TeacherService teacherService;
+  @InjectMocks private TeacherService teacherService;
 
-    private UUID teacherId;
-    private UUID courseId;
+  private UUID teacherId;
+  private UUID courseId;
 
-    private JTeacher teacherEntity;
-    private Teacher teacher;
+  private JTeacher teacherEntity;
+  private Teacher teacher;
 
-    @BeforeEach
-    void setUp() {
-        teacherId = UUID.randomUUID();
-        courseId = UUID.randomUUID();
+  @BeforeEach
+  void setUp() {
+    teacherId = UUID.randomUUID();
+    courseId = UUID.randomUUID();
 
-        teacherEntity =
-                JTeacher.builder()
-                        .id(teacherId)
-                        .firstName("John")
-                        .lastName("Doe")
-                        .email("john.doe@test.com")
-                        .speciality("Computer Science")
-                        .build();
+    teacherEntity =
+        JTeacher.builder()
+            .id(teacherId)
+            .firstName("John")
+            .lastName("Doe")
+            .email("john.doe@test.com")
+            .speciality("Computer Science")
+            .build();
 
-        teacher =
-                Teacher.builder()
-                        .id(teacherId)
-                        .firstName("John")
-                        .lastName("Doe")
-                        .email("john.doe@test.com")
-                        .speciality("Computer Science")
-                        .build();
-    }
+    teacher =
+        Teacher.builder()
+            .id(teacherId)
+            .firstName("John")
+            .lastName("Doe")
+            .email("john.doe@test.com")
+            .speciality("Computer Science")
+            .build();
+  }
 
-    @Test
-    void should_find_all_teachers() {
-        when(teacherRepository.findAll()).thenReturn(List.of(teacherEntity));
+  @Test
+  void should_find_all_teachers() {
+    when(teacherRepository.findAll()).thenReturn(List.of(teacherEntity));
 
-        List<Teacher> result = teacherService.findAll();
+    List<Teacher> result = teacherService.findAll();
 
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getId()).isEqualTo(teacherId);
-        assertThat(result.get(0).getFirstName()).isEqualTo("John");
-        assertThat(result.get(0).getLastName()).isEqualTo("Doe");
-        assertThat(result.get(0).getSpeciality()).isEqualTo("Computer Science");
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).getId()).isEqualTo(teacherId);
+    assertThat(result.get(0).getFirstName()).isEqualTo("John");
+    assertThat(result.get(0).getLastName()).isEqualTo("Doe");
+    assertThat(result.get(0).getSpeciality()).isEqualTo("Computer Science");
 
-        verify(teacherRepository).findAll();
-    }
+    verify(teacherRepository).findAll();
+  }
 
-    @Test
-    void should_find_teacher_by_id() {
-        when(teacherRepository.findById(teacherId)).thenReturn(Optional.of(teacherEntity));
+  @Test
+  void should_find_teacher_by_id() {
+    when(teacherRepository.findById(teacherId)).thenReturn(Optional.of(teacherEntity));
 
-        Teacher result = teacherService.findById(teacherId);
+    Teacher result = teacherService.findById(teacherId);
 
-        assertThat(result).isNotNull();
-        assertThat(result.getId()).isEqualTo(teacherId);
-        assertThat(result.getSpeciality()).isEqualTo("Computer Science");
+    assertThat(result).isNotNull();
+    assertThat(result.getId()).isEqualTo(teacherId);
+    assertThat(result.getSpeciality()).isEqualTo("Computer Science");
 
-        verify(teacherRepository).findById(teacherId);
-    }
+    verify(teacherRepository).findById(teacherId);
+  }
 
-    @Test
-    void should_throw_not_found_when_teacher_does_not_exist() {
-        when(teacherRepository.findById(teacherId)).thenReturn(Optional.empty());
+  @Test
+  void should_throw_not_found_when_teacher_does_not_exist() {
+    when(teacherRepository.findById(teacherId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> teacherService.findById(teacherId))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("teacher not found");
+    assertThatThrownBy(() -> teacherService.findById(teacherId))
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("teacher not found");
 
-        verify(teacherRepository).findById(teacherId);
-    }
+    verify(teacherRepository).findById(teacherId);
+  }
 
-    @Test
-    void should_find_teachers_by_speciality() {
-        when(teacherRepository.findBySpecialityContainingIgnoreCase("Computer"))
-                .thenReturn(List.of(teacherEntity));
+  @Test
+  void should_find_teachers_by_speciality() {
+    when(teacherRepository.findBySpecialityContainingIgnoreCase("Computer"))
+        .thenReturn(List.of(teacherEntity));
 
-        List<Teacher> result = teacherService.findBySpeciality("Computer");
+    List<Teacher> result = teacherService.findBySpeciality("Computer");
 
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getSpeciality()).isEqualTo("Computer Science");
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).getSpeciality()).isEqualTo("Computer Science");
 
-        verify(teacherRepository).findBySpecialityContainingIgnoreCase("Computer");
-    }
+    verify(teacherRepository).findBySpecialityContainingIgnoreCase("Computer");
+  }
 
-    @Test
-    void should_reject_blank_speciality() {
-        assertThatThrownBy(() -> teacherService.findBySpeciality(" "))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("speciality is required");
+  @Test
+  void should_reject_blank_speciality() {
+    assertThatThrownBy(() -> teacherService.findBySpeciality(" "))
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("speciality is required");
 
-        verify(teacherRepository, never()).findBySpecialityContainingIgnoreCase(anyString());
-    }
+    verify(teacherRepository, never()).findBySpecialityContainingIgnoreCase(anyString());
+  }
 
-    @Test
-    void should_reject_null_speciality() {
-        assertThatThrownBy(() -> teacherService.findBySpeciality(null))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("speciality is required");
+  @Test
+  void should_reject_null_speciality() {
+    assertThatThrownBy(() -> teacherService.findBySpeciality(null))
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("speciality is required");
 
-        verify(teacherRepository, never()).findBySpecialityContainingIgnoreCase(anyString());
-    }
+    verify(teacherRepository, never()).findBySpecialityContainingIgnoreCase(anyString());
+  }
 
-    @Test
-    void should_find_teachers_by_name() {
-        when(teacherRepository
-                .findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(
-                        "John", "John"))
-                .thenReturn(List.of(teacherEntity));
+  @Test
+  void should_find_teachers_by_name() {
+    when(teacherRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(
+            "John", "John"))
+        .thenReturn(List.of(teacherEntity));
 
-        List<Teacher> result = teacherService.findByName("John");
+    List<Teacher> result = teacherService.findByName("John");
 
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getFirstName()).isEqualTo("John");
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).getFirstName()).isEqualTo("John");
 
-        verify(teacherRepository)
-                .findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase("John", "John");
-    }
+    verify(teacherRepository)
+        .findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase("John", "John");
+  }
 
-    @Test
-    void should_reject_blank_name() {
-        assertThatThrownBy(() -> teacherService.findByName(" "))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("name is required");
+  @Test
+  void should_reject_blank_name() {
+    assertThatThrownBy(() -> teacherService.findByName(" "))
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("name is required");
 
-        verify(
-                teacherRepository,
-                never())
-                .findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(
-                        anyString(), anyString());
-    }
+    verify(teacherRepository, never())
+        .findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(
+            anyString(), anyString());
+  }
 
-    @Test
-    void should_reject_null_name() {
-        assertThatThrownBy(() -> teacherService.findByName(null))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("name is required");
+  @Test
+  void should_reject_null_name() {
+    assertThatThrownBy(() -> teacherService.findByName(null))
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("name is required");
 
-        verify(
-                teacherRepository,
-                never())
-                .findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(
-                        anyString(), anyString());
-    }
+    verify(teacherRepository, never())
+        .findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(
+            anyString(), anyString());
+  }
 
-    @Test
-    void should_find_teachers_by_course() {
-        when(courseRepository.existsById(courseId)).thenReturn(true);
-        when(teacherRepository.findByCourseId(courseId)).thenReturn(List.of(teacherEntity));
+  @Test
+  void should_find_teachers_by_course() {
+    when(courseRepository.existsById(courseId)).thenReturn(true);
+    when(teacherRepository.findByCourseId(courseId)).thenReturn(List.of(teacherEntity));
 
-        List<Teacher> result = teacherService.findByCourse(courseId);
+    List<Teacher> result = teacherService.findByCourse(courseId);
 
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getId()).isEqualTo(teacherId);
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).getId()).isEqualTo(teacherId);
 
-        verify(courseRepository).existsById(courseId);
-        verify(teacherRepository).findByCourseId(courseId);
-    }
+    verify(courseRepository).existsById(courseId);
+    verify(teacherRepository).findByCourseId(courseId);
+  }
 
-    @Test
-    void should_throw_not_found_when_course_does_not_exist() {
-        when(courseRepository.existsById(courseId)).thenReturn(false);
+  @Test
+  void should_throw_not_found_when_course_does_not_exist() {
+    when(courseRepository.existsById(courseId)).thenReturn(false);
 
-        assertThatThrownBy(() -> teacherService.findByCourse(courseId))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("course not found");
+    assertThatThrownBy(() -> teacherService.findByCourse(courseId))
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("course not found");
 
-        verify(courseRepository).existsById(courseId);
-        verify(teacherRepository, never()).findByCourseId(any());
-    }
+    verify(courseRepository).existsById(courseId);
+    verify(teacherRepository, never()).findByCourseId(any());
+  }
 
-    @Test
-    void should_save_teacher() {
-        Teacher newTeacher =
-                Teacher.builder()
-                        .firstName("John")
-                        .lastName("Doe")
-                        .email("john.doe@test.com")
-                        .speciality("Computer Science")
-                        .build();
+  @Test
+  void should_save_teacher() {
+    Teacher newTeacher =
+        Teacher.builder()
+            .firstName("John")
+            .lastName("Doe")
+            .email("john.doe@test.com")
+            .speciality("Computer Science")
+            .build();
 
-        when(teacherRepository.save(any(JTeacher.class))).thenReturn(teacherEntity);
+    when(teacherRepository.save(any(JTeacher.class))).thenReturn(teacherEntity);
 
-        Teacher result = teacherService.save(newTeacher);
+    Teacher result = teacherService.save(newTeacher);
 
-        assertThat(result).isNotNull();
-        assertThat(result.getId()).isEqualTo(teacherId);
-        assertThat(result.getSpeciality()).isEqualTo("Computer Science");
+    assertThat(result).isNotNull();
+    assertThat(result.getId()).isEqualTo(teacherId);
+    assertThat(result.getSpeciality()).isEqualTo("Computer Science");
 
-        verify(teacherValidator).accept(newTeacher);
-        verify(teacherRepository).save(any(JTeacher.class));
-    }
+    verify(teacherValidator).accept(newTeacher);
+    verify(teacherRepository).save(any(JTeacher.class));
+  }
 
-    @Test
-    void should_update_teacher() {
-        Teacher updatedTeacher =
-                Teacher.builder()
-                        .firstName("Jane")
-                        .lastName("Doe")
-                        .email("jane.doe@test.com")
-                        .speciality("Data Science")
-                        .build();
+  @Test
+  void should_update_teacher() {
+    Teacher updatedTeacher =
+        Teacher.builder()
+            .firstName("Jane")
+            .lastName("Doe")
+            .email("jane.doe@test.com")
+            .speciality("Data Science")
+            .build();
 
-        JTeacher updatedEntity =
-                JTeacher.builder()
-                        .id(teacherId)
-                        .firstName("Jane")
-                        .lastName("Doe")
-                        .email("jane.doe@test.com")
-                        .speciality("Data Science")
-                        .build();
+    JTeacher updatedEntity =
+        JTeacher.builder()
+            .id(teacherId)
+            .firstName("Jane")
+            .lastName("Doe")
+            .email("jane.doe@test.com")
+            .speciality("Data Science")
+            .build();
 
-        when(teacherRepository.findById(teacherId)).thenReturn(Optional.of(teacherEntity));
-        when(teacherRepository.save(any(JTeacher.class))).thenReturn(updatedEntity);
+    when(teacherRepository.findById(teacherId)).thenReturn(Optional.of(teacherEntity));
+    when(teacherRepository.save(any(JTeacher.class))).thenReturn(updatedEntity);
 
-        Teacher result = teacherService.update(teacherId, updatedTeacher);
+    Teacher result = teacherService.update(teacherId, updatedTeacher);
 
-        assertThat(result).isNotNull();
-        assertThat(result.getId()).isEqualTo(teacherId);
-        assertThat(result.getFirstName()).isEqualTo("Jane");
-        assertThat(result.getSpeciality()).isEqualTo("Data Science");
-        assertThat(updatedTeacher.getId()).isEqualTo(teacherId);
+    assertThat(result).isNotNull();
+    assertThat(result.getId()).isEqualTo(teacherId);
+    assertThat(result.getFirstName()).isEqualTo("Jane");
+    assertThat(result.getSpeciality()).isEqualTo("Data Science");
+    assertThat(updatedTeacher.getId()).isEqualTo(teacherId);
 
-        verify(teacherRepository).findById(teacherId);
-        verify(teacherValidator).accept(updatedTeacher);
-        verify(teacherRepository).save(any(JTeacher.class));
-    }
+    verify(teacherRepository).findById(teacherId);
+    verify(teacherValidator).accept(updatedTeacher);
+    verify(teacherRepository).save(any(JTeacher.class));
+  }
 
-    @Test
-    void should_throw_not_found_when_updating_non_existing_teacher() {
-        when(teacherRepository.findById(teacherId)).thenReturn(Optional.empty());
+  @Test
+  void should_throw_not_found_when_updating_non_existing_teacher() {
+    when(teacherRepository.findById(teacherId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> teacherService.update(teacherId, teacher))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("teacher not found");
+    assertThatThrownBy(() -> teacherService.update(teacherId, teacher))
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("teacher not found");
 
-        verify(teacherRepository).findById(teacherId);
-        verify(teacherRepository, never()).save(any());
-        verify(teacherValidator, never()).accept(any());
-    }
+    verify(teacherRepository).findById(teacherId);
+    verify(teacherRepository, never()).save(any());
+    verify(teacherValidator, never()).accept(any());
+  }
 
-    @Test
-    void should_delete_teacher() {
-        when(teacherRepository.existsById(teacherId)).thenReturn(true);
+  @Test
+  void should_delete_teacher() {
+    when(teacherRepository.existsById(teacherId)).thenReturn(true);
 
-        teacherService.delete(teacherId);
+    teacherService.delete(teacherId);
 
-        verify(teacherRepository).existsById(teacherId);
-        verify(teacherRepository).deleteById(teacherId);
-    }
+    verify(teacherRepository).existsById(teacherId);
+    verify(teacherRepository).deleteById(teacherId);
+  }
 
-    @Test
-    void should_throw_not_found_when_deleting_non_existing_teacher() {
-        when(teacherRepository.existsById(teacherId)).thenReturn(false);
+  @Test
+  void should_throw_not_found_when_deleting_non_existing_teacher() {
+    when(teacherRepository.existsById(teacherId)).thenReturn(false);
 
-        assertThatThrownBy(() -> teacherService.delete(teacherId))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("teacher not found");
+    assertThatThrownBy(() -> teacherService.delete(teacherId))
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("teacher not found");
 
-        verify(teacherRepository).existsById(teacherId);
-        verify(teacherRepository, never()).deleteById(any());
-    }
+    verify(teacherRepository).existsById(teacherId);
+    verify(teacherRepository, never()).deleteById(any());
+  }
 }

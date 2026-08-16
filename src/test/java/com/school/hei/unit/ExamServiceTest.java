@@ -3,8 +3,6 @@ package com.school.hei.unit;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import com.school.hei.entity.JExam;
@@ -34,661 +32,515 @@ import org.springframework.web.server.ResponseStatusException;
 @ExtendWith(MockitoExtension.class)
 class ExamServiceTest {
 
-    @Mock
-    private ExamRepository examRepository;
+  @Mock private ExamRepository examRepository;
 
-    @Mock
-    private ExamValidator examValidator;
+  @Mock private ExamValidator examValidator;
 
-    @Mock
-    private CourseRepository courseRepository;
+  @Mock private CourseRepository courseRepository;
 
-    @Mock
-    private GroupRepository groupRepository;
+  @Mock private GroupRepository groupRepository;
 
-    @Mock
-    private SpecialityRepository specialityRepository;
+  @Mock private SpecialityRepository specialityRepository;
 
-    @Mock
-    private GroupExamRepository groupExamRepository;
+  @Mock private GroupExamRepository groupExamRepository;
 
-    @InjectMocks
-    private ExamService examService;
+  @InjectMocks private ExamService examService;
 
-    @Test
-    void should_find_all_exams() {
-        UUID examId1 = UUID.randomUUID();
-        UUID examId2 = UUID.randomUUID();
+  @Test
+  void should_find_all_exams() {
+    UUID examId1 = UUID.randomUUID();
+    UUID examId2 = UUID.randomUUID();
 
-        JExam exam1 = createExamEntity(examId1, "Mathematics Exam", 0.4);
-        JExam exam2 = createExamEntity(examId2, "Programming Exam", 0.6);
+    JExam exam1 = createExamEntity(examId1, "Mathematics Exam", 0.4);
+    JExam exam2 = createExamEntity(examId2, "Programming Exam", 0.6);
 
-        when(examRepository.findAll())
-                .thenReturn(List.of(exam1, exam2));
+    when(examRepository.findAll()).thenReturn(List.of(exam1, exam2));
 
-        when(groupExamRepository.findByExam_Id(examId1))
-                .thenReturn(List.of());
+    when(groupExamRepository.findByExam_Id(examId1)).thenReturn(List.of());
 
-        when(groupExamRepository.findByExam_Id(examId2))
-                .thenReturn(List.of());
+    when(groupExamRepository.findByExam_Id(examId2)).thenReturn(List.of());
 
-        List<Exam> result = examService.findAll();
+    List<Exam> result = examService.findAll();
 
-        assertThat(result).hasSize(2);
-        assertThat(result)
-                .extracting(Exam::getTitle)
-                .containsExactly("Mathematics Exam", "Programming Exam");
+    assertThat(result).hasSize(2);
+    assertThat(result)
+        .extracting(Exam::getTitle)
+        .containsExactly("Mathematics Exam", "Programming Exam");
 
-        verify(examRepository).findAll();
-        verify(groupExamRepository).findByExam_Id(examId1);
-        verify(groupExamRepository).findByExam_Id(examId2);
-    }
+    verify(examRepository).findAll();
+    verify(groupExamRepository).findByExam_Id(examId1);
+    verify(groupExamRepository).findByExam_Id(examId2);
+  }
 
-    @Test
-    void should_find_exam_by_id() {
-        UUID examId = UUID.randomUUID();
+  @Test
+  void should_find_exam_by_id() {
+    UUID examId = UUID.randomUUID();
 
-        JExam exam = createExamEntity(examId, "Programming Exam", 0.5);
+    JExam exam = createExamEntity(examId, "Programming Exam", 0.5);
 
-        when(examRepository.findById(examId))
-                .thenReturn(Optional.of(exam));
+    when(examRepository.findById(examId)).thenReturn(Optional.of(exam));
 
-        when(groupExamRepository.findByExam_Id(examId))
-                .thenReturn(List.of());
+    when(groupExamRepository.findByExam_Id(examId)).thenReturn(List.of());
 
-        Exam result = examService.findById(examId);
+    Exam result = examService.findById(examId);
 
-        assertThat(result.getId()).isEqualTo(examId);
-        assertThat(result.getTitle()).isEqualTo("Programming Exam");
-        assertThat(result.getCoeff()).isEqualTo(0.5);
+    assertThat(result.getId()).isEqualTo(examId);
+    assertThat(result.getTitle()).isEqualTo("Programming Exam");
+    assertThat(result.getCoeff()).isEqualTo(0.5);
 
-        verify(examRepository).findById(examId);
-        verify(groupExamRepository).findByExam_Id(examId);
-    }
+    verify(examRepository).findById(examId);
+    verify(groupExamRepository).findByExam_Id(examId);
+  }
 
-    @Test
-    void should_throw_when_exam_is_not_found() {
-        UUID examId = UUID.randomUUID();
+  @Test
+  void should_throw_when_exam_is_not_found() {
+    UUID examId = UUID.randomUUID();
 
-        when(examRepository.findById(examId))
-                .thenReturn(Optional.empty());
+    when(examRepository.findById(examId)).thenReturn(Optional.empty());
 
-        assertThrows(
-                ResponseStatusException.class,
-                () -> examService.findById(examId));
+    assertThrows(ResponseStatusException.class, () -> examService.findById(examId));
 
-        verify(examRepository).findById(examId);
-        verifyNoInteractions(groupExamRepository);
-    }
+    verify(examRepository).findById(examId);
+    verifyNoInteractions(groupExamRepository);
+  }
 
-    @Test
-    void should_find_exams_by_course() {
-        UUID courseId = UUID.randomUUID();
+  @Test
+  void should_find_exams_by_course() {
+    UUID courseId = UUID.randomUUID();
 
-        JExam exam = createExamEntity(UUID.randomUUID(), "Programming Exam", 0.5);
+    JExam exam = createExamEntity(UUID.randomUUID(), "Programming Exam", 0.5);
 
-        when(courseRepository.existsById(courseId))
-                .thenReturn(true);
+    when(courseRepository.existsById(courseId)).thenReturn(true);
 
-        when(examRepository.findByCourse_Id(courseId))
-                .thenReturn(List.of(exam));
+    when(examRepository.findByCourse_Id(courseId)).thenReturn(List.of(exam));
 
-        List<Exam> result = examService.findByCourse(courseId);
+    List<Exam> result = examService.findByCourse(courseId);
 
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getTitle())
-                .isEqualTo("Programming Exam");
-
-        verify(courseRepository).existsById(courseId);
-        verify(examRepository).findByCourse_Id(courseId);
-    }
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).getTitle()).isEqualTo("Programming Exam");
 
-    @Test
-    void should_throw_when_course_is_not_found() {
-        UUID courseId = UUID.randomUUID();
+    verify(courseRepository).existsById(courseId);
+    verify(examRepository).findByCourse_Id(courseId);
+  }
 
-        when(courseRepository.existsById(courseId))
-                .thenReturn(false);
+  @Test
+  void should_throw_when_course_is_not_found() {
+    UUID courseId = UUID.randomUUID();
 
-        assertThrows(
-                ResponseStatusException.class,
-                () -> examService.findByCourse(courseId));
-
-        verify(courseRepository).existsById(courseId);
-        verify(examRepository, never()).findByCourse_Id(courseId);
-    }
+    when(courseRepository.existsById(courseId)).thenReturn(false);
 
-    @Test
-    void should_find_exams_by_title() {
-        JExam exam =
-                createExamEntity(
-                        UUID.randomUUID(),
-                        "Mathematics Final Exam",
-                        0.5);
-
-        when(examRepository.findByTitleContainingIgnoreCase("math"))
-                .thenReturn(List.of(exam));
-
-        List<Exam> result = examService.findByTitle("math");
-
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getTitle())
-                .isEqualTo("Mathematics Final Exam");
-
-        verify(examRepository)
-                .findByTitleContainingIgnoreCase("math");
-    }
-
-    @Test
-    void should_throw_when_exam_title_is_blank() {
-        assertThrows(
-                ResponseStatusException.class,
-                () -> examService.findByTitle(""));
-
-        verifyNoInteractions(examRepository);
-    }
-
-    @Test
-    void should_throw_when_exam_title_is_null() {
-        assertThrows(
-                ResponseStatusException.class,
-                () -> examService.findByTitle(null));
+    assertThrows(ResponseStatusException.class, () -> examService.findByCourse(courseId));
 
-        verifyNoInteractions(examRepository);
-    }
+    verify(courseRepository).existsById(courseId);
+    verify(examRepository, never()).findByCourse_Id(courseId);
+  }
 
-    @Test
-    void should_find_exams_by_date() {
-        LocalDate date = LocalDate.of(2026, 8, 20);
+  @Test
+  void should_find_exams_by_title() {
+    JExam exam = createExamEntity(UUID.randomUUID(), "Mathematics Final Exam", 0.5);
 
-        JExam exam =
-                JExam.builder()
-                        .id(UUID.randomUUID())
-                        .date(date)
-                        .coeff(0.5)
-                        .title("Programming Exam")
-                        .build();
+    when(examRepository.findByTitleContainingIgnoreCase("math")).thenReturn(List.of(exam));
 
-        when(examRepository.findByDate(date))
-                .thenReturn(List.of(exam));
+    List<Exam> result = examService.findByTitle("math");
 
-        List<Exam> result = examService.findByDate(date);
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).getTitle()).isEqualTo("Mathematics Final Exam");
 
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getDate()).isEqualTo(date);
+    verify(examRepository).findByTitleContainingIgnoreCase("math");
+  }
 
-        verify(examRepository).findByDate(date);
-    }
+  @Test
+  void should_throw_when_exam_title_is_blank() {
+    assertThrows(ResponseStatusException.class, () -> examService.findByTitle(""));
 
-    @Test
-    void should_throw_when_exam_date_is_null() {
-        assertThrows(
-                ResponseStatusException.class,
-                () -> examService.findByDate(null));
+    verifyNoInteractions(examRepository);
+  }
 
-        verifyNoInteractions(examRepository);
-    }
+  @Test
+  void should_throw_when_exam_title_is_null() {
+    assertThrows(ResponseStatusException.class, () -> examService.findByTitle(null));
 
-    @Test
-    void should_find_exams_by_coefficient() {
-        JExam exam =
-                createExamEntity(
-                        UUID.randomUUID(),
-                        "Programming Exam",
-                        0.5);
+    verifyNoInteractions(examRepository);
+  }
 
-        when(examRepository.findByCoeff(0.5))
-                .thenReturn(List.of(exam));
+  @Test
+  void should_find_exams_by_date() {
+    LocalDate date = LocalDate.of(2026, 8, 20);
 
-        List<Exam> result = examService.findByCoeff(0.5);
+    JExam exam =
+        JExam.builder()
+            .id(UUID.randomUUID())
+            .date(date)
+            .coeff(0.5)
+            .title("Programming Exam")
+            .build();
 
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getCoeff()).isEqualTo(0.5);
+    when(examRepository.findByDate(date)).thenReturn(List.of(exam));
 
-        verify(examRepository).findByCoeff(0.5);
-    }
+    List<Exam> result = examService.findByDate(date);
 
-    @Test
-    void should_throw_when_coefficient_is_null() {
-        assertThrows(
-                ResponseStatusException.class,
-                () -> examService.findByCoeff(null));
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).getDate()).isEqualTo(date);
 
-        verifyNoInteractions(examRepository);
-    }
+    verify(examRepository).findByDate(date);
+  }
 
-    @Test
-    void should_throw_when_coefficient_is_zero() {
-        assertThrows(
-                ResponseStatusException.class,
-                () -> examService.findByCoeff(0.0));
+  @Test
+  void should_throw_when_exam_date_is_null() {
+    assertThrows(ResponseStatusException.class, () -> examService.findByDate(null));
 
-        verifyNoInteractions(examRepository);
-    }
+    verifyNoInteractions(examRepository);
+  }
 
-    @Test
-    void should_throw_when_coefficient_is_negative() {
-        assertThrows(
-                ResponseStatusException.class,
-                () -> examService.findByCoeff(-0.5));
+  @Test
+  void should_find_exams_by_coefficient() {
+    JExam exam = createExamEntity(UUID.randomUUID(), "Programming Exam", 0.5);
 
-        verifyNoInteractions(examRepository);
-    }
+    when(examRepository.findByCoeff(0.5)).thenReturn(List.of(exam));
 
-    @Test
-    void should_find_exams_by_group() {
-        UUID groupId = UUID.randomUUID();
+    List<Exam> result = examService.findByCoeff(0.5);
 
-        JExam exam =
-                createExamEntity(
-                        UUID.randomUUID(),
-                        "Programming Exam",
-                        0.5);
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).getCoeff()).isEqualTo(0.5);
 
-        when(groupRepository.existsById(groupId))
-                .thenReturn(true);
+    verify(examRepository).findByCoeff(0.5);
+  }
 
-        when(examRepository.findByGroupId(groupId))
-                .thenReturn(List.of(exam));
+  @Test
+  void should_throw_when_coefficient_is_null() {
+    assertThrows(ResponseStatusException.class, () -> examService.findByCoeff(null));
 
-        List<Exam> result = examService.findByGroup(groupId);
+    verifyNoInteractions(examRepository);
+  }
 
-        assertThat(result).hasSize(1);
+  @Test
+  void should_throw_when_coefficient_is_zero() {
+    assertThrows(ResponseStatusException.class, () -> examService.findByCoeff(0.0));
 
-        verify(groupRepository).existsById(groupId);
-        verify(examRepository).findByGroupId(groupId);
-    }
+    verifyNoInteractions(examRepository);
+  }
 
-    @Test
-    void should_throw_when_group_is_not_found_for_exam_search() {
-        UUID groupId = UUID.randomUUID();
+  @Test
+  void should_throw_when_coefficient_is_negative() {
+    assertThrows(ResponseStatusException.class, () -> examService.findByCoeff(-0.5));
 
-        when(groupRepository.existsById(groupId))
-                .thenReturn(false);
+    verifyNoInteractions(examRepository);
+  }
 
-        assertThrows(
-                ResponseStatusException.class,
-                () -> examService.findByGroup(groupId));
+  @Test
+  void should_find_exams_by_group() {
+    UUID groupId = UUID.randomUUID();
 
-        verify(groupRepository).existsById(groupId);
-        verify(examRepository, never()).findByGroupId(groupId);
-    }
+    JExam exam = createExamEntity(UUID.randomUUID(), "Programming Exam", 0.5);
 
-    @Test
-    void should_find_exams_by_speciality() {
-        UUID specialityId = UUID.randomUUID();
+    when(groupRepository.existsById(groupId)).thenReturn(true);
 
-        JExam exam =
-                createExamEntity(
-                        UUID.randomUUID(),
-                        "Programming Exam",
-                        0.5);
+    when(examRepository.findByGroupId(groupId)).thenReturn(List.of(exam));
 
-        when(specialityRepository.existsById(specialityId))
-                .thenReturn(true);
+    List<Exam> result = examService.findByGroup(groupId);
 
-        when(examRepository.findBySpecialityId(specialityId))
-                .thenReturn(List.of(exam));
+    assertThat(result).hasSize(1);
 
-        List<Exam> result = examService.findBySpeciality(specialityId);
+    verify(groupRepository).existsById(groupId);
+    verify(examRepository).findByGroupId(groupId);
+  }
 
-        assertThat(result).hasSize(1);
+  @Test
+  void should_throw_when_group_is_not_found_for_exam_search() {
+    UUID groupId = UUID.randomUUID();
 
-        verify(specialityRepository).existsById(specialityId);
-        verify(examRepository).findBySpecialityId(specialityId);
-    }
+    when(groupRepository.existsById(groupId)).thenReturn(false);
 
-    @Test
-    void should_throw_when_speciality_is_not_found_for_exam_search() {
-        UUID specialityId = UUID.randomUUID();
+    assertThrows(ResponseStatusException.class, () -> examService.findByGroup(groupId));
 
-        when(specialityRepository.existsById(specialityId))
-                .thenReturn(false);
+    verify(groupRepository).existsById(groupId);
+    verify(examRepository, never()).findByGroupId(groupId);
+  }
 
-        assertThrows(
-                ResponseStatusException.class,
-                () -> examService.findBySpeciality(specialityId));
+  @Test
+  void should_find_exams_by_speciality() {
+    UUID specialityId = UUID.randomUUID();
 
-        verify(specialityRepository).existsById(specialityId);
-        verify(examRepository, never())
-                .findBySpecialityId(specialityId);
-    }
+    JExam exam = createExamEntity(UUID.randomUUID(), "Programming Exam", 0.5);
 
-    @Test
-    void should_return_remaining_coefficient() {
-        UUID courseId = UUID.randomUUID();
+    when(specialityRepository.existsById(specialityId)).thenReturn(true);
 
-        JExam exam1 =
-                createExamEntity(
-                        UUID.randomUUID(),
-                        "Exam 1",
-                        0.3);
+    when(examRepository.findBySpecialityId(specialityId)).thenReturn(List.of(exam));
 
-        JExam exam2 =
-                createExamEntity(
-                        UUID.randomUUID(),
-                        "Exam 2",
-                        0.2);
+    List<Exam> result = examService.findBySpeciality(specialityId);
 
-        when(courseRepository.existsById(courseId))
-                .thenReturn(true);
+    assertThat(result).hasSize(1);
 
-        when(examRepository.findByCourse_Id(courseId))
-                .thenReturn(List.of(exam1, exam2));
+    verify(specialityRepository).existsById(specialityId);
+    verify(examRepository).findBySpecialityId(specialityId);
+  }
 
-        Double result = examService.remainingCoeff(courseId);
+  @Test
+  void should_throw_when_speciality_is_not_found_for_exam_search() {
+    UUID specialityId = UUID.randomUUID();
 
-        assertThat(result).isEqualTo(0.5);
+    when(specialityRepository.existsById(specialityId)).thenReturn(false);
 
-        verify(courseRepository).existsById(courseId);
-        verify(examRepository).findByCourse_Id(courseId);
-    }
-
-    @Test
-    void should_throw_when_calculating_remaining_coefficient_for_unknown_course() {
-        UUID courseId = UUID.randomUUID();
-
-        when(courseRepository.existsById(courseId))
-                .thenReturn(false);
+    assertThrows(ResponseStatusException.class, () -> examService.findBySpeciality(specialityId));
 
-        assertThrows(
-                ResponseStatusException.class,
-                () -> examService.remainingCoeff(courseId));
+    verify(specialityRepository).existsById(specialityId);
+    verify(examRepository, never()).findBySpecialityId(specialityId);
+  }
 
-        verify(courseRepository).existsById(courseId);
-        verify(examRepository, never()).findByCourse_Id(courseId);
-    }
-
-    @Test
-    void should_save_exam_with_groups() {
-        UUID examId = UUID.randomUUID();
-        UUID courseId = UUID.randomUUID();
-        UUID groupId = UUID.randomUUID();
+  @Test
+  void should_return_remaining_coefficient() {
+    UUID courseId = UUID.randomUUID();
 
-        Exam exam = createExamModel(courseId, groupId, 0.4);
+    JExam exam1 = createExamEntity(UUID.randomUUID(), "Exam 1", 0.3);
 
-        JExam savedExam =
-                createExamEntity(
-                        examId,
-                        "Programming Exam",
-                        0.4);
+    JExam exam2 = createExamEntity(UUID.randomUUID(), "Exam 2", 0.2);
 
-        JGroup group = createGroupEntity(groupId);
+    when(courseRepository.existsById(courseId)).thenReturn(true);
 
-        when(groupRepository.existsById(groupId))
-                .thenReturn(true);
+    when(examRepository.findByCourse_Id(courseId)).thenReturn(List.of(exam1, exam2));
 
-        when(examRepository.findByCourse_Id(courseId))
-                .thenReturn(List.of());
+    Double result = examService.remainingCoeff(courseId);
 
-        when(examRepository.save(any(JExam.class)))
-                .thenReturn(savedExam);
-
-        when(groupRepository.getReferenceById(groupId))
-                .thenReturn(group);
+    assertThat(result).isEqualTo(0.5);
 
-        when(groupExamRepository.findByExam_Id(examId))
-                .thenReturn(List.of());
+    verify(courseRepository).existsById(courseId);
+    verify(examRepository).findByCourse_Id(courseId);
+  }
 
-        Exam result = examService.save(exam);
+  @Test
+  void should_throw_when_calculating_remaining_coefficient_for_unknown_course() {
+    UUID courseId = UUID.randomUUID();
 
-        assertThat(result.getId()).isEqualTo(examId);
-        assertThat(result.getTitle()).isEqualTo("Programming Exam");
-        assertThat(result.getGroups()).isEmpty();
+    when(courseRepository.existsById(courseId)).thenReturn(false);
 
-        verify(examValidator).accept(exam);
-        verify(groupRepository).existsById(groupId);
-        verify(examRepository).findByCourse_Id(courseId);
-        verify(examRepository).save(any(JExam.class));
-        verify(groupRepository).getReferenceById(groupId);
-        verify(groupExamRepository).save(any(JGroupExam.class));
-        verify(groupExamRepository).findByExam_Id(examId);
-    }
-
-    @Test
-    void should_throw_when_saving_exam_without_groups() {
-        UUID courseId = UUID.randomUUID();
+    assertThrows(ResponseStatusException.class, () -> examService.remainingCoeff(courseId));
 
-        Exam exam =
-                Exam.builder()
-                        .course(createCourse(courseId))
-                        .title("Programming Exam")
-                        .coeff(0.5)
-                        .date(LocalDate.now())
-                        .groups(List.of())
-                        .build();
-
-        assertThrows(
-                ResponseStatusException.class,
-                () -> examService.save(exam));
+    verify(courseRepository).existsById(courseId);
+    verify(examRepository, never()).findByCourse_Id(courseId);
+  }
 
-        verify(examValidator).accept(exam);
-        verifyNoInteractions(groupRepository);
-        verify(examRepository, never()).save(any(JExam.class));
-    }
+  @Test
+  void should_save_exam_with_groups() {
+    UUID examId = UUID.randomUUID();
+    UUID courseId = UUID.randomUUID();
+    UUID groupId = UUID.randomUUID();
 
-    @Test
-    void should_throw_when_group_id_is_missing() {
-        UUID courseId = UUID.randomUUID();
+    Exam exam = createExamModel(courseId, groupId, 0.4);
 
-        Group group =
-                Group.builder()
-                        .id(null)
-                        .name("Group A")
-                        .build();
+    JExam savedExam = createExamEntity(examId, "Programming Exam", 0.4);
 
-        Exam exam =
-                Exam.builder()
-                        .course(createCourse(courseId))
-                        .title("Programming Exam")
-                        .coeff(0.5)
-                        .date(LocalDate.now())
-                        .groups(List.of(group))
-                        .build();
+    JGroup group = createGroupEntity(groupId);
 
-        assertThrows(
-                ResponseStatusException.class,
-                () -> examService.save(exam));
+    when(groupRepository.existsById(groupId)).thenReturn(true);
 
-        verify(examValidator).accept(exam);
-        verifyNoInteractions(examRepository);
-    }
+    when(examRepository.findByCourse_Id(courseId)).thenReturn(List.of());
 
-    @Test
-    void should_throw_when_group_does_not_exist() {
-        UUID courseId = UUID.randomUUID();
-        UUID groupId = UUID.randomUUID();
+    when(examRepository.save(any(JExam.class))).thenReturn(savedExam);
 
-        Exam exam = createExamModel(courseId, groupId, 0.5);
+    when(groupRepository.getReferenceById(groupId)).thenReturn(group);
 
-        when(groupRepository.existsById(groupId))
-                .thenReturn(false);
+    when(groupExamRepository.findByExam_Id(examId)).thenReturn(List.of());
 
-        assertThrows(
-                ResponseStatusException.class,
-                () -> examService.save(exam));
+    Exam result = examService.save(exam);
 
-        verify(groupRepository).existsById(groupId);
-        verify(examRepository, never()).save(any(JExam.class));
-    }
+    assertThat(result.getId()).isEqualTo(examId);
+    assertThat(result.getTitle()).isEqualTo("Programming Exam");
+    assertThat(result.getGroups()).isEmpty();
 
-    @Test
-    void should_throw_when_exam_coefficients_exceed_one() {
-        UUID courseId = UUID.randomUUID();
-        UUID groupId = UUID.randomUUID();
+    verify(examValidator).accept(exam);
+    verify(groupRepository).existsById(groupId);
+    verify(examRepository).findByCourse_Id(courseId);
+    verify(examRepository).save(any(JExam.class));
+    verify(groupRepository).getReferenceById(groupId);
+    verify(groupExamRepository).save(any(JGroupExam.class));
+    verify(groupExamRepository).findByExam_Id(examId);
+  }
 
-        Exam exam = createExamModel(courseId, groupId, 0.6);
+  @Test
+  void should_throw_when_saving_exam_without_groups() {
+    UUID courseId = UUID.randomUUID();
 
-        JExam existingExam =
-                createExamEntity(
-                        UUID.randomUUID(),
-                        "Existing Exam",
-                        0.5);
+    Exam exam =
+        Exam.builder()
+            .course(createCourse(courseId))
+            .title("Programming Exam")
+            .coeff(0.5)
+            .date(LocalDate.now())
+            .groups(List.of())
+            .build();
 
-        when(groupRepository.existsById(groupId))
-                .thenReturn(true);
+    assertThrows(ResponseStatusException.class, () -> examService.save(exam));
 
-        when(examRepository.findByCourse_Id(courseId))
-                .thenReturn(List.of(existingExam));
+    verify(examValidator).accept(exam);
+    verifyNoInteractions(groupRepository);
+    verify(examRepository, never()).save(any(JExam.class));
+  }
 
-        assertThrows(
-                ResponseStatusException.class,
-                () -> examService.save(exam));
+  @Test
+  void should_throw_when_group_id_is_missing() {
+    UUID courseId = UUID.randomUUID();
 
-        verify(examRepository).findByCourse_Id(courseId);
-        verify(examRepository, never()).save(any(JExam.class));
-    }
+    Group group = Group.builder().id(null).name("Group A").build();
 
-    @Test
-    void should_update_exam() {
-        UUID examId = UUID.randomUUID();
-        UUID courseId = UUID.randomUUID();
-        UUID groupId = UUID.randomUUID();
+    Exam exam =
+        Exam.builder()
+            .course(createCourse(courseId))
+            .title("Programming Exam")
+            .coeff(0.5)
+            .date(LocalDate.now())
+            .groups(List.of(group))
+            .build();
 
-        Exam exam = createExamModel(courseId, groupId, 0.5);
+    assertThrows(ResponseStatusException.class, () -> examService.save(exam));
 
-        JExam existingExam =
-                createExamEntity(
-                        examId,
-                        "Old Exam",
-                        0.4);
+    verify(examValidator).accept(exam);
+    verifyNoInteractions(examRepository);
+  }
 
-        JExam updatedExam =
-                createExamEntity(
-                        examId,
-                        "Updated Exam",
-                        0.5);
+  @Test
+  void should_throw_when_group_does_not_exist() {
+    UUID courseId = UUID.randomUUID();
+    UUID groupId = UUID.randomUUID();
 
-        JGroup group = createGroupEntity(groupId);
-
-        when(examRepository.findById(examId))
-                .thenReturn(Optional.of(existingExam));
-
-        when(groupExamRepository.findByExam_Id(examId))
-                .thenReturn(List.of());
-
-        when(groupRepository.existsById(groupId))
-                .thenReturn(true);
-
-        when(examRepository.findByCourse_Id(courseId))
-                .thenReturn(List.of(existingExam));
-
-        when(examRepository.save(any(JExam.class)))
-                .thenReturn(updatedExam);
-
-        when(groupRepository.getReferenceById(groupId))
-                .thenReturn(group);
-
-        Exam result = examService.update(examId, exam);
-
-        assertThat(result.getId()).isEqualTo(examId);
-        assertThat(result.getTitle()).isEqualTo("Updated Exam");
-        assertThat(exam.getId()).isEqualTo(examId);
-
-        verify(examRepository).findById(examId);
-        verify(examValidator).accept(exam);
-        verify(groupRepository).existsById(groupId);
-        verify(examRepository).save(any(JExam.class));
-        verify(groupExamRepository).deleteByExam_Id(examId);
-        verify(groupExamRepository).save(any(JGroupExam.class));
-    }
-
-    @Test
-    void should_throw_when_updating_unknown_exam() {
-        UUID examId = UUID.randomUUID();
-        UUID courseId = UUID.randomUUID();
-        UUID groupId = UUID.randomUUID();
-
-        Exam exam = createExamModel(courseId, groupId, 0.5);
-
-        when(examRepository.findById(examId))
-                .thenReturn(Optional.empty());
-
-        assertThrows(
-                ResponseStatusException.class,
-                () -> examService.update(examId, exam));
-
-        verify(examRepository).findById(examId);
-        verify(examRepository, never()).save(any(JExam.class));
-        verify(examValidator, never()).accept(any(Exam.class));
-    }
-
-    @Test
-    void should_delete_exam() {
-        UUID examId = UUID.randomUUID();
-
-        when(examRepository.existsById(examId))
-                .thenReturn(true);
-
-        examService.delete(examId);
-
-        verify(examRepository).existsById(examId);
-        verify(groupExamRepository).deleteByExam_Id(examId);
-        verify(examRepository).deleteById(examId);
-    }
-
-    @Test
-    void should_throw_when_deleting_unknown_exam() {
-        UUID examId = UUID.randomUUID();
-
-        when(examRepository.existsById(examId))
-                .thenReturn(false);
-
-        assertThrows(
-                ResponseStatusException.class,
-                () -> examService.delete(examId));
-
-        verify(examRepository).existsById(examId);
-        verify(groupExamRepository, never()).deleteByExam_Id(examId);
-        verify(examRepository, never()).deleteById(examId);
-    }
-
-    private JExam createExamEntity(
-            UUID id,
-            String title,
-            double coeff) {
-
-        return JExam.builder()
-                .id(id)
-                .date(LocalDate.of(2026, 8, 20))
-                .coeff(coeff)
-                .title(title)
-                .build();
-    }
-
-    private Exam createExamModel(
-            UUID courseId,
-            UUID groupId,
-            double coeff) {
-
-        return Exam.builder()
-                .course(createCourse(courseId))
-                .title("Programming Exam")
-                .coeff(coeff)
-                .date(LocalDate.of(2026, 8, 20))
-                .groups(
-                        List.of(
-                                Group.builder()
-                                        .id(groupId)
-                                        .name("Group A")
-                                        .build()))
-                .build();
-    }
-
-    private Course createCourse(UUID courseId) {
-        return Course.builder()
-                .id(courseId)
-                .reference("COURSE-001")
-                .title("Programming")
-                .credit(4)
-                .level(2)
-                .build();
-    }
-
-    private JGroup createGroupEntity(UUID groupId) {
-        return JGroup.builder()
-                .id(groupId)
-                .name("Group A")
-                .build();
-    }
+    Exam exam = createExamModel(courseId, groupId, 0.5);
+
+    when(groupRepository.existsById(groupId)).thenReturn(false);
+
+    assertThrows(ResponseStatusException.class, () -> examService.save(exam));
+
+    verify(groupRepository).existsById(groupId);
+    verify(examRepository, never()).save(any(JExam.class));
+  }
+
+  @Test
+  void should_throw_when_exam_coefficients_exceed_one() {
+    UUID courseId = UUID.randomUUID();
+    UUID groupId = UUID.randomUUID();
+
+    Exam exam = createExamModel(courseId, groupId, 0.6);
+
+    JExam existingExam = createExamEntity(UUID.randomUUID(), "Existing Exam", 0.5);
+
+    when(groupRepository.existsById(groupId)).thenReturn(true);
+
+    when(examRepository.findByCourse_Id(courseId)).thenReturn(List.of(existingExam));
+
+    assertThrows(ResponseStatusException.class, () -> examService.save(exam));
+
+    verify(examRepository).findByCourse_Id(courseId);
+    verify(examRepository, never()).save(any(JExam.class));
+  }
+
+  @Test
+  void should_update_exam() {
+    UUID examId = UUID.randomUUID();
+    UUID courseId = UUID.randomUUID();
+    UUID groupId = UUID.randomUUID();
+
+    Exam exam = createExamModel(courseId, groupId, 0.5);
+
+    JExam existingExam = createExamEntity(examId, "Old Exam", 0.4);
+
+    JExam updatedExam = createExamEntity(examId, "Updated Exam", 0.5);
+
+    JGroup group = createGroupEntity(groupId);
+
+    when(examRepository.findById(examId)).thenReturn(Optional.of(existingExam));
+
+    when(groupExamRepository.findByExam_Id(examId)).thenReturn(List.of());
+
+    when(groupRepository.existsById(groupId)).thenReturn(true);
+
+    when(examRepository.findByCourse_Id(courseId)).thenReturn(List.of(existingExam));
+
+    when(examRepository.save(any(JExam.class))).thenReturn(updatedExam);
+
+    when(groupRepository.getReferenceById(groupId)).thenReturn(group);
+
+    Exam result = examService.update(examId, exam);
+
+    assertThat(result.getId()).isEqualTo(examId);
+    assertThat(result.getTitle()).isEqualTo("Updated Exam");
+    assertThat(exam.getId()).isEqualTo(examId);
+
+    verify(examRepository).findById(examId);
+    verify(examValidator).accept(exam);
+    verify(groupRepository).existsById(groupId);
+    verify(examRepository).save(any(JExam.class));
+    verify(groupExamRepository).deleteByExam_Id(examId);
+    verify(groupExamRepository).save(any(JGroupExam.class));
+  }
+
+  @Test
+  void should_throw_when_updating_unknown_exam() {
+    UUID examId = UUID.randomUUID();
+    UUID courseId = UUID.randomUUID();
+    UUID groupId = UUID.randomUUID();
+
+    Exam exam = createExamModel(courseId, groupId, 0.5);
+
+    when(examRepository.findById(examId)).thenReturn(Optional.empty());
+
+    assertThrows(ResponseStatusException.class, () -> examService.update(examId, exam));
+
+    verify(examRepository).findById(examId);
+    verify(examRepository, never()).save(any(JExam.class));
+    verify(examValidator, never()).accept(any(Exam.class));
+  }
+
+  @Test
+  void should_delete_exam() {
+    UUID examId = UUID.randomUUID();
+
+    when(examRepository.existsById(examId)).thenReturn(true);
+
+    examService.delete(examId);
+
+    verify(examRepository).existsById(examId);
+    verify(groupExamRepository).deleteByExam_Id(examId);
+    verify(examRepository).deleteById(examId);
+  }
+
+  @Test
+  void should_throw_when_deleting_unknown_exam() {
+    UUID examId = UUID.randomUUID();
+
+    when(examRepository.existsById(examId)).thenReturn(false);
+
+    assertThrows(ResponseStatusException.class, () -> examService.delete(examId));
+
+    verify(examRepository).existsById(examId);
+    verify(groupExamRepository, never()).deleteByExam_Id(examId);
+    verify(examRepository, never()).deleteById(examId);
+  }
+
+  private JExam createExamEntity(UUID id, String title, double coeff) {
+
+    return JExam.builder().id(id).date(LocalDate.of(2026, 8, 20)).coeff(coeff).title(title).build();
+  }
+
+  private Exam createExamModel(UUID courseId, UUID groupId, double coeff) {
+
+    return Exam.builder()
+        .course(createCourse(courseId))
+        .title("Programming Exam")
+        .coeff(coeff)
+        .date(LocalDate.of(2026, 8, 20))
+        .groups(List.of(Group.builder().id(groupId).name("Group A").build()))
+        .build();
+  }
+
+  private Course createCourse(UUID courseId) {
+    return Course.builder()
+        .id(courseId)
+        .reference("COURSE-001")
+        .title("Programming")
+        .credit(4)
+        .level(2)
+        .build();
+  }
+
+  private JGroup createGroupEntity(UUID groupId) {
+    return JGroup.builder().id(groupId).name("Group A").build();
+  }
 }

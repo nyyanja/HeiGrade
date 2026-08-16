@@ -26,247 +26,223 @@ import org.springframework.web.server.ResponseStatusException;
 @ExtendWith(MockitoExtension.class)
 class AdminServiceTest {
 
-    @Mock
-    private AdminRepository adminRepository;
+  @Mock private AdminRepository adminRepository;
 
-    @Mock
-    private AdminValidator adminValidator;
+  @Mock private AdminValidator adminValidator;
 
-    @InjectMocks
-    private com.school.hei.service.services.AdminService adminService;
+  @InjectMocks private com.school.hei.service.services.AdminService adminService;
 
-    private UUID adminId;
-    private Admin admin;
-    private JAdmin jAdmin;
+  private UUID adminId;
+  private Admin admin;
+  private JAdmin jAdmin;
 
-    @BeforeEach
-    void setUp() {
-        adminId = UUID.randomUUID();
+  @BeforeEach
+  void setUp() {
+    adminId = UUID.randomUUID();
 
-        admin =
-                Admin.builder()
-                        .id(adminId)
-                        .firstName("John")
-                        .lastName("Doe")
-                        .birthday(LocalDate.of(1995, 5, 10))
-                        .sex(Sex.MALE)
-                        .address("Antananarivo")
-                        .email("john.doe@hei.school")
-                        .role(Role.ADMIN)
-                        .adminReference("ADM-001")
-                        .build();
+    admin =
+        Admin.builder()
+            .id(adminId)
+            .firstName("John")
+            .lastName("Doe")
+            .birthday(LocalDate.of(1995, 5, 10))
+            .sex(Sex.MALE)
+            .address("Antananarivo")
+            .email("john.doe@hei.school")
+            .role(Role.ADMIN)
+            .adminReference("ADM-001")
+            .build();
 
-        jAdmin =
-                JAdmin.builder()
-                        .id(adminId)
-                        .firstName("John")
-                        .lastName("Doe")
-                        .birthday(LocalDate.of(1995, 5, 10))
-                        .sex(Sex.MALE)
-                        .address("Antananarivo")
-                        .email("john.doe@hei.school")
-                        .role(Role.ADMIN)
-                        .adminReference("ADM-001")
-                        .build();
-    }
+    jAdmin =
+        JAdmin.builder()
+            .id(adminId)
+            .firstName("John")
+            .lastName("Doe")
+            .birthday(LocalDate.of(1995, 5, 10))
+            .sex(Sex.MALE)
+            .address("Antananarivo")
+            .email("john.doe@hei.school")
+            .role(Role.ADMIN)
+            .adminReference("ADM-001")
+            .build();
+  }
 
-    // ============================================================
-    // findAll()
-    // ============================================================
+  @Test
+  void should_find_all_admins() {
+    when(adminRepository.findAll()).thenReturn(List.of(jAdmin));
 
-    @Test
-    void should_find_all_admins() {
-        when(adminRepository.findAll()).thenReturn(List.of(jAdmin));
+    List<Admin> result = adminService.findAll();
 
-        List<Admin> result = adminService.findAll();
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).getId()).isEqualTo(adminId);
+    assertThat(result.get(0).getFirstName()).isEqualTo("John");
+    assertThat(result.get(0).getAdminReference()).isEqualTo("ADM-001");
 
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).getId()).isEqualTo(adminId);
-        assertThat(result.get(0).getFirstName()).isEqualTo("John");
-        assertThat(result.get(0).getAdminReference()).isEqualTo("ADM-001");
+    verify(adminRepository).findAll();
+  }
 
-        verify(adminRepository).findAll();
-    }
+  @Test
+  void should_return_empty_list_when_no_admin_exists() {
+    when(adminRepository.findAll()).thenReturn(List.of());
 
-    @Test
-    void should_return_empty_list_when_no_admin_exists() {
-        when(adminRepository.findAll()).thenReturn(List.of());
+    List<Admin> result = adminService.findAll();
 
-        List<Admin> result = adminService.findAll();
+    assertThat(result).isEmpty();
 
-        assertThat(result).isEmpty();
+    verify(adminRepository).findAll();
+  }
 
-        verify(adminRepository).findAll();
-    }
+  @Test
+  void should_find_admin_by_id() {
+    when(adminRepository.findById(adminId)).thenReturn(Optional.of(jAdmin));
 
-    // ============================================================
-    // findById()
-    // ============================================================
+    Admin result = adminService.findById(adminId);
 
-    @Test
-    void should_find_admin_by_id() {
-        when(adminRepository.findById(adminId)).thenReturn(Optional.of(jAdmin));
+    assertThat(result).isNotNull();
+    assertThat(result.getId()).isEqualTo(adminId);
+    assertThat(result.getFirstName()).isEqualTo("John");
+    assertThat(result.getLastName()).isEqualTo("Doe");
+    assertThat(result.getEmail()).isEqualTo("john.doe@hei.school");
+    assertThat(result.getRole()).isEqualTo(Role.ADMIN);
+    assertThat(result.getAdminReference()).isEqualTo("ADM-001");
 
-        Admin result = adminService.findById(adminId);
+    verify(adminRepository).findById(adminId);
+  }
 
-        assertThat(result).isNotNull();
-        assertThat(result.getId()).isEqualTo(adminId);
-        assertThat(result.getFirstName()).isEqualTo("John");
-        assertThat(result.getLastName()).isEqualTo("Doe");
-        assertThat(result.getEmail()).isEqualTo("john.doe@hei.school");
-        assertThat(result.getRole()).isEqualTo(Role.ADMIN);
-        assertThat(result.getAdminReference()).isEqualTo("ADM-001");
+  @Test
+  void should_throw_not_found_when_admin_does_not_exist() {
+    when(adminRepository.findById(adminId)).thenReturn(Optional.empty());
 
-        verify(adminRepository).findById(adminId);
-    }
+    assertThatThrownBy(() -> adminService.findById(adminId))
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("admin not found with id " + adminId);
 
-    @Test
-    void should_throw_not_found_when_admin_does_not_exist() {
-        when(adminRepository.findById(adminId)).thenReturn(Optional.empty());
+    verify(adminRepository).findById(adminId);
+  }
 
-        assertThatThrownBy(() -> adminService.findById(adminId))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("admin not found with id " + adminId);
+  @Test
+  void should_save_admin() {
+    when(adminRepository.save(any(JAdmin.class))).thenReturn(jAdmin);
 
-        verify(adminRepository).findById(adminId);
-    }
+    Admin result = adminService.save(admin);
 
-    // ============================================================
-    // save()
-    // ============================================================
+    assertThat(result).isNotNull();
+    assertThat(result.getId()).isEqualTo(adminId);
+    assertThat(result.getFirstName()).isEqualTo("John");
+    assertThat(result.getAdminReference()).isEqualTo("ADM-001");
 
-    @Test
-    void should_save_admin() {
-        when(adminRepository.save(any(JAdmin.class))).thenReturn(jAdmin);
+    verify(adminValidator).accept(admin);
+    verify(adminRepository).save(any(JAdmin.class));
+  }
 
-        Admin result = adminService.save(admin);
+  @Test
+  void should_validate_admin_before_saving() {
+    when(adminRepository.save(any(JAdmin.class))).thenReturn(jAdmin);
 
-        assertThat(result).isNotNull();
-        assertThat(result.getId()).isEqualTo(adminId);
-        assertThat(result.getFirstName()).isEqualTo("John");
-        assertThat(result.getAdminReference()).isEqualTo("ADM-001");
+    adminService.save(admin);
 
-        verify(adminValidator).accept(admin);
-        verify(adminRepository).save(any(JAdmin.class));
-    }
+    verify(adminValidator).accept(admin);
+    verify(adminRepository).save(any(JAdmin.class));
+  }
 
-    @Test
-    void should_validate_admin_before_saving() {
-        when(adminRepository.save(any(JAdmin.class))).thenReturn(jAdmin);
+  @Test
+  void should_not_save_admin_when_validation_fails() {
+    doThrow(
+            new ResponseStatusException(
+                org.springframework.http.HttpStatus.BAD_REQUEST, "admin reference is required"))
+        .when(adminValidator)
+        .accept(admin);
 
-        adminService.save(admin);
+    assertThatThrownBy(() -> adminService.save(admin))
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("admin reference is required");
 
-        verify(adminValidator).accept(admin);
-        verify(adminRepository).save(any(JAdmin.class));
-    }
+    verify(adminValidator).accept(admin);
+    verify(adminRepository, never()).save(any(JAdmin.class));
+  }
 
-    @Test
-    void should_not_save_admin_when_validation_fails() {
-        doThrow(
-                new ResponseStatusException(
-                        org.springframework.http.HttpStatus.BAD_REQUEST,
-                        "admin reference is required"))
-                .when(adminValidator)
-                .accept(admin);
+  @Test
+  void should_update_admin() {
+    when(adminRepository.findById(adminId)).thenReturn(Optional.of(jAdmin));
 
-        assertThatThrownBy(() -> adminService.save(admin))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("admin reference is required");
+    admin.setFirstName("Jane");
+    admin.setSex(Sex.FEMALE);
+    admin.setEmail("jane.doe@hei.school");
+    admin.setAdminReference("ADM-002");
 
-        verify(adminValidator).accept(admin);
-        verify(adminRepository, never()).save(any(JAdmin.class));
-    }
+    JAdmin updatedEntity =
+        JAdmin.builder()
+            .id(adminId)
+            .firstName("Jane")
+            .lastName("Doe")
+            .birthday(LocalDate.of(1995, 5, 10))
+            .sex(Sex.FEMALE)
+            .address("Antananarivo")
+            .email("jane.doe@hei.school")
+            .role(Role.ADMIN)
+            .adminReference("ADM-002")
+            .build();
 
-    // ============================================================
-    // update()
-    // ============================================================
+    when(adminRepository.save(any(JAdmin.class))).thenReturn(updatedEntity);
 
-    @Test
-    void should_update_admin() {
-        when(adminRepository.findById(adminId)).thenReturn(Optional.of(jAdmin));
+    Admin result = adminService.update(adminId, admin);
 
-        admin.setFirstName("Jane");
-        admin.setSex(Sex.FEMALE);
-        admin.setEmail("jane.doe@hei.school");
-        admin.setAdminReference("ADM-002");
+    assertThat(result.getId()).isEqualTo(adminId);
+    assertThat(result.getFirstName()).isEqualTo("Jane");
+    assertThat(result.getAdminReference()).isEqualTo("ADM-002");
+    assertThat(admin.getId()).isEqualTo(adminId);
 
-        JAdmin updatedEntity =
-                JAdmin.builder()
-                        .id(adminId)
-                        .firstName("Jane")
-                        .lastName("Doe")
-                        .birthday(LocalDate.of(1995, 5, 10))
-                        .sex(Sex.FEMALE)
-                        .address("Antananarivo")
-                        .email("jane.doe@hei.school")
-                        .role(Role.ADMIN)
-                        .adminReference("ADM-002")
-                        .build();
+    verify(adminRepository).findById(adminId);
+    verify(adminValidator).accept(admin);
+    verify(adminRepository).save(any(JAdmin.class));
+  }
 
-        when(adminRepository.save(any(JAdmin.class))).thenReturn(updatedEntity);
+  @Test
+  void should_not_update_admin_when_admin_does_not_exist() {
+    when(adminRepository.findById(adminId)).thenReturn(Optional.empty());
 
-        Admin result = adminService.update(adminId, admin);
+    assertThatThrownBy(() -> adminService.update(adminId, admin))
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("admin not found with id " + adminId);
 
-        assertThat(result.getId()).isEqualTo(adminId);
-        assertThat(result.getFirstName()).isEqualTo("Jane");
-        assertThat(result.getAdminReference()).isEqualTo("ADM-002");
-        assertThat(admin.getId()).isEqualTo(adminId);
+    verify(adminRepository).findById(adminId);
+    verify(adminValidator, never()).accept(any(Admin.class));
+    verify(adminRepository, never()).save(any(JAdmin.class));
+  }
 
-        verify(adminRepository).findById(adminId);
-        verify(adminValidator).accept(admin);
-        verify(adminRepository).save(any(JAdmin.class));
-    }
+  @Test
+  void should_validate_admin_before_update() {
+    when(adminRepository.findById(adminId)).thenReturn(Optional.of(jAdmin));
+    when(adminRepository.save(any(JAdmin.class))).thenReturn(jAdmin);
 
-    @Test
-    void should_not_update_admin_when_admin_does_not_exist() {
-        when(adminRepository.findById(adminId)).thenReturn(Optional.empty());
+    adminService.update(adminId, admin);
 
-        assertThatThrownBy(() -> adminService.update(adminId, admin))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("admin not found with id " + adminId);
+    assertThat(admin.getId()).isEqualTo(adminId);
 
-        verify(adminRepository).findById(adminId);
-        verify(adminValidator, never()).accept(any(Admin.class));
-        verify(adminRepository, never()).save(any(JAdmin.class));
-    }
+    verify(adminRepository).findById(adminId);
+    verify(adminValidator).accept(admin);
+    verify(adminRepository).save(any(JAdmin.class));
+  }
 
-    @Test
-    void should_validate_admin_before_update() {
-        when(adminRepository.findById(adminId)).thenReturn(Optional.of(jAdmin));
-        when(adminRepository.save(any(JAdmin.class))).thenReturn(jAdmin);
+  @Test
+  void should_delete_admin() {
+    when(adminRepository.existsById(adminId)).thenReturn(true);
 
-        adminService.update(adminId, admin);
+    adminService.delete(adminId);
 
-        assertThat(admin.getId()).isEqualTo(adminId);
+    verify(adminRepository).existsById(adminId);
+    verify(adminRepository).deleteById(adminId);
+  }
 
-        verify(adminRepository).findById(adminId);
-        verify(adminValidator).accept(admin);
-        verify(adminRepository).save(any(JAdmin.class));
-    }
+  @Test
+  void should_throw_not_found_when_deleting_non_existing_admin() {
+    when(adminRepository.existsById(adminId)).thenReturn(false);
 
-    // ============================================================
-    // delete()
-    // ============================================================
+    assertThatThrownBy(() -> adminService.delete(adminId))
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("admin not found with id " + adminId);
 
-    @Test
-    void should_delete_admin() {
-        when(adminRepository.existsById(adminId)).thenReturn(true);
-
-        adminService.delete(adminId);
-
-        verify(adminRepository).existsById(adminId);
-        verify(adminRepository).deleteById(adminId);
-    }
-
-    @Test
-    void should_throw_not_found_when_deleting_non_existing_admin() {
-        when(adminRepository.existsById(adminId)).thenReturn(false);
-
-        assertThatThrownBy(() -> adminService.delete(adminId))
-                .isInstanceOf(ResponseStatusException.class)
-                .hasMessageContaining("admin not found with id " + adminId);
-
-        verify(adminRepository).existsById(adminId);
-        verify(adminRepository, never()).deleteById(any(UUID.class));
-    }
+    verify(adminRepository).existsById(adminId);
+    verify(adminRepository, never()).deleteById(any(UUID.class));
+  }
 }
