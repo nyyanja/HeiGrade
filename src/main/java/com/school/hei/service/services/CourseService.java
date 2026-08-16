@@ -23,6 +23,8 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class CourseService {
 
+  private static final int MAX_CREDITS_PER_LEVEL = 60;
+
   private final CourseRepository courseRepository;
   private final CourseValidator courseValidator;
   private final TeacherRepository teacherRepository;
@@ -51,6 +53,7 @@ public class CourseService {
     courseValidator.accept(course);
     validateTeachers(course);
     validateSpecialities(course);
+    validateCreditsPerLevel(course);
 
     JCourse savedCourse = courseRepository.save(CourseMapper.toEntity(course));
     course.setId(savedCourse.getId());
@@ -68,6 +71,7 @@ public class CourseService {
     courseValidator.accept(course);
     validateTeachers(course);
     validateSpecialities(course);
+    validateCreditsPerLevel(course);
 
     JCourse savedCourse = courseRepository.save(CourseMapper.toEntity(course));
 
@@ -114,6 +118,42 @@ public class CourseService {
       }
       if (!specialityRepository.existsById(speciality.getId())) {
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "speciality not found");
+      }
+    }
+  }
+
+  private void validateCreditsPerLevel(Course course) {
+    if (course.getSpecialities() == null || course.getSpecialities().isEmpty()) {
+      return;
+    }
+
+    Integer level = course.getLevel();
+    int newCredit = course.getCredit();
+
+    for (Speciality speciality : course.getSpecialities()) {
+      if (speciality == null || speciality.getId() == null) {
+        continue;
+      }
+
+      UUID specialityId = speciality.getId();
+      List<JCourse> existingCourses =
+          courseRepository.findBySpecialityIdAndLevel(specialityId, level);
+
+      int existingSum =
+          existingCourses.stream()
+              .filter(c -> course.getId() == null || !c.getId().equals(course.getId()))
+              .mapToInt(JCourse::getCredit)
+              .sum();
+
+      int total = existingSum + newCredit;
+
+      if (total > MAX_CREDITS_PER_LEVEL) {
+        throw new ResponseStatusException(
+            HttpStatus.BAD_REQUEST,
+            String.format(
+                "cannot create/update course: total credits for speciality at level %d "
+                    + "would reach %d (existing %d + new %d), maximum is %d",
+                level, total, existingSum, newCredit, MAX_CREDITS_PER_LEVEL));
       }
     }
   }
@@ -192,5 +232,12 @@ public class CourseService {
     return courseRepository.findByTitleContainingIgnoreCase(title).stream()
         .map(CourseMapper::toModel)
         .toList();
+  }
+
+  public List<Course> findByLevel(Integer level) {
+    if (level == null || level < 1 || level > 3) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "level must be 1, 2 or 3");
+    }
+    return courseRepository.findByLevel(level).stream().map(this::toModelWithRelations).toList();
   }
 }

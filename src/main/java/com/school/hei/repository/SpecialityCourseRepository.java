@@ -14,4 +14,6 @@ public interface SpecialityCourseRepository extends JpaRepository<JSpecialityCou
 
   @Modifying
   void deleteByCourse_Id(UUID courseId);
+
+  List<JSpecialityCourse> findBySpeciality_Id(UUID specialityId);
 }

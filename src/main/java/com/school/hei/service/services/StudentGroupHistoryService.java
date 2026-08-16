@@ -3,6 +3,7 @@ package com.school.hei.service.services;
 import com.school.hei.mapper.StudentGroupHistoryMapper;
 import com.school.hei.model.StudentGroupHistory;
 import com.school.hei.repository.StudentGroupHistoryRepository;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -36,5 +37,13 @@ public class StudentGroupHistoryService {
             () ->
                 new ResponseStatusException(
                     HttpStatus.NOT_FOUND, "student group history not found with id " + id));
+  }
+
+  public StudentGroupHistory findStudentGroupAtDate(UUID studentId, LocalDate date) {
+
+    return studentGroupHistoryRepository
+        .findStudentGroupAtDate(studentId, date)
+        .map(StudentGroupHistoryMapper::toModel)
+        .orElse(null);
   }
 }

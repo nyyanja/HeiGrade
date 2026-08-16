@@ -34,4 +34,7 @@ public class JCourse {
 
   @Column(name = "credit", nullable = false)
   private Integer credit;
+
+  @Column(name = "level", nullable = false)
+  private Integer level;
 }
