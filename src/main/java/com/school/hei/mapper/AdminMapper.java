@@ -11,15 +11,16 @@ public class AdminMapper {
     }
 
     return Admin.builder()
-        .id(entity.getId())
-        .firstName(entity.getFirstName())
-        .lastName(entity.getLastName())
-        .birthday(entity.getBirthday())
-        .sex(entity.getSex())
-        .address(entity.getAddress())
-        .email(entity.getEmail())
-        .role(entity.getRole())
-        .build();
+            .id(entity.getId())
+            .firstName(entity.getFirstName())
+            .lastName(entity.getLastName())
+            .birthday(entity.getBirthday())
+            .sex(entity.getSex())
+            .address(entity.getAddress())
+            .email(entity.getEmail())
+            .role(entity.getRole())
+            .adminReference(entity.getAdminReference())
+            .build();
   }
 
   public static JAdmin toEntity(Admin model) {
@@ -28,14 +29,15 @@ public class AdminMapper {
     }
 
     return JAdmin.builder()
-        .id(model.getId())
-        .firstName(model.getFirstName())
-        .lastName(model.getLastName())
-        .birthday(model.getBirthday())
-        .sex(model.getSex())
-        .address(model.getAddress())
-        .email(model.getEmail())
-        .role(model.getRole())
-        .build();
+            .id(model.getId())
+            .firstName(model.getFirstName())
+            .lastName(model.getLastName())
+            .birthday(model.getBirthday())
+            .sex(model.getSex())
+            .address(model.getAddress())
+            .email(model.getEmail())
+            .role(model.getRole())
+            .adminReference(model.getAdminReference())
+            .build();
   }
 }
