@@ -13,14 +13,21 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class Course {
+public class Transcript {
 
-  private UUID id;
+  private UUID studentId;
+
   private String reference;
-  private String title;
-  private Integer credit;
+
+  private String firstName;
+
+  private String lastName;
+
   private Integer level;
 
-  private List<Teacher> teachers;
-  private List<Speciality> specialities;
+  private List<TranscriptCourseLine> courses;
+
+  private Double generalAverage;
+
+  private Integer totalCredit;
 }

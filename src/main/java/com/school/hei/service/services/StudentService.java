@@ -9,6 +9,7 @@ import com.school.hei.repository.GroupRepository;
 import com.school.hei.repository.SpecialityRepository;
 import com.school.hei.repository.StudentGroupHistoryRepository;
 import com.school.hei.repository.StudentRepository;
+import com.school.hei.validator.SpecialityChangeValidator;
 import com.school.hei.validator.StudentValidator;
 import java.time.LocalDate;
 import java.util.List;
@@ -29,6 +30,7 @@ public class StudentService {
   private final GroupRepository groupRepository;
   private final SpecialityRepository specialityRepository;
   private final StudentGroupHistoryRepository studentGroupHistoryRepository;
+  private final SpecialityChangeValidator specialityChangeValidator;
 
   public List<Student> findAll() {
     return studentRepository.findAll().stream().map(StudentMapper::toModel).toList();
@@ -89,11 +91,14 @@ public class StudentService {
     studentValidator.accept(student);
 
     JStudent entity = StudentMapper.toEntity(student);
-
     setGroup(entity, student);
 
-    JStudent savedStudent = studentRepository.save(entity);
+    // Validation spécialité dès la première affectation (si groupe renseigné)
+    if (entity.getGroup() != null) {
+      specialityChangeValidator.accept(entity, entity.getGroup());
+    }
 
+    JStudent savedStudent = studentRepository.save(entity);
     createInitialGroupHistory(savedStudent);
 
     return StudentMapper.toModel(savedStudent);
@@ -113,12 +118,14 @@ public class StudentService {
                 student -> {
                   JStudent entity = StudentMapper.toEntity(student);
                   setGroup(entity, student);
+                  if (entity.getGroup() != null) {
+                    specialityChangeValidator.accept(entity, entity.getGroup());
+                  }
                   return entity;
                 })
             .toList();
 
     List<JStudent> savedStudents = studentRepository.saveAll(entities);
-
     savedStudents.forEach(this::createInitialGroupHistory);
 
     return savedStudents.stream().map(StudentMapper::toModel).toList();
@@ -126,7 +133,6 @@ public class StudentService {
 
   @Transactional
   public Student update(UUID id, Student student) {
-
     JStudent existingStudent =
         studentRepository
             .findById(id)
@@ -144,8 +150,12 @@ public class StudentService {
     UUID newGroupId = student.getGroup() == null ? null : student.getGroup().getId();
 
     JStudent entity = StudentMapper.toEntity(student);
-
     setGroup(entity, student);
+
+    // Validation L2/L3 uniquement si le groupe change
+    if (!Objects.equals(oldGroupId, newGroupId) && entity.getGroup() != null) {
+      specialityChangeValidator.accept(entity, entity.getGroup());
+    }
 
     JStudent updatedStudent = studentRepository.save(entity);
 
@@ -160,18 +170,16 @@ public class StudentService {
     if (!studentRepository.existsById(id)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "student not found with id " + id);
     }
-
     studentRepository.deleteById(id);
   }
 
   private void setGroup(JStudent entity, Student student) {
-    if (student.getGroup() == null) {
+    if (student.getGroup() == null || student.getGroup().getId() == null) {
       entity.setGroup(null);
       return;
     }
 
     UUID groupId = student.getGroup().getId();
-
     JGroup group =
         groupRepository
             .findById(groupId)
@@ -188,6 +196,13 @@ public class StudentService {
       return;
     }
 
+    // Évite les doublons si une entrée ouverte existe déjà
+    if (studentGroupHistoryRepository
+        .findByStudent_IdAndEndDateIsNull(student.getId())
+        .isPresent()) {
+      return;
+    }
+
     studentGroupHistoryRepository.save(
         JStudentGroupHistory.builder()
             .student(student)
@@ -198,15 +213,16 @@ public class StudentService {
   }
 
   private void updateGroupHistory(JStudent student, UUID oldGroupId, UUID newGroupId) {
-
+    // Fermer l'historique ouvert
     studentGroupHistoryRepository
         .findByStudent_IdAndEndDateIsNull(student.getId())
         .ifPresent(
             history -> {
-              history.setEndDate(LocalDate.now());
+              history.setEndDate(LocalDate.now().minusDays(1));
               studentGroupHistoryRepository.save(history);
             });
 
+    // Ouvrir le nouvel historique si nouveau groupe
     if (newGroupId != null && student.getGroup() != null) {
       studentGroupHistoryRepository.save(
           JStudentGroupHistory.builder()

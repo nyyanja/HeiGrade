@@ -13,6 +13,8 @@ public interface CourseRepository extends JpaRepository<JCourse, UUID> {
 
   List<JCourse> findByCredit(Integer credit);
 
+  List<JCourse> findByLevel(Integer level);
+
   @Query(
       """
       SELECT DISTINCT tc.course FROM JTeacherCourse tc
@@ -26,6 +28,15 @@ public interface CourseRepository extends JpaRepository<JCourse, UUID> {
       WHERE sc.speciality.id = :specialityId
       """)
   List<JCourse> findBySpecialityId(@Param("specialityId") UUID specialityId);
+
+  @Query(
+      """
+      SELECT DISTINCT sc.course FROM JSpecialityCourse sc
+      WHERE sc.speciality.id = :specialityId
+        AND sc.course.level = :level
+      """)
+  List<JCourse> findBySpecialityIdAndLevel(
+      @Param("specialityId") UUID specialityId, @Param("level") Integer level);
 
   List<JCourse> findByTitleContainingIgnoreCase(String title);
 }

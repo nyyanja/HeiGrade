@@ -28,6 +28,13 @@ public class CourseValidator implements SaveValidator<Course> {
       throw new ResponseStatusException(
           HttpStatus.BAD_REQUEST, "course credit must be greater than 0");
     }
+    if (course.getLevel() == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "course level is required");
+    }
+
+    if (course.getLevel() < 1 || course.getLevel() > 3) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "course level must be 1, 2 or 3");
+    }
 
     courseRepository
         .findByReferenceIgnoreCase(course.getReference())

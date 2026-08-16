@@ -45,6 +45,11 @@ public class CourseController {
     return courseService.findByTitle(title);
   }
 
+  @GetMapping("/level/{level}")
+  public List<Course> findByLevel(@PathVariable Integer level) {
+    return courseService.findByLevel(level);
+  }
+
   @GetMapping("/{id}")
   public Course findById(@PathVariable UUID id) {
     return courseService.findById(id);

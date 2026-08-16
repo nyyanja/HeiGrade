@@ -1,7 +1,10 @@
 package com.school.hei.service.services;
 
+import com.school.hei.entity.JCourse;
+import com.school.hei.entity.JExam;
 import com.school.hei.entity.JGrade;
 import com.school.hei.entity.JGradeHistory;
+import com.school.hei.entity.JGroup;
 import com.school.hei.entity.JUser;
 import com.school.hei.mapper.GradeHistoryMapper;
 import com.school.hei.mapper.GradeMapper;
@@ -19,7 +22,9 @@ import com.school.hei.validator.GradeValidator;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -30,6 +35,10 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 @RequiredArgsConstructor
 public class GradeService {
+
+  private static final int YEAR_TOTAL_CREDITS = 60;
+  private static final double COEFF_TOTAL = 1.0;
+  private static final double COEFF_EPSILON = 0.0001;
 
   private final GradeRepository gradeRepository;
   private final GradeHistoryRepository gradeHistoryRepository;
@@ -358,6 +367,194 @@ public class GradeService {
 
     if (!specialityRepository.existsById(specialityId)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "speciality not found");
+    }
+  }
+
+  private JGroup requireGroup(UUID groupId) {
+    if (groupId == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "group id is required");
+    }
+    return groupRepository
+        .findById(groupId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "group not found"));
+  }
+
+  private List<JExam> findExamsForGroupAndCourse(UUID groupId, UUID courseId) {
+    return examRepository.findByGroupId(groupId).stream()
+        .filter(exam -> exam.getCourse() != null && courseId.equals(exam.getCourse().getId()))
+        .toList();
+  }
+
+  @Transactional(readOnly = true)
+  public Double computeStudentCourseAverage(UUID studentId, UUID courseId) {
+    requireExistingStudent(studentId);
+    requireExistingCourse(courseId);
+
+    List<JGrade> grades = gradeRepository.findByStudentIdAndCourseId(studentId, courseId);
+    if (grades.isEmpty()) {
+      return null;
+    }
+
+    double weightedSum = 0.0;
+    double coeffSum = 0.0;
+
+    for (JGrade grade : grades) {
+      double coeff = grade.getExam().getCoeff();
+      weightedSum += grade.getValue() * coeff;
+      coeffSum += coeff;
+    }
+
+    if (coeffSum == 0) {
+      return null;
+    }
+
+    return weightedSum / coeffSum;
+  }
+
+  @Transactional(readOnly = true)
+  public boolean isGroupYearComplete(UUID groupId, Integer level) {
+    validateLevel(level);
+    JGroup group = requireGroup(groupId);
+
+    if (group.getSpeciality() == null || group.getSpeciality().getId() == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "group has no speciality");
+    }
+
+    UUID specialityId = group.getSpeciality().getId();
+    List<JCourse> courses = courseRepository.findBySpecialityIdAndLevel(specialityId, level);
+
+    if (courses.isEmpty()) {
+      return false;
+    }
+
+    int totalCredits = courses.stream().mapToInt(JCourse::getCredit).sum();
+    if (totalCredits != YEAR_TOTAL_CREDITS) {
+      return false;
+    }
+
+    for (JCourse course : courses) {
+      double coeffSum =
+          findExamsForGroupAndCourse(groupId, course.getId()).stream()
+              .mapToDouble(JExam::getCoeff)
+              .sum();
+      if (Math.abs(coeffSum - COEFF_TOTAL) > COEFF_EPSILON) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  @Transactional(readOnly = true)
+  public Map<String, Object> getGroupYearStatus(UUID groupId, Integer level) {
+    validateLevel(level);
+    JGroup group = requireGroup(groupId);
+
+    if (group.getSpeciality() == null || group.getSpeciality().getId() == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "group has no speciality");
+    }
+
+    UUID specialityId = group.getSpeciality().getId();
+    List<JCourse> courses = courseRepository.findBySpecialityIdAndLevel(specialityId, level);
+    int totalCredits = courses.stream().mapToInt(JCourse::getCredit).sum();
+
+    List<Map<String, Object>> coursesStatus = new ArrayList<>();
+    boolean allCoeffsComplete = true;
+
+    for (JCourse course : courses) {
+      List<JExam> groupExams = findExamsForGroupAndCourse(groupId, course.getId());
+      double coeffSum = groupExams.stream().mapToDouble(JExam::getCoeff).sum();
+      boolean courseComplete = Math.abs(coeffSum - COEFF_TOTAL) <= COEFF_EPSILON;
+      if (!courseComplete) {
+        allCoeffsComplete = false;
+      }
+
+      Map<String, Object> courseInfo = new HashMap<>();
+      courseInfo.put("courseId", course.getId());
+      courseInfo.put("reference", course.getReference());
+      courseInfo.put("title", course.getTitle());
+      courseInfo.put("credit", course.getCredit());
+      courseInfo.put("level", course.getLevel());
+      courseInfo.put("coeffSum", coeffSum);
+      courseInfo.put("coeffComplete", courseComplete);
+      courseInfo.put("examIds", groupExams.stream().map(JExam::getId).toList());
+      coursesStatus.add(courseInfo);
+    }
+
+    boolean yearComplete = totalCredits == YEAR_TOTAL_CREDITS && allCoeffsComplete;
+
+    Map<String, Object> status = new HashMap<>();
+    status.put("groupId", groupId);
+    status.put("groupName", group.getName());
+    status.put("specialityId", specialityId);
+    status.put("level", level);
+    status.put("totalCredits", totalCredits);
+    status.put("requiredCredits", YEAR_TOTAL_CREDITS);
+    status.put("creditsComplete", totalCredits == YEAR_TOTAL_CREDITS);
+    status.put("allCoeffsComplete", allCoeffsComplete);
+    status.put("yearComplete", yearComplete);
+    status.put("courses", coursesStatus);
+    return status;
+  }
+
+  @Transactional(readOnly = true)
+  public List<Grade> findAllGradesForGroupYear(UUID groupId, Integer level) {
+    validateLevel(level);
+    requireGroup(groupId);
+
+    if (!isGroupYearComplete(groupId, level)) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST,
+          "group year is not complete for level "
+              + level
+              + ": sum of course credits of the group's speciality at this level "
+              + "must be 60 and sum of exam coefficients linked to this group must be 1 "
+              + "for each course");
+    }
+
+    return gradeRepository.findByGroupId(groupId).stream().map(GradeMapper::toModel).toList();
+  }
+
+  @Transactional(readOnly = true)
+  public Double computeStudentYearAverageByGroup(UUID studentId, UUID groupId, Integer level) {
+    validateLevel(level);
+    requireExistingStudent(studentId);
+    JGroup group = requireGroup(groupId);
+
+    if (group.getSpeciality() == null || group.getSpeciality().getId() == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "group has no speciality");
+    }
+
+    if (!isGroupYearComplete(groupId, level)) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST,
+          "group year is not complete for level " + level + ": cannot compute year average");
+    }
+
+    UUID specialityId = group.getSpeciality().getId();
+    List<JCourse> courses = courseRepository.findBySpecialityIdAndLevel(specialityId, level);
+    double weightedSum = 0.0;
+    int totalCredits = 0;
+
+    for (JCourse course : courses) {
+      Double courseAverage = computeStudentCourseAverage(studentId, course.getId());
+      if (courseAverage == null) {
+        return null;
+      }
+      weightedSum += courseAverage * course.getCredit();
+      totalCredits += course.getCredit();
+    }
+
+    if (totalCredits == 0) {
+      return null;
+    }
+
+    return weightedSum / totalCredits;
+  }
+
+  private void validateLevel(Integer level) {
+    if (level == null || level < 1 || level > 3) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "level must be 1, 2 or 3");
     }
   }
 }

@@ -63,4 +63,18 @@ public class SpecialityCourseService {
 
     specialityCourseRepository.deleteById(id);
   }
+
+  public List<SpecialityCourse> findByCourse(UUID courseId) {
+
+    return specialityCourseRepository.findByCourse_Id(courseId).stream()
+        .map(SpecialityCourseMapper::toModel)
+        .toList();
+  }
+
+  public List<SpecialityCourse> findBySpeciality(UUID specialityId) {
+
+    return specialityCourseRepository.findBySpeciality_Id(specialityId).stream()
+        .map(SpecialityCourseMapper::toModel)
+        .toList();
+  }
 }

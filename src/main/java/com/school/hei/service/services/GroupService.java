@@ -2,6 +2,7 @@ package com.school.hei.service.services;
 
 import com.school.hei.entity.JGroup;
 import com.school.hei.entity.JStudent;
+import com.school.hei.entity.JStudentGroupHistory;
 import com.school.hei.mapper.GroupMapper;
 import com.school.hei.mapper.StudentMapper;
 import com.school.hei.model.Group;
@@ -10,8 +11,11 @@ import com.school.hei.repository.CourseRepository;
 import com.school.hei.repository.ExamRepository;
 import com.school.hei.repository.GroupRepository;
 import com.school.hei.repository.SpecialityRepository;
+import com.school.hei.repository.StudentGroupHistoryRepository;
 import com.school.hei.repository.StudentRepository;
 import com.school.hei.validator.GroupValidator;
+import com.school.hei.validator.SpecialityChangeValidator;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +34,8 @@ public class GroupService {
   private final SpecialityRepository specialityRepository;
   private final ExamRepository examRepository;
   private final CourseRepository courseRepository;
+  private final StudentGroupHistoryRepository studentGroupHistoryRepository;
+  private final SpecialityChangeValidator specialityChangeValidator;
 
   public List<Group> findAll() {
     return groupRepository.findAll().stream().map(this::toModelWithStudents).toList();
@@ -101,16 +107,53 @@ public class GroupService {
         .toList();
   }
 
+  public List<Group> findByName(String name) {
+    if (name == null || name.isBlank()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "name is required");
+    }
+    return groupRepository.findByNameContainingIgnoreCase(name).stream()
+        .map(this::toModelWithStudents)
+        .toList();
+  }
+
   private void assignStudents(List<Student> students, JGroup group) {
     if (students == null || students.isEmpty()) {
       return;
     }
+    LocalDate today = LocalDate.now();
+
     for (Student student : students) {
       JStudent entity =
           studentRepository
               .findById(student.getId())
               .orElseThrow(
                   () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "student not found"));
+
+      specialityChangeValidator.accept(entity, group);
+
+      List<JStudentGroupHistory> history =
+          studentGroupHistoryRepository.findByStudent_Id(entity.getId());
+      for (JStudentGroupHistory h : history) {
+        if (h.getEndDate() == null) {
+          if (h.getGroup() != null && h.getGroup().getId().equals(group.getId())) {
+            entity.setGroup(group);
+            studentRepository.save(entity);
+            return;
+          }
+          h.setEndDate(today.minusDays(1));
+          studentGroupHistoryRepository.save(h);
+        }
+      }
+
+      JStudentGroupHistory newEntry =
+          JStudentGroupHistory.builder()
+              .student(entity)
+              .group(group)
+              .startDate(today)
+              .endDate(null)
+              .build();
+      studentGroupHistoryRepository.save(newEntry);
+
       entity.setGroup(group);
       studentRepository.save(entity);
     }
@@ -124,14 +167,5 @@ public class GroupService {
             .toList();
     model.setStudents(students);
     return model;
-  }
-
-  public List<Group> findByName(String name) {
-    if (name == null || name.isBlank()) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "name is required");
-    }
-    return groupRepository.findByNameContainingIgnoreCase(name).stream()
-        .map(this::toModelWithStudents)
-        .toList();
   }
 }
