@@ -16,12 +16,14 @@ import com.school.hei.repository.ExamRepository;
 import com.school.hei.repository.GroupExamRepository;
 import com.school.hei.repository.GroupRepository;
 import com.school.hei.repository.SpecialityRepository;
+import com.school.hei.security.CourseAccessService;
 import com.school.hei.service.services.ExamService;
 import com.school.hei.validator.ExamValidator;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -44,7 +46,14 @@ class ExamServiceTest {
 
   @Mock private GroupExamRepository groupExamRepository;
 
+  @Mock private CourseAccessService courseAccessService;
+
   @InjectMocks private ExamService examService;
+
+  @BeforeEach
+  void setUp() {
+    lenient().when(courseAccessService.isAdmin()).thenReturn(true);
+  }
 
   @Test
   void should_find_all_exams() {

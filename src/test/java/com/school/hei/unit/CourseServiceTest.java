@@ -20,11 +20,13 @@ import com.school.hei.repository.SpecialityCourseRepository;
 import com.school.hei.repository.SpecialityRepository;
 import com.school.hei.repository.TeacherCourseRepository;
 import com.school.hei.repository.TeacherRepository;
+import com.school.hei.security.CourseAccessService;
 import com.school.hei.service.services.CourseService;
 import com.school.hei.validator.CourseValidator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -50,6 +52,12 @@ class CourseServiceTest {
   @Mock private GroupRepository groupRepository;
 
   @InjectMocks private CourseService courseService;
+  @Mock private CourseAccessService courseAccessService;
+
+  @BeforeEach
+  void setUp() {
+    lenient().when(courseAccessService.isAdmin()).thenReturn(true);
+  }
 
   @Test
   void should_find_all_courses() {
@@ -529,7 +537,6 @@ class CourseServiceTest {
             .build();
 
     when(groupRepository.findById(groupId)).thenReturn(Optional.of(group));
-    when(specialityRepository.existsById(specialityId)).thenReturn(true);
     when(courseRepository.findBySpecialityId(specialityId)).thenReturn(List.of(course));
 
     List<Course> result = courseService.findByGroup(groupId);

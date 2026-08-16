@@ -10,8 +10,10 @@ import com.school.hei.model.Course;
 import com.school.hei.model.Speciality;
 import com.school.hei.model.Teacher;
 import com.school.hei.repository.*;
+import com.school.hei.security.CourseAccessService;
 import com.school.hei.validator.CourseValidator;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -32,21 +34,7 @@ public class CourseService {
   private final TeacherCourseRepository teacherCourseRepository;
   private final SpecialityCourseRepository specialityCourseRepository;
   private final GroupRepository groupRepository;
-
-  public List<Course> findAll() {
-    return courseRepository.findAll().stream().map(this::toModelWithRelations).toList();
-  }
-
-  public Course findById(UUID id) {
-    JCourse entity =
-        courseRepository
-            .findById(id)
-            .orElseThrow(
-                () ->
-                    new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "course not found with id " + id));
-    return toModelWithRelations(entity);
-  }
+  private final CourseAccessService courseAccessService;
 
   @Transactional
   public Course save(Course course) {
@@ -193,27 +181,52 @@ public class CourseService {
     return model;
   }
 
+  public List<Course> findAll() {
+    List<JCourse> courses = courseRepository.findAll();
+    return filterCoursesForCurrentUser(courses).stream().map(this::toModelWithRelations).toList();
+  }
+
+  public Course findById(UUID id) {
+    JCourse entity =
+        courseRepository
+            .findById(id)
+            .orElseThrow(
+                () ->
+                    new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "course not found with id " + id));
+    assertCanReadCourse(entity.getId());
+    return toModelWithRelations(entity);
+  }
+
   public List<Course> findByTeacher(UUID teacherId) {
     if (!teacherRepository.existsById(teacherId)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "teacher not found");
     }
-    return courseRepository.findByTeacherId(teacherId).stream().map(CourseMapper::toModel).toList();
+    // TEACHER ne peut lister que ses propres cours
+    if (courseAccessService.isTeacher() && !courseAccessService.isAdmin()) {
+      if (!courseAccessService.currentUserId().equals(teacherId)) {
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "not your courses");
+      }
+    }
+    return courseRepository.findByTeacherId(teacherId).stream()
+        .map(this::toModelWithRelations)
+        .toList();
   }
 
   public List<Course> findBySpeciality(UUID specialityId) {
     if (!specialityRepository.existsById(specialityId)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "speciality not found");
     }
-    return courseRepository.findBySpecialityId(specialityId).stream()
-        .map(CourseMapper::toModel)
-        .toList();
+    List<JCourse> courses = courseRepository.findBySpecialityId(specialityId);
+    return filterCoursesForCurrentUser(courses).stream().map(this::toModelWithRelations).toList();
   }
 
   public List<Course> findByCredit(Integer credit) {
     if (credit == null || credit <= 0) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "credit must be greater than 0");
     }
-    return courseRepository.findByCredit(credit).stream().map(CourseMapper::toModel).toList();
+    List<JCourse> courses = courseRepository.findByCredit(credit);
+    return filterCoursesForCurrentUser(courses).stream().map(this::toModelWithRelations).toList();
   }
 
   public List<Course> findByGroup(UUID groupId) {
@@ -222,22 +235,49 @@ public class CourseService {
             .findById(groupId)
             .orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "group not found"));
-    return findBySpeciality(group.getSpeciality().getId());
+    List<JCourse> courses = courseRepository.findBySpecialityId(group.getSpeciality().getId());
+    return filterCoursesForCurrentUser(courses).stream().map(this::toModelWithRelations).toList();
   }
 
   public List<Course> findByTitle(String title) {
     if (title == null || title.isBlank()) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "title is required");
     }
-    return courseRepository.findByTitleContainingIgnoreCase(title).stream()
-        .map(CourseMapper::toModel)
-        .toList();
+    List<JCourse> courses = courseRepository.findByTitleContainingIgnoreCase(title);
+    return filterCoursesForCurrentUser(courses).stream().map(this::toModelWithRelations).toList();
   }
 
   public List<Course> findByLevel(Integer level) {
     if (level == null || level < 1 || level > 3) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "level must be 1, 2 or 3");
     }
-    return courseRepository.findByLevel(level).stream().map(this::toModelWithRelations).toList();
+    List<JCourse> courses = courseRepository.findByLevel(level);
+    return filterCoursesForCurrentUser(courses).stream().map(this::toModelWithRelations).toList();
+  }
+
+  private List<JCourse> filterCoursesForCurrentUser(List<JCourse> courses) {
+    if (courseAccessService.isAdmin()) {
+      return courses;
+    }
+    if (courseAccessService.isTeacher()) {
+      Set<UUID> taught = courseAccessService.taughtCourseIds();
+      return courses.stream().filter(c -> taught.contains(c.getId())).toList();
+    }
+    // STUDENT : peut voir le catalogue (programme)
+    if (courseAccessService.isStudent()) {
+      return courses;
+    }
+    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "access denied");
+  }
+
+  private void assertCanReadCourse(UUID courseId) {
+    if (courseAccessService.isAdmin() || courseAccessService.isStudent()) {
+      return;
+    }
+    if (courseAccessService.isTeacher()) {
+      courseAccessService.assertCanAccessCourse(courseId);
+      return;
+    }
+    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "access denied");
   }
 }

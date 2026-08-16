@@ -9,6 +9,7 @@ import com.school.hei.repository.GroupRepository;
 import com.school.hei.repository.SpecialityRepository;
 import com.school.hei.repository.StudentGroupHistoryRepository;
 import com.school.hei.repository.StudentRepository;
+import com.school.hei.security.CourseAccessService;
 import com.school.hei.validator.SpecialityChangeValidator;
 import com.school.hei.validator.StudentValidator;
 import java.time.LocalDate;
@@ -31,60 +32,7 @@ public class StudentService {
   private final SpecialityRepository specialityRepository;
   private final StudentGroupHistoryRepository studentGroupHistoryRepository;
   private final SpecialityChangeValidator specialityChangeValidator;
-
-  public List<Student> findAll() {
-    return studentRepository.findAll().stream().map(StudentMapper::toModel).toList();
-  }
-
-  public Student findById(UUID id) {
-    return studentRepository
-        .findById(id)
-        .map(StudentMapper::toModel)
-        .orElseThrow(
-            () ->
-                new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, "student not found with id " + id));
-  }
-
-  public Student findByReference(String reference) {
-    return studentRepository
-        .findByReference(reference)
-        .map(StudentMapper::toModel)
-        .orElseThrow(
-            () ->
-                new ResponseStatusException(
-                    HttpStatus.NOT_FOUND, "student not found with reference " + reference));
-  }
-
-  public List<Student> findByName(String name) {
-    if (name == null || name.isBlank()) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "name is required");
-    }
-
-    return studentRepository
-        .findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(name, name)
-        .stream()
-        .map(StudentMapper::toModel)
-        .toList();
-  }
-
-  public List<Student> findByGroup(UUID groupId) {
-    if (!groupRepository.existsById(groupId)) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "group not found");
-    }
-
-    return studentRepository.findByGroup_Id(groupId).stream().map(StudentMapper::toModel).toList();
-  }
-
-  public List<Student> findBySpeciality(UUID specialityId) {
-    if (!specialityRepository.existsById(specialityId)) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "speciality not found");
-    }
-
-    return studentRepository.findByGroup_Speciality_Id(specialityId).stream()
-        .map(StudentMapper::toModel)
-        .toList();
-  }
+  private final CourseAccessService courseAccessService;
 
   @Transactional
   public Student save(Student student) {
@@ -92,8 +40,6 @@ public class StudentService {
 
     JStudent entity = StudentMapper.toEntity(student);
     setGroup(entity, student);
-
-    // Validation spécialité dès la première affectation (si groupe renseigné)
     if (entity.getGroup() != null) {
       specialityChangeValidator.accept(entity, entity.getGroup());
     }
@@ -151,8 +97,6 @@ public class StudentService {
 
     JStudent entity = StudentMapper.toEntity(student);
     setGroup(entity, student);
-
-    // Validation L2/L3 uniquement si le groupe change
     if (!Objects.equals(oldGroupId, newGroupId) && entity.getGroup() != null) {
       specialityChangeValidator.accept(entity, entity.getGroup());
     }
@@ -195,8 +139,6 @@ public class StudentService {
     if (student.getGroup() == null) {
       return;
     }
-
-    // Évite les doublons si une entrée ouverte existe déjà
     if (studentGroupHistoryRepository
         .findByStudent_IdAndEndDateIsNull(student.getId())
         .isPresent()) {
@@ -213,7 +155,6 @@ public class StudentService {
   }
 
   private void updateGroupHistory(JStudent student, UUID oldGroupId, UUID newGroupId) {
-    // Fermer l'historique ouvert
     studentGroupHistoryRepository
         .findByStudent_IdAndEndDateIsNull(student.getId())
         .ifPresent(
@@ -221,8 +162,6 @@ public class StudentService {
               history.setEndDate(LocalDate.now().minusDays(1));
               studentGroupHistoryRepository.save(history);
             });
-
-    // Ouvrir le nouvel historique si nouveau groupe
     if (newGroupId != null && student.getGroup() != null) {
       studentGroupHistoryRepository.save(
           JStudentGroupHistory.builder()
@@ -232,5 +171,85 @@ public class StudentService {
               .endDate(null)
               .build());
     }
+  }
+
+  public List<Student> findAll() {
+    if (courseAccessService.isStudent()) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "students cannot list all students");
+    }
+    return studentRepository.findAll().stream().map(StudentMapper::toModel).toList();
+  }
+
+  public Student findById(UUID id) {
+    assertCanAccessStudent(id);
+    return studentRepository
+        .findById(id)
+        .map(StudentMapper::toModel)
+        .orElseThrow(
+            () ->
+                new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "student not found with id " + id));
+  }
+
+  public Student findByReference(String reference) {
+    Student student =
+        studentRepository
+            .findByReference(reference)
+            .map(StudentMapper::toModel)
+            .orElseThrow(
+                () ->
+                    new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "student not found with reference " + reference));
+    assertCanAccessStudent(student.getId());
+    return student;
+  }
+
+  public List<Student> findByName(String name) {
+    if (courseAccessService.isStudent()) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "access denied");
+    }
+    if (name == null || name.isBlank()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "name is required");
+    }
+    return studentRepository
+        .findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(name, name)
+        .stream()
+        .map(StudentMapper::toModel)
+        .toList();
+  }
+
+  public List<Student> findByGroup(UUID groupId) {
+    if (courseAccessService.isStudent()) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "access denied");
+    }
+    if (!groupRepository.existsById(groupId)) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "group not found");
+    }
+    return studentRepository.findByGroup_Id(groupId).stream().map(StudentMapper::toModel).toList();
+  }
+
+  public List<Student> findBySpeciality(UUID specialityId) {
+    if (courseAccessService.isStudent()) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "access denied");
+    }
+    if (!specialityRepository.existsById(specialityId)) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "speciality not found");
+    }
+    return studentRepository.findByGroup_Speciality_Id(specialityId).stream()
+        .map(StudentMapper::toModel)
+        .toList();
+  }
+
+  private void assertCanAccessStudent(UUID studentId) {
+    if (courseAccessService.isAdmin() || courseAccessService.isTeacher()) {
+      return;
+    }
+    if (courseAccessService.isStudent()) {
+      if (!courseAccessService.currentUserId().equals(studentId)) {
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "not your profile");
+      }
+      return;
+    }
+    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "access denied");
   }
 }
