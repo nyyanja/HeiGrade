@@ -1,5 +1,6 @@
 package com.school.hei.security;
 
+import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import java.nio.charset.StandardCharsets;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -10,44 +11,35 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
-import com.nimbusds.jose.jwk.source.ImmutableSecret;
 
 @Configuration
 public class JwtConfig {
 
-    @Bean
-    public SecretKey jwtSecretKey() {
+  @Bean
+  public SecretKey jwtSecretKey() {
 
-        String secret = System.getenv("JWT_SECRET");
+    String secret = System.getenv("JWT_SECRET");
 
-        if (secret == null || secret.isBlank()) {
-            throw new IllegalStateException(
-                    "JWT_SECRET environment variable is not configured");
-        }
-
-        if (secret.getBytes(StandardCharsets.UTF_8).length < 32) {
-            throw new IllegalStateException(
-                    "JWT_SECRET must contain at least 32 bytes");
-        }
-
-        return new SecretKeySpec(
-                secret.getBytes(StandardCharsets.UTF_8),
-                "HmacSHA256");
+    if (secret == null || secret.isBlank()) {
+      throw new IllegalStateException("JWT_SECRET environment variable is not configured");
     }
 
-    @Bean
-    public JwtEncoder jwtEncoder(SecretKey jwtSecretKey) {
-
-        return new NimbusJwtEncoder(
-                new ImmutableSecret<>(jwtSecretKey));
+    if (secret.getBytes(StandardCharsets.UTF_8).length < 32) {
+      throw new IllegalStateException("JWT_SECRET must contain at least 32 bytes");
     }
 
-    @Bean
-    public JwtDecoder jwtDecoder(SecretKey jwtSecretKey) {
+    return new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+  }
 
-        return NimbusJwtDecoder
-                .withSecretKey(jwtSecretKey)
-                .macAlgorithm(MacAlgorithm.HS256)
-                .build();
-    }
+  @Bean
+  public JwtEncoder jwtEncoder(SecretKey jwtSecretKey) {
+
+    return new NimbusJwtEncoder(new ImmutableSecret<>(jwtSecretKey));
+  }
+
+  @Bean
+  public JwtDecoder jwtDecoder(SecretKey jwtSecretKey) {
+
+    return NimbusJwtDecoder.withSecretKey(jwtSecretKey).macAlgorithm(MacAlgorithm.HS256).build();
+  }
 }
