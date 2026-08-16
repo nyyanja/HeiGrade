@@ -7,9 +7,13 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TeacherCourseRepository extends JpaRepository<JTeacherCourse, UUID> {
+
   Optional<JTeacherCourse> findByTeacher_IdAndCourse_Id(UUID teacherId, UUID courseId);
 
+  List<JTeacherCourse> findByTeacher_Id(UUID teacherId);
+
   List<JTeacherCourse> findByCourse_Id(UUID courseId);
+
 
   void deleteByCourse_Id(UUID courseId);
 }

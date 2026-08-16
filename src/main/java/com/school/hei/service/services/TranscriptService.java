@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
+import com.school.hei.security.CourseAccessService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -44,11 +46,12 @@ public class TranscriptService {
   private final GroupExamRepository groupExamRepository;
   private final ExamRepository examRepository;
   private final GroupRepository groupRepository;
+  private final CourseAccessService courseAccessService;
 
   @Transactional(readOnly = true)
   public Transcript getStudentTranscript(UUID studentId, Integer level) {
     validateLevel(level);
-
+    assertCanAccessTranscript(studentId);
     JStudent student =
         studentRepository
             .findById(studentId)
@@ -146,6 +149,10 @@ public class TranscriptService {
   @Transactional(readOnly = true)
   public List<Transcript> getAllTranscripts(Integer level) {
     validateLevel(level);
+    if (courseAccessService.isStudent()) {
+      throw new ResponseStatusException(
+              HttpStatus.FORBIDDEN, "students cannot list all transcripts");
+    }
     List<Transcript> result = new ArrayList<>();
     for (JStudent student : studentRepository.findAll()) {
       try {
@@ -294,5 +301,17 @@ public class TranscriptService {
     if (level == null || level < 1 || level > 3) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "level must be 1, 2 or 3");
     }
+  }
+  private void assertCanAccessTranscript(UUID studentId) {
+    if (courseAccessService.isAdmin() || courseAccessService.isTeacher()) {
+      return;
+    }
+    if (courseAccessService.isStudent()) {
+      if (!courseAccessService.currentUserId().equals(studentId)) {
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "not your transcript");
+      }
+      return;
+    }
+    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "access denied");
   }
 }
