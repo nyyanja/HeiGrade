@@ -22,7 +22,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -49,8 +48,6 @@ class StudentServiceTest {
   @Mock private CourseAccessService courseAccessService;
 
   @InjectMocks private StudentService studentService;
-
-
 
   @BeforeEach
   void setUp() {
