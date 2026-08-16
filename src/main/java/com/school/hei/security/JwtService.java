@@ -2,9 +2,11 @@ package com.school.hei.security;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.jose.jws.JwsHeader;
+import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
@@ -21,28 +23,28 @@ public class JwtService {
 
         Instant now = Instant.now();
 
-        String role =
-                userDetails.getAuthorities()
-                        .stream()
-                        .findFirst()
-                        .map(authority -> authority.getAuthority())
-                        .orElse("");
+        String role = userDetails.getAuthorities()
+                .stream()
+                .findFirst()
+                .map(authority -> authority.getAuthority())
+                .orElse("");
 
-        JwtClaimsSet claims =
-                JwtClaimsSet.builder()
-                        .issuer("heigrade")
-                        .issuedAt(now)
-                        .expiresAt(now.plus(2, ChronoUnit.HOURS))
-                        .subject(userDetails.getUsername())
-                        .claim("role", role)
-                        .build();
+        JwtClaimsSet claims = JwtClaimsSet.builder()
+                .issuer("heigrade")
+                .issuedAt(now)
+                .expiresAt(now.plus(2, ChronoUnit.HOURS))
+                .subject(userDetails.getUsername())
+                .claim("role", role)
+                .build();
 
-        JwsHeader header =
-                JwsHeader.with(MacAlgorithm.HS256).build();
+        JwsHeader header = JwsHeader
+                .with(MacAlgorithm.HS256)
+                .build();
 
         return jwtEncoder
                 .encode(
-                        JwtEncoderParameters.from(header, claims))
+                        JwtEncoderParameters.from(header, claims)
+                )
                 .getTokenValue();
     }
 }
