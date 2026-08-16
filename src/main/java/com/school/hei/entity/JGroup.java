@@ -16,7 +16,7 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @Entity
-@Table(name = "group")
+@Table(name = "\"group\"")
 @Getter
 @Setter
 @NoArgsConstructor
