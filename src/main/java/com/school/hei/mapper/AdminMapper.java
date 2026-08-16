@@ -19,6 +19,7 @@ public class AdminMapper {
         .address(entity.getAddress())
         .email(entity.getEmail())
         .role(entity.getRole())
+        .adminReference(entity.getAdminReference())
         .build();
   }
 
@@ -36,6 +37,7 @@ public class AdminMapper {
         .address(model.getAddress())
         .email(model.getEmail())
         .role(model.getRole())
+        .adminReference(model.getAdminReference())
         .build();
   }
 }
