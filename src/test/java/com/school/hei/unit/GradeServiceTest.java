@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import com.school.hei.security.CourseAccessService;
 
 import com.school.hei.entity.JCourse;
 import com.school.hei.entity.JExam;
@@ -53,6 +54,8 @@ class GradeServiceTest {
   @Mock private GroupRepository groupRepository;
   @Mock private SpecialityRepository specialityRepository;
   @Mock private UserRepository userRepository;
+  @Mock private CourseAccessService courseAccessService;
+
 
   @InjectMocks private GradeService gradeService;
 
@@ -115,6 +118,8 @@ class GradeServiceTest {
             .student(student)
             .exam(exam)
             .build();
+    lenient().when(courseAccessService.isAdmin()).thenReturn(true);
+    lenient().when(examRepository.findById(examId)).thenReturn(Optional.of(exam));
   }
 
   @Test
@@ -357,7 +362,7 @@ class GradeServiceTest {
 
   @Test
   void should_delete_grade() {
-    when(gradeRepository.existsById(gradeId)).thenReturn(true);
+    when(gradeRepository.findById(gradeId)).thenReturn(Optional.of(gradeEntity));
 
     gradeService.delete(gradeId);
 
@@ -373,11 +378,11 @@ class GradeServiceTest {
 
   @Test
   void should_throw_when_deleting_non_existing_grade() {
-    when(gradeRepository.existsById(gradeId)).thenReturn(false);
+    when(gradeRepository.findById(gradeId)).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> gradeService.delete(gradeId))
-        .isInstanceOf(ResponseStatusException.class)
-        .hasMessageContaining("grade not found");
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("grade not found");
   }
 
   @Test

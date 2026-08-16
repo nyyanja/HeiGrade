@@ -31,6 +31,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
+import com.school.hei.security.CourseAccessService;
+import org.junit.jupiter.api.BeforeEach;
 
 @ExtendWith(MockitoExtension.class)
 class CourseServiceTest {
@@ -50,7 +52,12 @@ class CourseServiceTest {
   @Mock private GroupRepository groupRepository;
 
   @InjectMocks private CourseService courseService;
+  @Mock private CourseAccessService courseAccessService;
 
+  @BeforeEach
+  void setUp() {
+    lenient().when(courseAccessService.isAdmin()).thenReturn(true);
+  }
   @Test
   void should_find_all_courses() {
     UUID courseId = UUID.randomUUID();
@@ -529,7 +536,6 @@ class CourseServiceTest {
             .build();
 
     when(groupRepository.findById(groupId)).thenReturn(Optional.of(group));
-    when(specialityRepository.existsById(specialityId)).thenReturn(true);
     when(courseRepository.findBySpecialityId(specialityId)).thenReturn(List.of(course));
 
     List<Course> result = courseService.findByGroup(groupId);

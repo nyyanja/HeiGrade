@@ -11,6 +11,7 @@ import com.school.hei.entity.JGroup;
 import com.school.hei.entity.JSpeciality;
 import com.school.hei.entity.JStudent;
 import com.school.hei.entity.JStudentGroupHistory;
+import com.school.hei.security.CourseAccessService;
 import com.school.hei.model.Transcript;
 import com.school.hei.repository.CourseRepository;
 import com.school.hei.repository.ExamRepository;
@@ -48,6 +49,8 @@ class TranscriptServiceTest {
   @Mock private ExamRepository examRepository;
 
   @Mock private GroupRepository groupRepository;
+
+  @Mock private CourseAccessService courseAccessService;
 
   @InjectMocks private TranscriptService transcriptService;
 
@@ -120,6 +123,7 @@ class TranscriptServiceTest {
             .startDate(LocalDate.of(2026, 1, 1))
             .endDate(null)
             .build();
+    lenient().when(courseAccessService.isAdmin()).thenReturn(true);
   }
 
   @Test

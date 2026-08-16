@@ -13,6 +13,7 @@ import com.school.hei.entity.JStudent;
 import com.school.hei.entity.JUser;
 import com.school.hei.enums.Role;
 import com.school.hei.enums.Sex;
+import com.school.hei.model.CreateUserRequest;
 import com.school.hei.model.User;
 import com.school.hei.repository.GroupRepository;
 import com.school.hei.repository.StudentRepository;
@@ -30,6 +31,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.server.ResponseStatusException;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,6 +44,8 @@ class UserServiceTest {
   @Mock private StudentRepository studentRepository;
 
   @Mock private GroupRepository groupRepository;
+
+  @Mock private PasswordEncoder passwordEncoder;
 
   @InjectMocks private UserService userService;
 
@@ -133,11 +137,20 @@ class UserServiceTest {
     verify(userRepository).findById(userId);
   }
 
+
   @Test
   void should_save_user() {
+    CreateUserRequest request = new CreateUserRequest();
+    request.setFirstName("John");
+    request.setLastName("Doe");
+    request.setEmail("john.doe@test.com");
+    request.setPassword("plain-password");
+    request.setRole(Role.STUDENT);
+
+    when(passwordEncoder.encode("plain-password")).thenReturn("encoded-password");
     when(userRepository.save(any(JUser.class))).thenReturn(userEntity);
 
-    User result = userService.save(user);
+    User result = userService.save(request);
 
     assertThat(result).isNotNull();
     assertThat(result.getId()).isEqualTo(userId);
@@ -145,22 +158,31 @@ class UserServiceTest {
     assertThat(result.getEmail()).isEqualTo("john.doe@test.com");
     assertThat(result.getRole()).isEqualTo(Role.STUDENT);
 
-    verify(userValidator).validateCommonFields(user);
+    verify(userValidator).validateCommonFields(any(User.class));
+    verify(passwordEncoder).encode("plain-password");
     verify(userRepository).save(any(JUser.class));
   }
 
   @Test
   void should_not_save_user_when_validation_fails() {
+    CreateUserRequest request = new CreateUserRequest();
+    request.setFirstName("");
+    request.setLastName("Doe");
+    request.setEmail("john.doe@test.com");
+    request.setPassword("plain-password");
+    request.setRole(Role.STUDENT);
+
     doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "first name is required"))
-        .when(userValidator)
-        .validateCommonFields(user);
+            .when(userValidator)
+            .validateCommonFields(any(User.class));
 
-    assertThatThrownBy(() -> userService.save(user))
-        .isInstanceOf(ResponseStatusException.class)
-        .hasMessageContaining("first name is required");
+    assertThatThrownBy(() -> userService.save(request))
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("first name is required");
 
-    verify(userValidator).validateCommonFields(user);
+    verify(userValidator).validateCommonFields(any(User.class));
     verify(userRepository, never()).save(any(JUser.class));
+    verifyNoInteractions(passwordEncoder);
   }
 
   @Test
