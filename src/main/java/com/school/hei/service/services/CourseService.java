@@ -183,19 +183,17 @@ public class CourseService {
 
   public List<Course> findAll() {
     List<JCourse> courses = courseRepository.findAll();
-    return filterCoursesForCurrentUser(courses).stream()
-            .map(this::toModelWithRelations)
-            .toList();
+    return filterCoursesForCurrentUser(courses).stream().map(this::toModelWithRelations).toList();
   }
 
   public Course findById(UUID id) {
     JCourse entity =
-            courseRepository
-                    .findById(id)
-                    .orElseThrow(
-                            () ->
-                                    new ResponseStatusException(
-                                            HttpStatus.NOT_FOUND, "course not found with id " + id));
+        courseRepository
+            .findById(id)
+            .orElseThrow(
+                () ->
+                    new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "course not found with id " + id));
     assertCanReadCourse(entity.getId());
     return toModelWithRelations(entity);
   }
@@ -204,15 +202,14 @@ public class CourseService {
     if (!teacherRepository.existsById(teacherId)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "teacher not found");
     }
-    // TEACHER ne peut lister que ses propres cours
     if (courseAccessService.isTeacher() && !courseAccessService.isAdmin()) {
       if (!courseAccessService.currentUserId().equals(teacherId)) {
         throw new ResponseStatusException(HttpStatus.FORBIDDEN, "not your courses");
       }
     }
     return courseRepository.findByTeacherId(teacherId).stream()
-            .map(this::toModelWithRelations)
-            .toList();
+        .map(this::toModelWithRelations)
+        .toList();
   }
 
   public List<Course> findBySpeciality(UUID specialityId) {
@@ -220,9 +217,7 @@ public class CourseService {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "speciality not found");
     }
     List<JCourse> courses = courseRepository.findBySpecialityId(specialityId);
-    return filterCoursesForCurrentUser(courses).stream()
-            .map(this::toModelWithRelations)
-            .toList();
+    return filterCoursesForCurrentUser(courses).stream().map(this::toModelWithRelations).toList();
   }
 
   public List<Course> findByCredit(Integer credit) {
@@ -230,22 +225,17 @@ public class CourseService {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "credit must be greater than 0");
     }
     List<JCourse> courses = courseRepository.findByCredit(credit);
-    return filterCoursesForCurrentUser(courses).stream()
-            .map(this::toModelWithRelations)
-            .toList();
+    return filterCoursesForCurrentUser(courses).stream().map(this::toModelWithRelations).toList();
   }
 
   public List<Course> findByGroup(UUID groupId) {
     var group =
-            groupRepository
-                    .findById(groupId)
-                    .orElseThrow(
-                            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "group not found"));
-    List<JCourse> courses =
-            courseRepository.findBySpecialityId(group.getSpeciality().getId());
-    return filterCoursesForCurrentUser(courses).stream()
-            .map(this::toModelWithRelations)
-            .toList();
+        groupRepository
+            .findById(groupId)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "group not found"));
+    List<JCourse> courses = courseRepository.findBySpecialityId(group.getSpeciality().getId());
+    return filterCoursesForCurrentUser(courses).stream().map(this::toModelWithRelations).toList();
   }
 
   public List<Course> findByTitle(String title) {
@@ -253,9 +243,7 @@ public class CourseService {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "title is required");
     }
     List<JCourse> courses = courseRepository.findByTitleContainingIgnoreCase(title);
-    return filterCoursesForCurrentUser(courses).stream()
-            .map(this::toModelWithRelations)
-            .toList();
+    return filterCoursesForCurrentUser(courses).stream().map(this::toModelWithRelations).toList();
   }
 
   public List<Course> findByLevel(Integer level) {
@@ -263,9 +251,7 @@ public class CourseService {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "level must be 1, 2 or 3");
     }
     List<JCourse> courses = courseRepository.findByLevel(level);
-    return filterCoursesForCurrentUser(courses).stream()
-            .map(this::toModelWithRelations)
-            .toList();
+    return filterCoursesForCurrentUser(courses).stream().map(this::toModelWithRelations).toList();
   }
 
   private List<JCourse> filterCoursesForCurrentUser(List<JCourse> courses) {
@@ -276,7 +262,6 @@ public class CourseService {
       Set<UUID> taught = courseAccessService.taughtCourseIds();
       return courses.stream().filter(c -> taught.contains(c.getId())).toList();
     }
-    // STUDENT : peut voir le catalogue (programme)
     if (courseAccessService.isStudent()) {
       return courses;
     }

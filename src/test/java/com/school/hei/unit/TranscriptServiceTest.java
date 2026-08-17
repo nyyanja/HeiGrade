@@ -20,6 +20,7 @@ import com.school.hei.repository.GroupExamRepository;
 import com.school.hei.repository.GroupRepository;
 import com.school.hei.repository.StudentGroupHistoryRepository;
 import com.school.hei.repository.StudentRepository;
+import com.school.hei.security.CourseAccessService;
 import com.school.hei.service.services.TranscriptService;
 import java.time.LocalDate;
 import java.util.List;

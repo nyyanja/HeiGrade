@@ -23,7 +23,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -51,12 +50,11 @@ class ExamServiceTest {
 
   @InjectMocks private ExamService examService;
 
-
-
   @BeforeEach
   void setUp() {
     lenient().when(courseAccessService.isAdmin()).thenReturn(true);
   }
+
   @Test
   void should_find_all_exams() {
     UUID examId1 = UUID.randomUUID();

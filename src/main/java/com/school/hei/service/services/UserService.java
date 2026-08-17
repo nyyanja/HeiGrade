@@ -82,12 +82,12 @@ public class UserService {
   public User update(UUID id, User user) {
 
     JUser existing =
-            userRepository.findById(id)
-                    .orElseThrow(
-                            () ->
-                                    new ResponseStatusException(
-                                            HttpStatus.NOT_FOUND,
-                                            "user not found with id " + id));
+        userRepository
+            .findById(id)
+            .orElseThrow(
+                () ->
+                    new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "user not found with id " + id));
 
     user.setId(id);
 
@@ -101,8 +101,7 @@ public class UserService {
     existing.setEmail(user.getEmail());
     existing.setRole(user.getRole());
 
-    return UserMapper.toModel(
-            userRepository.save(existing));
+    return UserMapper.toModel(userRepository.save(existing));
   }
 
   public void delete(UUID id) {
@@ -122,9 +121,7 @@ public class UserService {
               "role is required");
     }
 
-    return userRepository.findByRole(role).stream()
-            .map(UserMapper::toModel)
-            .toList();
+    return userRepository.findByRole(role).stream().map(UserMapper::toModel).toList();
   }
 
   public List<User> findByName(String name) {
@@ -133,7 +130,6 @@ public class UserService {
               HttpStatus.BAD_REQUEST,
               "name is required");
     }
-
     return userRepository
             .findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(
                     name, name)
@@ -148,7 +144,6 @@ public class UserService {
               HttpStatus.NOT_FOUND,
               "group not found");
     }
-
     return studentRepository.findByGroup_Id(groupId).stream()
             .map(StudentMapper::toModel)
             .map(student -> (User) student)

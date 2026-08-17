@@ -137,7 +137,6 @@ class UserServiceTest {
     verify(userRepository).findById(userId);
   }
 
-
   @Test
   void should_save_user() {
     CreateUserRequest request = new CreateUserRequest();
@@ -177,8 +176,8 @@ class UserServiceTest {
             .validateCommonFields(any(User.class));
 
     assertThatThrownBy(() -> userService.save(request))
-            .isInstanceOf(ResponseStatusException.class)
-            .hasMessageContaining("first name is required");
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("first name is required");
 
     verify(userValidator).validateCommonFields(any(User.class));
     verify(userRepository, never()).save(any(JUser.class));

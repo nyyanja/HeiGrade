@@ -38,7 +38,6 @@ public class ExamService {
   private final GroupExamRepository groupExamRepository;
   private final CourseAccessService courseAccessService;
 
-
   public List<Exam> findAll() {
     List<JExam> exams = examRepository.findAll();
     return filterExamsForCurrentUser(exams).stream().map(this::toModelWithGroups).toList();
@@ -46,12 +45,12 @@ public class ExamService {
 
   public Exam findById(UUID id) {
     JExam entity =
-            examRepository
-                    .findById(id)
-                    .orElseThrow(
-                            () ->
-                                    new ResponseStatusException(
-                                            HttpStatus.NOT_FOUND, "exam not found with id " + id));
+        examRepository
+            .findById(id)
+            .orElseThrow(
+                () ->
+                    new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "exam not found with id " + id));
     assertCanReadExam(entity);
     return toModelWithGroups(entity);
   }
@@ -61,9 +60,7 @@ public class ExamService {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found");
     }
     courseAccessService.assertCanAccessCourse(courseId);
-    return examRepository.findByCourse_Id(courseId).stream()
-            .map(this::toModelWithGroups)
-            .toList();
+    return examRepository.findByCourse_Id(courseId).stream().map(this::toModelWithGroups).toList();
   }
 
   public List<Exam> findByTitle(String title) {
@@ -112,9 +109,10 @@ public class ExamService {
     }
     courseAccessService.assertCanAccessCourse(courseId);
     double used =
-            examRepository.findByCourse_Id(courseId).stream().mapToDouble(JExam::getCoeff).sum();
+        examRepository.findByCourse_Id(courseId).stream().mapToDouble(JExam::getCoeff).sum();
     return COEFF_TOTAL - used;
   }
+
   @Transactional
   public Exam save(Exam exam) {
     examValidator.accept(exam);
@@ -156,8 +154,8 @@ public class ExamService {
     if (courseAccessService.isTeacher()) {
       Set<UUID> courseIds = courseAccessService.taughtCourseIds();
       return exams.stream()
-              .filter(e -> e.getCourse() != null && courseIds.contains(e.getCourse().getId()))
-              .toList();
+          .filter(e -> e.getCourse() != null && courseIds.contains(e.getCourse().getId()))
+          .toList();
     }
     if (courseAccessService.isStudent()) {
       return exams;

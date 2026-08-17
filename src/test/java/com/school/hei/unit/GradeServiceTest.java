@@ -25,6 +25,7 @@ import com.school.hei.repository.GroupRepository;
 import com.school.hei.repository.SpecialityRepository;
 import com.school.hei.repository.StudentRepository;
 import com.school.hei.repository.UserRepository;
+import com.school.hei.security.CourseAccessService;
 import com.school.hei.service.services.GradeService;
 import com.school.hei.validator.GradeHistoryValidator;
 import com.school.hei.validator.GradeValidator;
@@ -55,7 +56,6 @@ class GradeServiceTest {
   @Mock private SpecialityRepository specialityRepository;
   @Mock private UserRepository userRepository;
   @Mock private CourseAccessService courseAccessService;
-
 
   @InjectMocks private GradeService gradeService;
 
@@ -362,7 +362,7 @@ class GradeServiceTest {
 
   @Test
   void should_delete_grade() {
-    when(gradeRepository.findById(gradeId)).thenReturn(Optional.of(gradeEntity));
+    when(gradeRepository.existsById(gradeId)).thenReturn(true);
 
     gradeService.delete(gradeId);
 

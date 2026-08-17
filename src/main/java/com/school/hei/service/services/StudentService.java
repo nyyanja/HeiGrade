@@ -34,10 +34,6 @@ public class StudentService {
   private final SpecialityChangeValidator specialityChangeValidator;
   private final CourseAccessService courseAccessService;
 
-
-
-
-
   @Transactional
   public Student save(Student student) {
     studentValidator.accept(student);
@@ -176,10 +172,10 @@ public class StudentService {
               .build());
     }
   }
+
   public List<Student> findAll() {
     if (courseAccessService.isStudent()) {
-      throw new ResponseStatusException(
-              HttpStatus.FORBIDDEN, "students cannot list all students");
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "students cannot list all students");
     }
     return studentRepository.findAll().stream().map(StudentMapper::toModel).toList();
   }
@@ -187,23 +183,23 @@ public class StudentService {
   public Student findById(UUID id) {
     assertCanAccessStudent(id);
     return studentRepository
-            .findById(id)
-            .map(StudentMapper::toModel)
-            .orElseThrow(
-                    () ->
-                            new ResponseStatusException(
-                                    HttpStatus.NOT_FOUND, "student not found with id " + id));
+        .findById(id)
+        .map(StudentMapper::toModel)
+        .orElseThrow(
+            () ->
+                new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "student not found with id " + id));
   }
 
   public Student findByReference(String reference) {
     Student student =
-            studentRepository
-                    .findByReference(reference)
-                    .map(StudentMapper::toModel)
-                    .orElseThrow(
-                            () ->
-                                    new ResponseStatusException(
-                                            HttpStatus.NOT_FOUND, "student not found with reference " + reference));
+        studentRepository
+            .findByReference(reference)
+            .map(StudentMapper::toModel)
+            .orElseThrow(
+                () ->
+                    new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "student not found with reference " + reference));
     assertCanAccessStudent(student.getId());
     return student;
   }
@@ -216,10 +212,10 @@ public class StudentService {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "name is required");
     }
     return studentRepository
-            .findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(name, name)
-            .stream()
-            .map(StudentMapper::toModel)
-            .toList();
+        .findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(name, name)
+        .stream()
+        .map(StudentMapper::toModel)
+        .toList();
   }
 
   public List<Student> findByGroup(UUID groupId) {
@@ -229,9 +225,7 @@ public class StudentService {
     if (!groupRepository.existsById(groupId)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "group not found");
     }
-    return studentRepository.findByGroup_Id(groupId).stream()
-            .map(StudentMapper::toModel)
-            .toList();
+    return studentRepository.findByGroup_Id(groupId).stream().map(StudentMapper::toModel).toList();
   }
 
   public List<Student> findBySpeciality(UUID specialityId) {
@@ -242,9 +236,10 @@ public class StudentService {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "speciality not found");
     }
     return studentRepository.findByGroup_Speciality_Id(specialityId).stream()
-            .map(StudentMapper::toModel)
-            .toList();
+        .map(StudentMapper::toModel)
+        .toList();
   }
+
   private void assertCanAccessStudent(UUID studentId) {
     if (courseAccessService.isAdmin() || courseAccessService.isTeacher()) {
       return;
