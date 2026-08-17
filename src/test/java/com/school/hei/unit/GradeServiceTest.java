@@ -361,7 +361,7 @@ class GradeServiceTest {
 
   @Test
   void should_delete_grade() {
-    when(gradeRepository.findById(gradeId)).thenReturn(Optional.of(gradeEntity));
+    when(gradeRepository.existsById(gradeId)).thenReturn(true);
 
     gradeService.delete(gradeId);
 
@@ -377,7 +377,7 @@ class GradeServiceTest {
 
   @Test
   void should_throw_when_deleting_non_existing_grade() {
-    when(gradeRepository.findById(gradeId)).thenReturn(Optional.empty());
+    when(gradeRepository.existsById(gradeId)).thenReturn(false);
 
     assertThatThrownBy(() -> gradeService.delete(gradeId))
         .isInstanceOf(ResponseStatusException.class)
