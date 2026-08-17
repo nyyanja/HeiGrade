@@ -1,14 +1,13 @@
 package com.school.hei.endpoint.rest.controller.controllers;
 
+import com.school.hei.endpoint.event.EventProducer;
+import com.school.hei.endpoint.event.model.SendTranscriptRequested;
 import com.school.hei.model.Transcript;
 import com.school.hei.service.services.TranscriptService;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -51,5 +50,22 @@ public class TranscriptController {
   public List<Transcript> getAllL3Transcripts() {
 
     return transcriptService.getAllTranscripts(3);
+  }
+  private final EventProducer<SendTranscriptRequested> eventProducer;
+
+  @PostMapping("/student/{studentId}/L{level}/send-email")
+  public String sendTranscriptByEmail(
+          @PathVariable UUID studentId,
+          @PathVariable Integer level) {
+
+
+    eventProducer.accept(
+            List.of(
+                    SendTranscriptRequested.builder()
+                            .studentId(studentId)
+                            .level(level)
+                            .build()));
+
+    return "Transcript email requested for student " + studentId + " level L" + level;
   }
 }
