@@ -380,8 +380,8 @@ class GradeServiceTest {
     when(gradeRepository.existsById(gradeId)).thenReturn(false);
 
     assertThatThrownBy(() -> gradeService.delete(gradeId))
-            .isInstanceOf(ResponseStatusException.class)
-            .hasMessageContaining("grade not found");
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("grade not found");
   }
 
   @Test
