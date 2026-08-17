@@ -248,39 +248,32 @@ public class GradeService {
 
     if (reason == null || reason.isBlank()) {
       throw new ResponseStatusException(
-              HttpStatus.BAD_REQUEST, "a reason is required to modify a grade");
+          HttpStatus.BAD_REQUEST, "a reason is required to modify a grade");
     }
 
     if (modifiedById == null) {
-      throw new ResponseStatusException(
-              HttpStatus.BAD_REQUEST, "modifier is required");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "modifier is required");
     }
 
     if (grade == null) {
-      throw new ResponseStatusException(
-              HttpStatus.BAD_REQUEST, "grade cannot be null");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "grade cannot be null");
     }
 
     JGrade existingEntity =
-            gradeRepository
-                    .findById(id)
-                    .orElseThrow(
-                            () ->
-                                    new ResponseStatusException(
-                                            HttpStatus.NOT_FOUND,
-                                            "grade not found with id " + id));
+        gradeRepository
+            .findById(id)
+            .orElseThrow(
+                () ->
+                    new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "grade not found with id " + id));
 
-    courseAccessService.assertCanAccessCourse(
-            resolveCourseIdFromExistingGrade(existingEntity));
+    courseAccessService.assertCanAccessCourse(resolveCourseIdFromExistingGrade(existingEntity));
 
     JUser modifiedBy =
-            userRepository
-                    .findById(modifiedById)
-                    .orElseThrow(
-                            () ->
-                                    new ResponseStatusException(
-                                            HttpStatus.NOT_FOUND,
-                                            "modifier not found"));
+        userRepository
+            .findById(modifiedById)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "modifier not found"));
 
     grade.setId(id);
     gradeValidator.accept(grade);
@@ -290,14 +283,14 @@ public class GradeService {
 
     if (!oldValue.equals(newValue)) {
       JGradeHistory history =
-              JGradeHistory.builder()
-                      .date(LocalDateTime.now())
-                      .oldValue(oldValue)
-                      .newValue(newValue)
-                      .reason(reason)
-                      .grade(existingEntity)
-                      .modifiedBy(modifiedBy)
-                      .build();
+          JGradeHistory.builder()
+              .date(LocalDateTime.now())
+              .oldValue(oldValue)
+              .newValue(newValue)
+              .reason(reason)
+              .grade(existingEntity)
+              .modifiedBy(modifiedBy)
+              .build();
 
       gradeHistoryValidator.accept(GradeHistoryMapper.toModel(history));
       gradeHistoryRepository.save(history);

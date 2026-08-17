@@ -28,121 +28,95 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 class CourseIT extends FacadeIT {
 
-    @LocalServerPort
-    private int port;
+  @LocalServerPort private int port;
 
-    @Autowired
-    private TestRestTemplate restTemplate;
+  @Autowired private TestRestTemplate restTemplate;
 
-    @Autowired
-    private UserRepository userRepository;
+  @Autowired private UserRepository userRepository;
 
-    @Autowired
-    private TeacherRepository teacherRepository;
+  @Autowired private TeacherRepository teacherRepository;
 
-    @Autowired
-    private SpecialityRepository specialityRepository;
+  @Autowired private SpecialityRepository specialityRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+  @Autowired private PasswordEncoder passwordEncoder;
 
-    private String adminToken;
+  private String adminToken;
 
-    private JTeacher teacher;
-    private JSpeciality speciality;
+  private JTeacher teacher;
+  private JSpeciality speciality;
 
-    @BeforeEach
-    void setUp() {
+  @BeforeEach
+  void setUp() {
 
-        specialityRepository.deleteAll();
-        teacherRepository.deleteAll();
-        userRepository.deleteAll();
+    specialityRepository.deleteAll();
+    teacherRepository.deleteAll();
+    userRepository.deleteAll();
 
-        JUser admin =
-                JUser.builder()
-                        .id(UUID.randomUUID())
-                        .firstName("Admin")
-                        .lastName("Test")
-                        .email("admin@heigrade.com")
-                        .password(passwordEncoder.encode("Password123!"))
-                        .role(Role.ADMIN)
-                        .build();
+    JUser admin =
+        JUser.builder()
+            .id(UUID.randomUUID())
+            .firstName("Admin")
+            .lastName("Test")
+            .email("admin@heigrade.com")
+            .password(passwordEncoder.encode("Password123!"))
+            .role(Role.ADMIN)
+            .build();
 
-        userRepository.save(admin);
+    userRepository.save(admin);
 
-        teacher =
-                teacherRepository.save(
-                        JTeacher.builder()
-                                .firstName("Teacher")
-                                .lastName("One")
-                                .email("teacher@heigrade.com")
-                                .password(passwordEncoder.encode("Password123!"))
-                                .role(Role.TEACHER)
-                                .speciality("JAVA")
-                                .build());
+    teacher =
+        teacherRepository.save(
+            JTeacher.builder()
+                .firstName("Teacher")
+                .lastName("One")
+                .email("teacher@heigrade.com")
+                .password(passwordEncoder.encode("Password123!"))
+                .role(Role.TEACHER)
+                .speciality("JAVA")
+                .build());
 
-        speciality =
-                specialityRepository.save(
-                        JSpeciality.builder()
-                                .name(GroupSpeciality.EL.name())
-                                .build());
-        adminToken = login("admin@heigrade.com");
-    }
+    speciality =
+        specialityRepository.save(JSpeciality.builder().name(GroupSpeciality.EL.name()).build());
+    adminToken = login("admin@heigrade.com");
+  }
 
-    private String login(String email) {
+  private String login(String email) {
 
-        LoginRequest request =
-                new LoginRequest(email, "Password123!");
+    LoginRequest request = new LoginRequest(email, "Password123!");
 
-        ResponseEntity<LoginResponse> response =
-                restTemplate.postForEntity(
-                        "http://localhost:" + port + "/auth/login",
-                        request,
-                        LoginResponse.class);
+    ResponseEntity<LoginResponse> response =
+        restTemplate.postForEntity(
+            "http://localhost:" + port + "/auth/login", request, LoginResponse.class);
 
-        return response.getBody().getToken();
-    }
+    return response.getBody().getToken();
+  }
 
-    @Test
-    void adminShouldCreateCourse() {
+  @Test
+  void adminShouldCreateCourse() {
 
-        Course course =
-                Course.builder()
-                        .reference("PROG4")
-                        .title("Programmation Avancée")
-                        .credit(6)
-                        .level(2)
-                        .teachers(
-                                List.of(
-                                        Teacher.builder()
-                                                .id(teacher.getId())
-                                                .build()))
-                        .specialities(
-                                List.of(
-                                        Speciality.builder()
-                                                .id(speciality.getId())
-                                                .build()))
-                        .build();
+    Course course =
+        Course.builder()
+            .reference("PROG4")
+            .title("Programmation Avancée")
+            .credit(6)
+            .level(2)
+            .teachers(List.of(Teacher.builder().id(teacher.getId()).build()))
+            .specialities(List.of(Speciality.builder().id(speciality.getId()).build()))
+            .build();
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(adminToken);
+    HttpHeaders headers = new HttpHeaders();
+    headers.setBearerAuth(adminToken);
 
-        HttpEntity<Course> request =
-                new HttpEntity<>(course, headers);
+    HttpEntity<Course> request = new HttpEntity<>(course, headers);
 
-        ResponseEntity<Course> response =
-                restTemplate.exchange(
-                        "http://localhost:" + port + "/courses",
-                        HttpMethod.POST,
-                        request,
-                        Course.class);
+    ResponseEntity<Course> response =
+        restTemplate.exchange(
+            "http://localhost:" + port + "/courses", HttpMethod.POST, request, Course.class);
 
-        assertThat(response.getStatusCode())
-                .isEqualTo(HttpStatus.CREATED);
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getId()).isNotNull();
-        assertThat(response.getBody().getReference())
-                .isEqualTo("PROG4");
-    }
+    assertThat(response.getBody()).isNotNull();
+    assertThat(response.getBody().getId()).isNotNull();
+    assertThat(response.getBody().getReference()).isEqualTo("PROG4");
+  }
 }
