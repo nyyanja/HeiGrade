@@ -8,6 +8,7 @@ import com.school.hei.model.Transcript;
 import com.school.hei.repository.GroupRepository;
 import com.school.hei.repository.PromotionRepository;
 import com.school.hei.repository.StudentRepository;
+import com.school.hei.security.CourseAccessService;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -30,14 +31,17 @@ public class GraduateService {
   private final StudentRepository studentRepository;
   private final GroupRepository groupRepository;
   private final PromotionRepository promotionRepository;
+  private final CourseAccessService courseAccessService;
 
   @Transactional(readOnly = true)
   public GraduateStatus getGraduateStatus(UUID studentId) {
+    transcriptService.assertCanAccessTranscript(studentId);
+
     JStudent student =
-        studentRepository
-            .findById(studentId)
-            .orElseThrow(
-                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "student not found"));
+            studentRepository
+                    .findById(studentId)
+                    .orElseThrow(
+                            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "student not found"));
 
     Transcript l1 = tryTranscript(studentId, 1);
     Transcript l2 = tryTranscript(studentId, 2);
@@ -56,24 +60,28 @@ public class GraduateService {
     boolean graduated = totalCredit >= REQUIRED_TOTAL_CREDITS;
 
     return GraduateStatus.builder()
-        .studentId(student.getId())
-        .reference(student.getReference())
-        .firstName(student.getFirstName())
-        .lastName(student.getLastName())
-        .graduated(graduated)
-        .totalCredit(totalCredit)
-        .generalAverage(generalAverage)
-        .l1Credit(l1Credit)
-        .l2Credit(l2Credit)
-        .l3Credit(l3Credit)
-        .l1Average(l1 != null ? l1.getGeneralAverage() : null)
-        .l2Average(l2 != null ? l2.getGeneralAverage() : null)
-        .l3Average(l3 != null ? l3.getGeneralAverage() : null)
-        .build();
+            .studentId(student.getId())
+            .reference(student.getReference())
+            .firstName(student.getFirstName())
+            .lastName(student.getLastName())
+            .graduated(graduated)
+            .totalCredit(totalCredit)
+            .generalAverage(generalAverage)
+            .l1Credit(l1Credit)
+            .l2Credit(l2Credit)
+            .l3Credit(l3Credit)
+            .l1Average(l1 != null ? l1.getGeneralAverage() : null)
+            .l2Average(l2 != null ? l2.getGeneralAverage() : null)
+            .l3Average(l3 != null ? l3.getGeneralAverage() : null)
+            .build();
   }
-
   @Transactional(readOnly = true)
   public List<GraduateRanking> getGraduatesByPromotion(UUID promotionId) {
+    if (!courseAccessService.isAdmin()) {
+      throw new ResponseStatusException(
+              HttpStatus.FORBIDDEN, "only admin can access promotion ranking");
+    }
+
     if (!promotionRepository.existsById(promotionId)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "promotion not found");
     }
@@ -95,7 +103,7 @@ public class GraduateService {
     List<GraduateRanking> rankings = new ArrayList<>();
 
     for (JStudent student : candidates) {
-      GraduateStatus status = getGraduateStatus(student.getId());
+      GraduateStatus status = getGraduateStatusForSystem(student.getId());
       if (!status.isGraduated()) {
         continue;
       }
@@ -111,25 +119,64 @@ public class GraduateService {
       }
 
       rankings.add(
-          GraduateRanking.builder()
-              .studentId(student.getId())
-              .reference(student.getReference())
-              .firstName(student.getFirstName())
-              .lastName(student.getLastName())
-              .groupId(groupId)
-              .groupName(groupName)
-              .generalAverage(status.getGeneralAverage())
-              .totalCredit(status.getTotalCredit())
-              .build());
+              GraduateRanking.builder()
+                      .studentId(student.getId())
+                      .reference(student.getReference())
+                      .firstName(student.getFirstName())
+                      .lastName(student.getLastName())
+                      .groupId(groupId)
+                      .groupName(groupName)
+                      .generalAverage(status.getGeneralAverage())
+                      .totalCredit(status.getTotalCredit())
+                      .build());
     }
     rankings.sort(
-        Comparator.comparing(GraduateRanking::getGeneralAverage, Comparator.reverseOrder()));
+            Comparator.comparing(GraduateRanking::getGeneralAverage, Comparator.reverseOrder()));
     int rank = 1;
     for (GraduateRanking r : rankings) {
       r.setRank(rank++);
     }
 
     return rankings;
+  }
+  private GraduateStatus getGraduateStatusForSystem(UUID studentId) {
+    JStudent student =
+            studentRepository
+                    .findById(studentId)
+                    .orElseThrow(
+                            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "student not found"));
+
+    Transcript l1 = tryTranscriptForSystem(studentId, 1);
+    Transcript l2 = tryTranscriptForSystem(studentId, 2);
+    Transcript l3 = tryTranscriptForSystem(studentId, 3);
+
+    int l1Credit = l1 != null ? nullToZero(l1.getTotalCredit()) : 0;
+    int l2Credit = l2 != null ? nullToZero(l2.getTotalCredit()) : 0;
+    int l3Credit = l3 != null ? nullToZero(l3.getTotalCredit()) : 0;
+    int totalCredit = l1Credit + l2Credit + l3Credit;
+
+    Double generalAverage = null;
+    if (l1 != null && l2 != null && l3 != null) {
+      generalAverage = computeThreeYearAverage(l1, l2, l3);
+    }
+
+    boolean graduated = totalCredit >= REQUIRED_TOTAL_CREDITS;
+
+    return GraduateStatus.builder()
+            .studentId(student.getId())
+            .reference(student.getReference())
+            .firstName(student.getFirstName())
+            .lastName(student.getLastName())
+            .graduated(graduated)
+            .totalCredit(totalCredit)
+            .generalAverage(generalAverage)
+            .l1Credit(l1Credit)
+            .l2Credit(l2Credit)
+            .l3Credit(l3Credit)
+            .l1Average(l1 != null ? l1.getGeneralAverage() : null)
+            .l2Average(l2 != null ? l2.getGeneralAverage() : null)
+            .l3Average(l3 != null ? l3.getGeneralAverage() : null)
+            .build();
   }
 
   private Double computeThreeYearAverage(Transcript l1, Transcript l2, Transcript l3) {
@@ -158,6 +205,14 @@ public class GraduateService {
   private Transcript tryTranscript(UUID studentId, int level) {
     try {
       return transcriptService.getStudentTranscript(studentId, level);
+    } catch (ResponseStatusException e) {
+      return null;
+    }
+  }
+
+  private Transcript tryTranscriptForSystem(UUID studentId, int level) {
+    try {
+      return transcriptService.getStudentTranscriptForSystem(studentId, level);
     } catch (ResponseStatusException e) {
       return null;
     }
