@@ -1,6 +1,5 @@
 package com.school.hei.model;
 
-import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,14 +12,12 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class Course {
+public class TranscriptCourseLine {
 
-  private UUID id;
+  private UUID courseId;
   private String reference;
   private String title;
   private Integer credit;
-  private Integer level;
-
-  private List<Teacher> teachers;
-  private List<Speciality> specialities;
+  private Double average;
+  private Integer obtainedCredit;
 }

@@ -11,9 +11,11 @@ import com.school.hei.repository.ExamRepository;
 import com.school.hei.repository.GroupExamRepository;
 import com.school.hei.repository.GroupRepository;
 import com.school.hei.repository.SpecialityRepository;
+import com.school.hei.security.CourseAccessService;
 import com.school.hei.validator.ExamValidator;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -34,9 +36,11 @@ public class ExamService {
   private final GroupRepository groupRepository;
   private final SpecialityRepository specialityRepository;
   private final GroupExamRepository groupExamRepository;
+  private final CourseAccessService courseAccessService;
 
   public List<Exam> findAll() {
-    return examRepository.findAll().stream().map(this::toModelWithGroups).toList();
+    List<JExam> exams = examRepository.findAll();
+    return filterExamsForCurrentUser(exams).stream().map(this::toModelWithGroups).toList();
   }
 
   public Exam findById(UUID id) {
@@ -47,7 +51,66 @@ public class ExamService {
                 () ->
                     new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "exam not found with id " + id));
+    assertCanReadExam(entity);
     return toModelWithGroups(entity);
+  }
+
+  public List<Exam> findByCourse(UUID courseId) {
+    if (!courseRepository.existsById(courseId)) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found");
+    }
+    courseAccessService.assertCanAccessCourse(courseId);
+    return examRepository.findByCourse_Id(courseId).stream().map(this::toModelWithGroups).toList();
+  }
+
+  public List<Exam> findByTitle(String title) {
+    if (title == null || title.isBlank()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "title is required");
+    }
+    List<JExam> exams = examRepository.findByTitleContainingIgnoreCase(title);
+    return filterExamsForCurrentUser(exams).stream().map(this::toModelWithGroups).toList();
+  }
+
+  public List<Exam> findByDate(LocalDate date) {
+    if (date == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "date is required");
+    }
+    List<JExam> exams = examRepository.findByDate(date);
+    return filterExamsForCurrentUser(exams).stream().map(this::toModelWithGroups).toList();
+  }
+
+  public List<Exam> findByCoeff(Double coeff) {
+    if (coeff == null || coeff <= 0) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "coeff must be greater than 0");
+    }
+    List<JExam> exams = examRepository.findByCoeff(coeff);
+    return filterExamsForCurrentUser(exams).stream().map(this::toModelWithGroups).toList();
+  }
+
+  public List<Exam> findByGroup(UUID groupId) {
+    if (!groupRepository.existsById(groupId)) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "group not found");
+    }
+    List<JExam> exams = examRepository.findByGroupId(groupId);
+    return filterExamsForCurrentUser(exams).stream().map(this::toModelWithGroups).toList();
+  }
+
+  public List<Exam> findBySpeciality(UUID specialityId) {
+    if (!specialityRepository.existsById(specialityId)) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "speciality not found");
+    }
+    List<JExam> exams = examRepository.findBySpecialityId(specialityId);
+    return filterExamsForCurrentUser(exams).stream().map(this::toModelWithGroups).toList();
+  }
+
+  public Double remainingCoeff(UUID courseId) {
+    if (!courseRepository.existsById(courseId)) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found");
+    }
+    courseAccessService.assertCanAccessCourse(courseId);
+    double used =
+        examRepository.findByCourse_Id(courseId).stream().mapToDouble(JExam::getCoeff).sum();
+    return COEFF_TOTAL - used;
   }
 
   @Transactional
@@ -59,7 +122,6 @@ public class ExamService {
     JExam savedExam = examRepository.save(ExamMapper.toEntity(exam));
     exam.setId(savedExam.getId());
     saveGroupExams(exam, savedExam);
-
     return toModelWithGroups(savedExam);
   }
 
@@ -74,7 +136,6 @@ public class ExamService {
     JExam savedExam = examRepository.save(ExamMapper.toEntity(exam));
     groupExamRepository.deleteByExam_Id(id);
     saveGroupExams(exam, savedExam);
-
     return toModelWithGroups(savedExam);
   }
 
@@ -86,13 +147,37 @@ public class ExamService {
     examRepository.deleteById(id);
   }
 
-  public Double remainingCoeff(UUID courseId) {
-    if (!courseRepository.existsById(courseId)) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found");
+  private List<JExam> filterExamsForCurrentUser(List<JExam> exams) {
+    if (courseAccessService.isAdmin()) {
+      return exams;
     }
-    double used =
-        examRepository.findByCourse_Id(courseId).stream().mapToDouble(JExam::getCoeff).sum();
-    return COEFF_TOTAL - used;
+    if (courseAccessService.isTeacher()) {
+      Set<UUID> courseIds = courseAccessService.taughtCourseIds();
+      return exams.stream()
+          .filter(e -> e.getCourse() != null && courseIds.contains(e.getCourse().getId()))
+          .toList();
+    }
+    if (courseAccessService.isStudent()) {
+      return exams;
+    }
+    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "access denied");
+  }
+
+  private void assertCanReadExam(JExam entity) {
+    if (courseAccessService.isAdmin()) {
+      return;
+    }
+    if (courseAccessService.isTeacher()) {
+      if (entity.getCourse() == null || entity.getCourse().getId() == null) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "exam has no course");
+      }
+      courseAccessService.assertCanAccessCourse(entity.getCourse().getId());
+      return;
+    }
+    if (courseAccessService.isStudent()) {
+      return;
+    }
+    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "access denied");
   }
 
   private void validateGroups(Exam exam) {
@@ -145,51 +230,5 @@ public class ExamService {
             .map(ge -> GroupMapper.toModel(ge.getGroup()))
             .toList());
     return model;
-  }
-
-  public List<Exam> findByCourse(UUID courseId) {
-    if (!courseRepository.existsById(courseId)) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found");
-    }
-    return examRepository.findByCourse_Id(courseId).stream().map(ExamMapper::toModel).toList();
-  }
-
-  public List<Exam> findByTitle(String title) {
-    if (title == null || title.isBlank()) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "title is required");
-    }
-    return examRepository.findByTitleContainingIgnoreCase(title).stream()
-        .map(ExamMapper::toModel)
-        .toList();
-  }
-
-  public List<Exam> findByDate(LocalDate date) {
-    if (date == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "date is required");
-    }
-    return examRepository.findByDate(date).stream().map(ExamMapper::toModel).toList();
-  }
-
-  public List<Exam> findByCoeff(Double coeff) {
-    if (coeff == null || coeff <= 0) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "coeff must be greater than 0");
-    }
-    return examRepository.findByCoeff(coeff).stream().map(ExamMapper::toModel).toList();
-  }
-
-  public List<Exam> findByGroup(UUID groupId) {
-    if (!groupRepository.existsById(groupId)) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "group not found");
-    }
-    return examRepository.findByGroupId(groupId).stream().map(ExamMapper::toModel).toList();
-  }
-
-  public List<Exam> findBySpeciality(UUID specialityId) {
-    if (!specialityRepository.existsById(specialityId)) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "speciality not found");
-    }
-    return examRepository.findBySpecialityId(specialityId).stream()
-        .map(ExamMapper::toModel)
-        .toList();
   }
 }
