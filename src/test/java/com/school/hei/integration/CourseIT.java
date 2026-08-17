@@ -16,6 +16,7 @@ import com.school.hei.model.Teacher;
 import com.school.hei.repository.SpecialityRepository;
 import com.school.hei.repository.TeacherRepository;
 import com.school.hei.repository.UserRepository;
+import com.school.hei.repository.GroupRepository;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,6 +45,9 @@ class CourseIT extends FacadeIT {
     private SpecialityRepository specialityRepository;
 
     @Autowired
+    private GroupRepository groupRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     private String adminToken;
@@ -54,6 +58,7 @@ class CourseIT extends FacadeIT {
     @BeforeEach
     void setUp() {
 
+        groupRepository.deleteAll();
         specialityRepository.deleteAll();
         teacherRepository.deleteAll();
         userRepository.deleteAll();

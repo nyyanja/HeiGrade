@@ -8,6 +8,7 @@ import com.school.hei.enums.Role;
 import com.school.hei.model.LoginRequest;
 import com.school.hei.model.LoginResponse;
 import com.school.hei.repository.UserRepository;
+import com.school.hei.repository.TeacherCourseRepository;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,6 +34,9 @@ class TeacherIT extends FacadeIT {
     private UserRepository userRepository;
 
     @Autowired
+    private TeacherCourseRepository teacherCourseRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     private final String teacherEmail = "teacher.it@heigrade.com";
@@ -42,6 +46,7 @@ class TeacherIT extends FacadeIT {
 
     @BeforeEach
     void setUp() {
+        teacherCourseRepository.deleteAll();
         userRepository.deleteAll();
 
         createUser(teacherEmail, Role.TEACHER);

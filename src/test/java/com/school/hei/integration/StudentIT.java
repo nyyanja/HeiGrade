@@ -35,14 +35,18 @@ class StudentIT extends FacadeIT {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    private final String adminEmail = "student.admin@heigrade.com";
-    private final String studentEmail = "student.student@heigrade.com";
+    private String adminEmail;
+    private String studentEmail;
 
     private final String password = "Password123!";
 
     @BeforeEach
     void setUp() {
-        userRepository.deleteAll();
+        adminEmail =
+                "admin-" + UUID.randomUUID() + "@heigrade.com";
+
+        studentEmail =
+                "student-" + UUID.randomUUID() + "@heigrade.com";
 
         createUser(adminEmail, Role.ADMIN);
         createUser(studentEmail, Role.STUDENT);
