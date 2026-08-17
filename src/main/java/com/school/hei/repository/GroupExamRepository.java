@@ -13,3 +13,5 @@ public interface GroupExamRepository extends JpaRepository<JGroupExam, UUID> {
 
   void deleteByExam_Id(UUID examId);
 }
+
+

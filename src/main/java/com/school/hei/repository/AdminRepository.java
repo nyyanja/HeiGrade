@@ -9,3 +9,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface AdminRepository extends JpaRepository<JAdmin, UUID> {
   Optional<JUser> findByEmailIgnoreCase(String email);
 }
+
+

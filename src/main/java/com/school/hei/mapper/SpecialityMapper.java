@@ -25,3 +25,5 @@ public class SpecialityMapper {
     return JSpeciality.builder().id(model.getId()).name(model.getName().name()).build();
   }
 }
+
+

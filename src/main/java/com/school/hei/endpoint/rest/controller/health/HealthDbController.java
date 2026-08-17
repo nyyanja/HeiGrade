@@ -22,3 +22,5 @@ public class HealthDbController {
     return dummyRepository.findAll().isEmpty() ? KO : OK;
   }
 }
+
+

@@ -31,3 +31,5 @@ public class GraduateStatus {
   private Double l2Average;
   private Double l3Average;
 }
+
+

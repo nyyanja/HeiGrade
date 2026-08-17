@@ -43,3 +43,5 @@ public class JwtConfig {
     return NimbusJwtDecoder.withSecretKey(jwtSecretKey).macAlgorithm(MacAlgorithm.HS256).build();
   }
 }
+
+

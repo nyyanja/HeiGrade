@@ -20,3 +20,5 @@ public class JAdmin extends JUser {
   @Column(name = "admin_reference")
   private String adminReference;
 }
+
+

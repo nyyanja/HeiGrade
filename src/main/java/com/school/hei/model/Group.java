@@ -21,3 +21,5 @@ public class Group {
   private Speciality speciality;
   private List<Student> students;
 }
+
+

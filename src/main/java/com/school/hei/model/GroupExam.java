@@ -18,3 +18,5 @@ public class GroupExam {
   private Group group;
   private Exam exam;
 }
+
+

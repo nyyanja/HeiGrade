@@ -18,3 +18,5 @@ public class SpecialityCourse {
   private Speciality speciality;
   private Course course;
 }
+
+

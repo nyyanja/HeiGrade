@@ -393,3 +393,5 @@ class UserServiceTest {
     verify(studentRepository, never()).findByGroup_Id(any(UUID.class));
   }
 }
+
+

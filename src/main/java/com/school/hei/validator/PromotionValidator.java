@@ -26,3 +26,5 @@ public class PromotionValidator implements SaveValidator<Promotion> {
     }
   }
 }
+
+

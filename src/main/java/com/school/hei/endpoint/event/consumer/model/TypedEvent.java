@@ -5,3 +5,5 @@ import com.school.hei.endpoint.event.model.PojaEvent;
 
 @PojaGenerated
 public record TypedEvent(String typeName, PojaEvent payload) {}
+
+

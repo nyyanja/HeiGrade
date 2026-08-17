@@ -52,3 +52,5 @@ public class SpecialityCourseValidator implements SaveValidator<SpecialityCourse
             });
   }
 }
+
+

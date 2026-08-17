@@ -7,3 +7,5 @@ public enum FileHashAlgorithm {
   SHA256,
   NONE
 }
+
+

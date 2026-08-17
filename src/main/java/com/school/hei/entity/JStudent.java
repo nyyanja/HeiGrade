@@ -23,3 +23,5 @@ public class JStudent extends JUser {
   @JoinColumn(name = "group_id")
   private JGroup group;
 }
+
+

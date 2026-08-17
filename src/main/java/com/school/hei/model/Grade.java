@@ -21,3 +21,5 @@ public class Grade {
   private Student student;
   private Exam exam;
 }
+
+

@@ -24,3 +24,5 @@ public class Course {
   private List<Teacher> teachers;
   private List<Speciality> specialities;
 }
+
+

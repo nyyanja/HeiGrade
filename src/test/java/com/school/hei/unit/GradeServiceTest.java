@@ -123,10 +123,6 @@ class GradeServiceTest {
     lenient().when(examRepository.findById(examId)).thenReturn(Optional.of(exam));
   }
 
-  // ---------------------------------------------------------------------------
-  // FIND ALL
-  // ---------------------------------------------------------------------------
-
   @Test
   void should_find_all_grades() {
     when(gradeRepository.findAll()).thenReturn(List.of(gradeEntity));
@@ -148,10 +144,6 @@ class GradeServiceTest {
 
     assertThat(result).isEmpty();
   }
-
-  // ---------------------------------------------------------------------------
-  // FIND BY ID
-  // ---------------------------------------------------------------------------
 
   @Test
   void should_find_grade_by_id() {
@@ -181,10 +173,6 @@ class GradeServiceTest {
         .isInstanceOf(ResponseStatusException.class)
         .hasMessageContaining("grade not found");
   }
-
-  // ---------------------------------------------------------------------------
-  // SAVE
-  // ---------------------------------------------------------------------------
 
   @Test
   void should_save_grade() {
@@ -231,10 +219,6 @@ class GradeServiceTest {
     verifyNoInteractions(gradeRepository);
   }
 
-  // ---------------------------------------------------------------------------
-  // SAVE ALL
-  // ---------------------------------------------------------------------------
-
   @Test
   void should_save_all_grades() {
     Grade grade1 = GradeMapper.toModel(gradeEntity);
@@ -274,10 +258,6 @@ class GradeServiceTest {
         .isInstanceOf(ResponseStatusException.class)
         .hasMessageContaining("at least one grade is required");
   }
-
-  // ---------------------------------------------------------------------------
-  // UPDATE
-  // ---------------------------------------------------------------------------
 
   @Test
   void should_update_grade_and_create_history_when_value_changes() {
@@ -416,10 +396,6 @@ class GradeServiceTest {
     verify(gradeRepository, never()).save(any());
   }
 
-  // ---------------------------------------------------------------------------
-  // DELETE
-  // ---------------------------------------------------------------------------
-
   @Test
   void should_delete_grade() {
     when(gradeRepository.findById(gradeId)).thenReturn(Optional.of(gradeEntity));
@@ -445,10 +421,6 @@ class GradeServiceTest {
         .hasMessageContaining("grade not found");
   }
 
-  // ---------------------------------------------------------------------------
-  // FIND BY EXAM
-  // ---------------------------------------------------------------------------
-
   @Test
   void should_find_grades_by_exam() {
     when(examRepository.existsById(examId)).thenReturn(true);
@@ -469,10 +441,6 @@ class GradeServiceTest {
         .hasMessageContaining("exam not found");
   }
 
-  // ---------------------------------------------------------------------------
-  // FIND BY STUDENT
-  // ---------------------------------------------------------------------------
-
   @Test
   void should_find_grades_by_student() {
     when(studentRepository.existsById(studentId)).thenReturn(true);
@@ -491,10 +459,6 @@ class GradeServiceTest {
         .isInstanceOf(ResponseStatusException.class)
         .hasMessageContaining("student not found");
   }
-
-  // ---------------------------------------------------------------------------
-  // FIND BY COURSE
-  // ---------------------------------------------------------------------------
 
   @Test
   void should_find_grades_by_course() {
@@ -515,10 +479,6 @@ class GradeServiceTest {
         .hasMessageContaining("course not found");
   }
 
-  // ---------------------------------------------------------------------------
-  // FIND BY STUDENT + COURSE
-  // ---------------------------------------------------------------------------
-
   @Test
   void should_find_grades_by_student_and_course() {
     when(studentRepository.existsById(studentId)).thenReturn(true);
@@ -530,10 +490,6 @@ class GradeServiceTest {
 
     assertThat(result).hasSize(1);
   }
-
-  // ---------------------------------------------------------------------------
-  // FIND BY GROUP
-  // ---------------------------------------------------------------------------
 
   @Test
   void should_find_grades_by_group() {
@@ -567,10 +523,6 @@ class GradeServiceTest {
 
     assertThat(result).hasSize(1);
   }
-
-  // ---------------------------------------------------------------------------
-  // FIND BY SPECIALITY
-  // ---------------------------------------------------------------------------
 
   @Test
   void should_find_grades_by_speciality() {
@@ -606,10 +558,6 @@ class GradeServiceTest {
     assertThat(result).hasSize(1);
   }
 
-  // ---------------------------------------------------------------------------
-  // FIND BY STUDENT + EXAM
-  // ---------------------------------------------------------------------------
-
   @Test
   void should_find_grade_by_student_and_exam() {
     when(studentRepository.existsById(studentId)).thenReturn(true);
@@ -635,10 +583,6 @@ class GradeServiceTest {
         .hasMessageContaining("grade not found for this student and exam");
   }
 
-  // ---------------------------------------------------------------------------
-  // FIND BY DATE
-  // ---------------------------------------------------------------------------
-
   @Test
   void should_find_grades_by_date() {
     LocalDate date = LocalDate.of(2026, 8, 1);
@@ -656,10 +600,6 @@ class GradeServiceTest {
         .isInstanceOf(ResponseStatusException.class)
         .hasMessageContaining("date is required");
   }
-
-  // ---------------------------------------------------------------------------
-  // FIND BY MIN VALUE
-  // ---------------------------------------------------------------------------
 
   @Test
   void should_find_grades_by_min_value() {
@@ -683,10 +623,6 @@ class GradeServiceTest {
         .isInstanceOf(ResponseStatusException.class)
         .hasMessageContaining("minValue cannot be negative");
   }
-
-  // ---------------------------------------------------------------------------
-  // COURSE AVERAGE
-  // ---------------------------------------------------------------------------
 
   @Test
   void should_compute_student_course_average() {
@@ -755,10 +691,6 @@ class GradeServiceTest {
     assertThat(average).isNull();
   }
 
-  // ---------------------------------------------------------------------------
-  // GROUP YEAR COMPLETENESS
-  // ---------------------------------------------------------------------------
-
   @Test
   void should_reject_invalid_level() {
     assertThatThrownBy(() -> gradeService.isGroupYearComplete(groupId, 4))
@@ -823,10 +755,6 @@ class GradeServiceTest {
     assertThat(result).isFalse();
   }
 
-  // ---------------------------------------------------------------------------
-  // GROUP YEAR STATUS
-  // ---------------------------------------------------------------------------
-
   @Test
   void should_get_group_year_status() {
     JSpeciality speciality = JSpeciality.builder().id(specialityId).build();
@@ -859,10 +787,6 @@ class GradeServiceTest {
         .hasMessageContaining("group not found");
   }
 
-  // ---------------------------------------------------------------------------
-  // FIND ALL GRADES FOR GROUP YEAR
-  // ---------------------------------------------------------------------------
-
   @Test
   void should_reject_find_all_grades_when_year_is_incomplete() {
     JSpeciality speciality = JSpeciality.builder().id(specialityId).build();
@@ -878,3 +802,5 @@ class GradeServiceTest {
         .hasMessageContaining("group year is not complete");
   }
 }
+
+

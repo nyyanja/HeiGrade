@@ -149,7 +149,7 @@ class StudentGroupHistoryServiceTest {
         JStudentGroupHistory.builder()
             .id(UUID.randomUUID())
             .student(student)
-            .group(group) // K3
+            .group(group)
             .startDate(LocalDate.of(2026, 1, 1))
             .endDate(LocalDate.of(2026, 6, 30))
             .build();
@@ -172,3 +172,5 @@ class StudentGroupHistoryServiceTest {
     assertThat(result.get(1).getGroup().getName()).isEqualTo("K5");
   }
 }
+
+

@@ -346,3 +346,5 @@ class GraduateServiceTest {
     verify(spyService, times(1)).getGraduateStatus(studentId);
   }
 }
+
+

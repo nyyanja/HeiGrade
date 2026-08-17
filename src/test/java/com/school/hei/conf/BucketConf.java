@@ -10,3 +10,5 @@ public class BucketConf {
     registry.add("aws.s3.bucket", () -> "dummy-bucket");
   }
 }
+
+

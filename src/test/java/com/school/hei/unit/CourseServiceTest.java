@@ -610,3 +610,5 @@ class CourseServiceTest {
     assertThrows(ResponseStatusException.class, () -> courseService.findByLevel(null));
   }
 }
+
+

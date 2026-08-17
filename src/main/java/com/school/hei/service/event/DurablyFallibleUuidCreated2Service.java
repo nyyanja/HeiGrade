@@ -28,3 +28,5 @@ public class DurablyFallibleUuidCreated2Service implements Consumer<DurablyFalli
     uuidCreatedService.accept(durablyFallibleUuidCreated2.getUuidCreated());
   }
 }
+
+
