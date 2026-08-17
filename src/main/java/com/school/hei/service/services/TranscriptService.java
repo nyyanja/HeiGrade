@@ -315,5 +315,3 @@ public class TranscriptService {
     throw new ResponseStatusException(HttpStatus.FORBIDDEN, "access denied");
   }
 }
-
-

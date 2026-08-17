@@ -47,5 +47,3 @@ public class StudentGroupHistoryService {
         .orElse(null);
   }
 }
-
-

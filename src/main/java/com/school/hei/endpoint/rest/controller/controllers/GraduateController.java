@@ -28,5 +28,3 @@ public class GraduateController {
     return graduateService.getGraduatesByPromotion(promotionId);
   }
 }
-
-

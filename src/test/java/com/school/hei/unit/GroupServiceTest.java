@@ -343,5 +343,3 @@ class GroupServiceTest {
     verify(studentRepository).save(student);
   }
 }
-
-

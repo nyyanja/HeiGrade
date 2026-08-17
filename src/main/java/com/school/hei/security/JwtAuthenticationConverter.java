@@ -30,5 +30,3 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
     return new JwtAuthenticationToken(jwt, authorities, jwt.getSubject());
   }
 }
-
-

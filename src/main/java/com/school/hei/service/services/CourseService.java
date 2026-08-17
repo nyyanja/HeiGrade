@@ -202,6 +202,7 @@ public class CourseService {
     if (!teacherRepository.existsById(teacherId)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "teacher not found");
     }
+    // TEACHER ne peut lister que ses propres cours
     if (courseAccessService.isTeacher() && !courseAccessService.isAdmin()) {
       if (!courseAccessService.currentUserId().equals(teacherId)) {
         throw new ResponseStatusException(HttpStatus.FORBIDDEN, "not your courses");
@@ -262,6 +263,7 @@ public class CourseService {
       Set<UUID> taught = courseAccessService.taughtCourseIds();
       return courses.stream().filter(c -> taught.contains(c.getId())).toList();
     }
+    // STUDENT : peut voir le catalogue (programme)
     if (courseAccessService.isStudent()) {
       return courses;
     }
@@ -279,5 +281,3 @@ public class CourseService {
     throw new ResponseStatusException(HttpStatus.FORBIDDEN, "access denied");
   }
 }
-
-

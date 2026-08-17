@@ -53,5 +53,3 @@ public class TranscriptController {
     return transcriptService.getAllTranscripts(3);
   }
 }
-
-

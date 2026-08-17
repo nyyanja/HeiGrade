@@ -128,5 +128,3 @@ class PromotionServiceTest {
     assertThrows(ResponseStatusException.class, () -> promotionService.delete(id));
   }
 }
-
-

@@ -364,5 +364,3 @@ class TranscriptServiceTest {
     verifyNoInteractions(studentRepository);
   }
 }
-
-

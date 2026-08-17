@@ -246,5 +246,3 @@ class AdminServiceTest {
     verify(adminRepository, never()).deleteById(any(UUID.class));
   }
 }
-
-

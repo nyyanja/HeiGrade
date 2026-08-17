@@ -258,5 +258,3 @@ class SpecialityCourseServiceTest {
     verify(specialityCourseRepository).findBySpeciality_Id(specialityId);
   }
 }
-
-

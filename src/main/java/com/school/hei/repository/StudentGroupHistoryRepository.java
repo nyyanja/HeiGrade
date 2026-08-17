@@ -28,5 +28,3 @@ public interface StudentGroupHistoryRepository extends JpaRepository<JStudentGro
   Optional<JStudentGroupHistory> findStudentGroupAtDate(
       @Param("studentId") UUID studentId, @Param("date") LocalDate date);
 }
-
-
