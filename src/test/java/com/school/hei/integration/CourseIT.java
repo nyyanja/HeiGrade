@@ -120,5 +120,3 @@ class CourseIT extends FacadeIT {
     assertThat(response.getBody().getReference()).isEqualTo("PROG4");
   }
 }
-
-

@@ -253,5 +253,3 @@ public class StudentService {
     throw new ResponseStatusException(HttpStatus.FORBIDDEN, "access denied");
   }
 }
-
-

@@ -20,5 +20,3 @@ public class AdminValidator implements SaveValidator<Admin> {
     }
   }
 }
-
-

@@ -58,5 +58,3 @@ public class GroupExamService {
     groupExamRepository.deleteById(id);
   }
 }
-
-

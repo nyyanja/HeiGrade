@@ -13,5 +13,3 @@ import lombok.Setter;
 public class DummyUuid {
   @Id private String id;
 }
-
-

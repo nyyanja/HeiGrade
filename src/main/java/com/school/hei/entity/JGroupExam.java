@@ -35,5 +35,3 @@ public class JGroupExam {
   @JoinColumn(name = "exam_id", nullable = false)
   private JExam exam;
 }
-
-

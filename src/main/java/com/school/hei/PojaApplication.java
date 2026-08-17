@@ -11,5 +11,3 @@ public class PojaApplication {
     SpringApplication.run(PojaApplication.class, args);
   }
 }
-
-

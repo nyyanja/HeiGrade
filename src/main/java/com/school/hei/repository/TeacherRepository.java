@@ -20,5 +20,3 @@ public interface TeacherRepository extends JpaRepository<JTeacher, UUID> {
       """)
   List<JTeacher> findByCourseId(@Param("courseId") UUID courseId);
 }
-
-

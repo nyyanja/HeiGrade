@@ -13,5 +13,3 @@ public record Email(
     String subject,
     String htmlBody,
     List<File> attachments) {}
-
-

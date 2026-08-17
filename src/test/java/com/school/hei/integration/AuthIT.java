@@ -61,5 +61,3 @@ class AuthIT extends FacadeIT {
     assertThat(response.getBody().getToken()).isNotBlank();
   }
 }
-
-

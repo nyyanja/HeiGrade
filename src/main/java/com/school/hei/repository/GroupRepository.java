@@ -30,5 +30,3 @@ public interface GroupRepository extends JpaRepository<JGroup, UUID> {
 
   List<JGroup> findByPromotion_Id(UUID promotionId);
 }
-
-

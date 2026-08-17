@@ -86,5 +86,3 @@ public class ExamController {
     examService.delete(id);
   }
 }
-
-

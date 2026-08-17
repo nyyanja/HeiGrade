@@ -39,5 +39,3 @@ public class JGroup {
   @JoinColumn(name = "speciality_id", nullable = false)
   private JSpeciality speciality;
 }
-
-

@@ -18,5 +18,3 @@ public class Speciality {
   private UUID id;
   private GroupSpeciality name;
 }
-
-

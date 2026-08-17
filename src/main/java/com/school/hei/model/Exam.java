@@ -23,5 +23,3 @@ public class Exam {
   private Course course;
   private List<Group> groups;
 }
-
-

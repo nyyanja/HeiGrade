@@ -35,5 +35,3 @@ public class JTeacherCourse {
   @JoinColumn(name = "course_id", nullable = false)
   private JCourse course;
 }
-
-

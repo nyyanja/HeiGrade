@@ -51,5 +51,3 @@ public class SpecialityCourseController {
     specialityCourseService.delete(id);
   }
 }
-
-

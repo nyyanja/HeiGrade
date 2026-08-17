@@ -50,5 +50,3 @@ public class EventServiceInvoker implements Consumer<TypedEvent> {
     return new HashSet<>(reflections.getSubTypesOf(Object.class));
   }
 }
-
-

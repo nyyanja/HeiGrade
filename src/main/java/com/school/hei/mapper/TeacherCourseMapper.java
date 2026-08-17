@@ -29,5 +29,3 @@ public class TeacherCourseMapper {
         .build();
   }
 }
-
-

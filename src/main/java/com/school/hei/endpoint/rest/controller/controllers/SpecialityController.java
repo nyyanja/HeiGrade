@@ -50,5 +50,3 @@ public class SpecialityController {
     specialityService.delete(id);
   }
 }
-
-

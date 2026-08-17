@@ -60,5 +60,3 @@ public class PromotionController {
     promotionService.delete(id);
   }
 }
-
-

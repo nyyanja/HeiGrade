@@ -5,5 +5,3 @@ public enum GroupSpeciality {
   TN,
   COMMON_PART
 }
-
-

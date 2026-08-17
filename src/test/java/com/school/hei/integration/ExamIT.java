@@ -127,5 +127,3 @@ class ExamIT extends FacadeIT {
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
   }
 }
-
-

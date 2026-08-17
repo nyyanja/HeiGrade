@@ -22,5 +22,3 @@ public class FileTyper implements Function<File, MediaType> {
     return parseMediaType(detectedMediaType);
   }
 }
-
-

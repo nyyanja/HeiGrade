@@ -48,5 +48,3 @@ public class GradeHistoryValidator implements SaveValidator<GradeHistory> {
     }
   }
 }
-
-

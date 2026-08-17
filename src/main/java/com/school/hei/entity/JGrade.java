@@ -43,5 +43,3 @@ public class JGrade {
   @JoinColumn(name = "exam_id", nullable = false)
   private JExam exam;
 }
-
-

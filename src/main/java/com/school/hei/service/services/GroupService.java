@@ -169,5 +169,3 @@ public class GroupService {
     return model;
   }
 }
-
-

@@ -30,5 +30,3 @@ public class ThreadRenamer {
     return parent.getName() + "-" + randomUUID();
   }
 }
-
-

@@ -12,5 +12,3 @@ public class EventConf {
     registry.add("aws.eventBridge.bus", () -> "dummy-bus-url");
   }
 }
-
-
