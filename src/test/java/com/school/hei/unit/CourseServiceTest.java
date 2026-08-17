@@ -33,8 +33,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.server.ResponseStatusException;
-import com.school.hei.security.CourseAccessService;
-import org.junit.jupiter.api.BeforeEach;
 
 @ExtendWith(MockitoExtension.class)
 class CourseServiceTest {
@@ -60,6 +58,7 @@ class CourseServiceTest {
   void setUp() {
     lenient().when(courseAccessService.isAdmin()).thenReturn(true);
   }
+
   @Test
   void should_find_all_courses() {
     UUID courseId = UUID.randomUUID();

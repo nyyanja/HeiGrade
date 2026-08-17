@@ -50,8 +50,7 @@ public class TranscriptController {
   }
 
   @PostMapping("/student/{studentId}/L{level}/send-email")
-  public String sendTranscriptByEmail(
-          @PathVariable UUID studentId, @PathVariable Integer level) {
+  public String sendTranscriptByEmail(@PathVariable UUID studentId, @PathVariable Integer level) {
 
     if (level == null || level < 1 || level > 3) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "level must be 1, 2 or 3");
@@ -60,11 +59,7 @@ public class TranscriptController {
     transcriptService.assertCanAccessTranscript(studentId);
 
     eventProducer.accept(
-            List.of(
-                    SendTranscriptRequested.builder()
-                            .studentId(studentId)
-                            .level(level)
-                            .build()));
+        List.of(SendTranscriptRequested.builder().studentId(studentId).level(level).build()));
 
     return "Transcript email requested for student " + studentId + " level L" + level;
   }

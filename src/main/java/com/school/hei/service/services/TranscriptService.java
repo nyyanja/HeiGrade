@@ -47,7 +47,6 @@ public class TranscriptService {
   private final GroupRepository groupRepository;
   private final CourseAccessService courseAccessService;
 
-
   @Transactional(readOnly = true)
   public Transcript getStudentTranscript(UUID studentId, Integer level) {
     validateLevel(level);
@@ -67,6 +66,7 @@ public class TranscriptService {
     }
     throw new ResponseStatusException(HttpStatus.FORBIDDEN, "access denied");
   }
+
   @Transactional(readOnly = true)
   public Transcript getStudentTranscriptForSystem(UUID studentId, Integer level) {
     validateLevel(level);
@@ -79,7 +79,7 @@ public class TranscriptService {
 
     if (!courseAccessService.isAdmin()) {
       throw new ResponseStatusException(
-              HttpStatus.FORBIDDEN, "only admin can list all transcripts");
+          HttpStatus.FORBIDDEN, "only admin can list all transcripts");
     }
 
     List<Transcript> result = new ArrayList<>();
@@ -88,7 +88,7 @@ public class TranscriptService {
         result.add(buildTranscript(student.getId(), level));
       } catch (ResponseStatusException e) {
         if (e.getStatusCode().equals(HttpStatus.BAD_REQUEST)
-                || e.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
+            || e.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
           continue;
         }
         throw e;
@@ -96,18 +96,17 @@ public class TranscriptService {
     }
     return result;
   }
+
   private Transcript buildTranscript(UUID studentId, Integer level) {
     JStudent student =
-            studentRepository
-                    .findById(studentId)
-                    .orElseThrow(
-                            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "student not found"));
+        studentRepository
+            .findById(studentId)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "student not found"));
 
-    List<JStudentGroupHistory> history =
-            studentGroupHistoryRepository.findByStudent_Id(studentId);
+    List<JStudentGroupHistory> history = studentGroupHistoryRepository.findByStudent_Id(studentId);
     if (history.isEmpty()) {
-      throw new ResponseStatusException(
-              HttpStatus.BAD_REQUEST, "student has no group history");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "student has no group history");
     }
 
     Set<UUID> studentGroupIds = new HashSet<>();
@@ -130,20 +129,20 @@ public class TranscriptService {
     }
     if (!anyGroupYearComplete) {
       throw new ResponseStatusException(
-              HttpStatus.BAD_REQUEST,
-              "no group of this student has completed the year for level " + level);
+          HttpStatus.BAD_REQUEST,
+          "no group of this student has completed the year for level " + level);
     }
 
     List<JCourse> courses = resolveStudentCoursesForLevel(specialityIds, level);
     if (courses.isEmpty()) {
       throw new ResponseStatusException(
-              HttpStatus.NOT_FOUND, "no course found for student path at level " + level);
+          HttpStatus.NOT_FOUND, "no course found for student path at level " + level);
     }
 
     List<JGrade> allGrades = gradeRepository.findByStudent_Id(studentId);
     Map<UUID, List<JGrade>> gradesByCourse = groupGradesByCourse(allGrades);
     Map<UUID, List<JExam>> allExamsByCourse =
-            resolveAllExamsByCourseForStudentGroups(studentGroupIds, courses);
+        resolveAllExamsByCourseForStudentGroups(studentGroupIds, courses);
 
     List<TranscriptCourseLine> lines = new ArrayList<>();
     double weightedSum = 0.0;
@@ -156,8 +155,8 @@ public class TranscriptService {
 
       if (validGrades.isEmpty()) {
         throw new ResponseStatusException(
-                HttpStatus.BAD_REQUEST,
-                "student does not have a grade for course " + course.getReference());
+            HttpStatus.BAD_REQUEST,
+            "student does not have a grade for course " + course.getReference());
       }
 
       List<JExam> courseExams = allExamsByCourse.getOrDefault(course.getId(), List.of());
@@ -165,49 +164,48 @@ public class TranscriptService {
       int obtainedCredit = average >= PASS_MARK ? course.getCredit() : 0;
 
       lines.add(
-              TranscriptCourseLine.builder()
-                      .courseId(course.getId())
-                      .reference(course.getReference())
-                      .title(course.getTitle())
-                      .credit(course.getCredit())
-                      .average(average)
-                      .obtainedCredit(obtainedCredit)
-                      .build());
+          TranscriptCourseLine.builder()
+              .courseId(course.getId())
+              .reference(course.getReference())
+              .title(course.getTitle())
+              .credit(course.getCredit())
+              .average(average)
+              .obtainedCredit(obtainedCredit)
+              .build());
 
       weightedSum += average * course.getCredit();
       totalCourseCredits += course.getCredit();
       totalObtainedCredits += obtainedCredit;
     }
 
-    double generalAverage =
-            totalCourseCredits == 0 ? 0.0 : weightedSum / totalCourseCredits;
+    double generalAverage = totalCourseCredits == 0 ? 0.0 : weightedSum / totalCourseCredits;
 
     return Transcript.builder()
-            .studentId(student.getId())
-            .reference(student.getReference())
-            .firstName(student.getFirstName())
-            .lastName(student.getLastName())
-            .level(level)
-            .courses(lines)
-            .generalAverage(generalAverage)
-            .totalCredit(totalObtainedCredits)
-            .build();
+        .studentId(student.getId())
+        .reference(student.getReference())
+        .firstName(student.getFirstName())
+        .lastName(student.getLastName())
+        .level(level)
+        .courses(lines)
+        .generalAverage(generalAverage)
+        .totalCredit(totalObtainedCredits)
+        .build();
   }
 
   @Transactional(readOnly = true)
   public boolean isGroupYearCompleteForLevel(UUID groupId, Integer level) {
     JGroup group =
-            groupRepository
-                    .findById(groupId)
-                    .orElseThrow(
-                            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "group not found"));
+        groupRepository
+            .findById(groupId)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "group not found"));
 
     if (group.getSpeciality() == null || group.getSpeciality().getId() == null) {
       return false;
     }
 
     List<JCourse> courses =
-            courseRepository.findBySpecialityIdAndLevel(group.getSpeciality().getId(), level);
+        courseRepository.findBySpecialityIdAndLevel(group.getSpeciality().getId(), level);
     if (courses.isEmpty()) {
       return false;
     }
@@ -219,9 +217,9 @@ public class TranscriptService {
 
     for (JCourse course : courses) {
       double coeffSum =
-              findExamsForGroupAndCourse(groupId, course.getId()).stream()
-                      .mapToDouble(JExam::getCoeff)
-                      .sum();
+          findExamsForGroupAndCourse(groupId, course.getId()).stream()
+              .mapToDouble(JExam::getCoeff)
+              .sum();
       if (Math.abs(coeffSum - COEFF_TOTAL) > COEFF_EPSILON) {
         return false;
       }
@@ -229,15 +227,14 @@ public class TranscriptService {
     return true;
   }
 
-
   private List<JExam> findExamsForGroupAndCourse(UUID groupId, UUID courseId) {
     return examRepository.findByGroupId(groupId).stream()
-            .filter(exam -> exam.getCourse() != null && courseId.equals(exam.getCourse().getId()))
-            .toList();
+        .filter(exam -> exam.getCourse() != null && courseId.equals(exam.getCourse().getId()))
+        .toList();
   }
 
   private Map<UUID, List<JExam>> resolveAllExamsByCourseForStudentGroups(
-          Set<UUID> studentGroupIds, List<JCourse> courses) {
+      Set<UUID> studentGroupIds, List<JCourse> courses) {
 
     Map<UUID, Map<UUID, JExam>> byCourseThenExamId = new HashMap<>();
 
@@ -245,8 +242,8 @@ public class TranscriptService {
       for (JCourse course : courses) {
         for (JExam exam : findExamsForGroupAndCourse(groupId, course.getId())) {
           byCourseThenExamId
-                  .computeIfAbsent(course.getId(), id -> new HashMap<>())
-                  .putIfAbsent(exam.getId(), exam);
+              .computeIfAbsent(course.getId(), id -> new HashMap<>())
+              .putIfAbsent(exam.getId(), exam);
         }
       }
     }
@@ -275,8 +272,8 @@ public class TranscriptService {
         continue;
       }
       result
-              .computeIfAbsent(grade.getExam().getCourse().getId(), id -> new ArrayList<>())
-              .add(grade);
+          .computeIfAbsent(grade.getExam().getCourse().getId(), id -> new ArrayList<>())
+          .add(grade);
     }
     return result;
   }
@@ -289,9 +286,9 @@ public class TranscriptService {
         continue;
       }
       JStudentGroupHistory atDate =
-              studentGroupHistoryRepository
-                      .findStudentGroupAtDate(student.getId(), exam.getDate())
-                      .orElse(null);
+          studentGroupHistoryRepository
+              .findStudentGroupAtDate(student.getId(), exam.getDate())
+              .orElse(null);
       if (atDate == null || atDate.getGroup() == null) {
         continue;
       }
@@ -303,10 +300,9 @@ public class TranscriptService {
   }
 
   private boolean examBelongsToGroup(JExam exam, JGroup group) {
-    return groupExamRepository
-            .findByGroup_IdAndExam_Id(group.getId(), exam.getId())
-            .isPresent();
+    return groupExamRepository.findByGroup_IdAndExam_Id(group.getId(), exam.getId()).isPresent();
   }
+
   private double calculateCourseAverage(List<JGrade> studentGrades, List<JExam> allCourseExams) {
     double numerator = 0.0;
     for (JGrade grade : studentGrades) {
@@ -323,7 +319,7 @@ public class TranscriptService {
     }
     if (denominator == 0) {
       throw new ResponseStatusException(
-              HttpStatus.BAD_REQUEST, "cannot calculate course average: no exam coefficients");
+          HttpStatus.BAD_REQUEST, "cannot calculate course average: no exam coefficients");
     }
     return numerator / denominator;
   }

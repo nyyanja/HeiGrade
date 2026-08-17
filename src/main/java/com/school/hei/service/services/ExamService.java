@@ -183,7 +183,7 @@ public class ExamService {
   private void validateGroups(Exam exam) {
     if (exam.getGroups() == null || exam.getGroups().isEmpty()) {
       throw new ResponseStatusException(
-              HttpStatus.BAD_REQUEST, "at least one group is required to create an exam");
+          HttpStatus.BAD_REQUEST, "at least one group is required to create an exam");
     }
     for (Group group : exam.getGroups()) {
       if (group == null || group.getId() == null) {
@@ -198,27 +198,27 @@ public class ExamService {
   private void validateCoeffSum(Exam exam, UUID excludedExamId) {
     UUID courseId = exam.getCourse().getId();
     double existingSum =
-            examRepository.findByCourse_Id(courseId).stream()
-                    .filter(e -> excludedExamId == null || !e.getId().equals(excludedExamId))
-                    .mapToDouble(JExam::getCoeff)
-                    .sum();
+        examRepository.findByCourse_Id(courseId).stream()
+            .filter(e -> excludedExamId == null || !e.getId().equals(excludedExamId))
+            .mapToDouble(JExam::getCoeff)
+            .sum();
     double total = existingSum + exam.getCoeff();
     if (total > COEFF_TOTAL + COEFF_EPSILON) {
       throw new ResponseStatusException(
-              HttpStatus.BAD_REQUEST,
-              String.format(
-                      "the sum of exam coefficients for this course would reach %.2f, it cannot exceed 1",
-                      total));
+          HttpStatus.BAD_REQUEST,
+          String.format(
+              "the sum of exam coefficients for this course would reach %.2f, it cannot exceed 1",
+              total));
     }
   }
 
   private void saveGroupExams(Exam exam, JExam savedExam) {
     for (Group group : exam.getGroups()) {
       JGroupExam entity =
-              JGroupExam.builder()
-                      .group(groupRepository.getReferenceById(group.getId()))
-                      .exam(savedExam)
-                      .build();
+          JGroupExam.builder()
+              .group(groupRepository.getReferenceById(group.getId()))
+              .exam(savedExam)
+              .build();
       groupExamRepository.save(entity);
     }
   }
@@ -226,9 +226,9 @@ public class ExamService {
   private Exam toModelWithGroups(JExam entity) {
     Exam model = ExamMapper.toModel(entity);
     model.setGroups(
-            groupExamRepository.findByExam_Id(entity.getId()).stream()
-                    .map(ge -> GroupMapper.toModel(ge.getGroup()))
-                    .toList());
+        groupExamRepository.findByExam_Id(entity.getId()).stream()
+            .map(ge -> GroupMapper.toModel(ge.getGroup()))
+            .toList());
     return model;
   }
 }

@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import com.school.hei.security.CourseAccessService;
 
 import com.school.hei.entity.JCourse;
 import com.school.hei.entity.JExam;
@@ -381,8 +380,8 @@ class GradeServiceTest {
     when(gradeRepository.findById(gradeId)).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> gradeService.delete(gradeId))
-            .isInstanceOf(ResponseStatusException.class)
-            .hasMessageContaining("grade not found");
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("grade not found");
   }
 
   @Test

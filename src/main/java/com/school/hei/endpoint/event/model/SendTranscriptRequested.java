@@ -17,16 +17,16 @@ import lombok.ToString;
 @ToString
 public class SendTranscriptRequested extends PojaEvent {
 
-    private UUID studentId;
-    private Integer level;
+  private UUID studentId;
+  private Integer level;
 
-    @Override
-    public Duration maxConsumerDuration() {
-        return Duration.ofSeconds(45);
-    }
+  @Override
+  public Duration maxConsumerDuration() {
+    return Duration.ofSeconds(45);
+  }
 
-    @Override
-    public Duration maxConsumerBackoffBetweenRetries() {
-        return Duration.ofSeconds(30);
-    }
+  @Override
+  public Duration maxConsumerBackoffBetweenRetries() {
+    return Duration.ofSeconds(30);
+  }
 }

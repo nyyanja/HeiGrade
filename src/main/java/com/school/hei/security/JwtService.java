@@ -27,13 +27,14 @@ public class JwtService {
             .map(authority -> authority.getAuthority())
             .orElse("");
 
-        JwtClaimsSet claims = JwtClaimsSet.builder()
-                .issuer("heigrade")
-                .issuedAt(now)
-                .expiresAt(now.plus(2, ChronoUnit.HOURS))
-                .subject(userDetails.getUsername())
-                .claim("role", role)
-                .build();
+    JwtClaimsSet claims =
+        JwtClaimsSet.builder()
+            .issuer("heigrade")
+            .issuedAt(now)
+            .expiresAt(now.plus(2, ChronoUnit.HOURS))
+            .subject(userDetails.getUsername())
+            .claim("role", role)
+            .build();
 
     JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
 

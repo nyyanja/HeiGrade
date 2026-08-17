@@ -172,8 +172,8 @@ class UserServiceTest {
     request.setRole(Role.STUDENT);
 
     doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "first name is required"))
-            .when(userValidator)
-            .validateCommonFields(any(User.class));
+        .when(userValidator)
+        .validateCommonFields(any(User.class));
 
     assertThatThrownBy(() -> userService.save(request))
         .isInstanceOf(ResponseStatusException.class)
