@@ -47,11 +47,7 @@ public class TranscriptService {
   private final GroupRepository groupRepository;
   private final CourseAccessService courseAccessService;
 
-  /**
-   * Relevé pour un appel HTTP (avec contrôle d'accès).
-   * STUDENT : uniquement son relevé.
-   * ADMIN / TEACHER : OK.
-   */
+
   @Transactional(readOnly = true)
   public Transcript getStudentTranscript(UUID studentId, Integer level) {
     validateLevel(level);
@@ -59,33 +55,36 @@ public class TranscriptService {
     return buildTranscript(studentId, level);
   }
 
-  /**
-   * Relevé pour le worker async (email / PDF).
-   * Aucun contrôle JWT — usage interne uniquement.
-   */
+  public void assertCanAccessTranscript(UUID studentId) {
+    if (courseAccessService.isAdmin()) {
+      return;
+    }
+    if (courseAccessService.isStudent()) {
+      if (!courseAccessService.currentUserId().equals(studentId)) {
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "not your transcript");
+      }
+      return;
+    }
+    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "access denied");
+  }
   @Transactional(readOnly = true)
   public Transcript getStudentTranscriptForSystem(UUID studentId, Integer level) {
     validateLevel(level);
     return buildTranscript(studentId, level);
   }
 
-  /**
-   * Tous les relevés d'un level.
-   * Interdit aux STUDENT.
-   */
   @Transactional(readOnly = true)
   public List<Transcript> getAllTranscripts(Integer level) {
     validateLevel(level);
 
-    if (courseAccessService.isStudent()) {
+    if (!courseAccessService.isAdmin()) {
       throw new ResponseStatusException(
-              HttpStatus.FORBIDDEN, "students cannot list all transcripts");
+              HttpStatus.FORBIDDEN, "only admin can list all transcripts");
     }
 
     List<Transcript> result = new ArrayList<>();
     for (JStudent student : studentRepository.findAll()) {
       try {
-        // sans re-check sécu par étudiant (ADMIN/TEACHER déjà OK)
         result.add(buildTranscript(student.getId(), level));
       } catch (ResponseStatusException e) {
         if (e.getStatusCode().equals(HttpStatus.BAD_REQUEST)
@@ -97,8 +96,6 @@ public class TranscriptService {
     }
     return result;
   }
-
-  /** Cœur métier du relevé (sans sécurité). */
   private Transcript buildTranscript(UUID studentId, Integer level) {
     JStudent student =
             studentRepository
@@ -232,22 +229,6 @@ public class TranscriptService {
     return true;
   }
 
-  // -------------------- sécurité --------------------
-
-  private void assertCanAccessTranscript(UUID studentId) {
-    if (courseAccessService.isAdmin() || courseAccessService.isTeacher()) {
-      return;
-    }
-    if (courseAccessService.isStudent()) {
-      if (!courseAccessService.currentUserId().equals(studentId)) {
-        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "not your transcript");
-      }
-      return;
-    }
-    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "access denied");
-  }
-
-  // -------------------- helpers --------------------
 
   private List<JExam> findExamsForGroupAndCourse(UUID groupId, UUID courseId) {
     return examRepository.findByGroupId(groupId).stream()
@@ -326,12 +307,6 @@ public class TranscriptService {
             .findByGroup_IdAndExam_Id(group.getId(), exam.getId())
             .isPresent();
   }
-
-  /**
-   * Moyenne matière :
-   * numérateur = Σ (note × coeff) des examens faits
-   * dénominateur = Σ coeffs de TOUS les examens de la matière
-   */
   private double calculateCourseAverage(List<JGrade> studentGrades, List<JExam> allCourseExams) {
     double numerator = 0.0;
     for (JGrade grade : studentGrades) {

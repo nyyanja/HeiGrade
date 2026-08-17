@@ -1,6 +1,7 @@
 package com.school.hei.unit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
@@ -78,60 +79,60 @@ class TranscriptServiceTest {
     examId = UUID.randomUUID();
 
     student =
-        JStudent.builder()
-            .id(studentId)
-            .reference("STD-001")
-            .firstName("John")
-            .lastName("Doe")
-            .build();
+            JStudent.builder()
+                    .id(studentId)
+                    .reference("STD-001")
+                    .firstName("John")
+                    .lastName("Doe")
+                    .build();
 
     speciality = JSpeciality.builder().id(specialityId).build();
 
     group = JGroup.builder().id(groupId).name("Group K1").speciality(speciality).build();
 
     course =
-        JCourse.builder()
-            .id(courseId)
-            .reference("CS101")
-            .title("Programming")
-            .credit(60)
-            .level(1)
-            .build();
+            JCourse.builder()
+                    .id(courseId)
+                    .reference("CS101")
+                    .title("Programming")
+                    .credit(60)
+                    .level(1)
+                    .build();
 
     exam =
-        JExam.builder()
-            .id(examId)
-            .date(LocalDate.of(2026, 8, 1))
-            .coeff(1.0)
-            .title("Final Exam")
-            .course(course)
-            .build();
+            JExam.builder()
+                    .id(examId)
+                    .date(LocalDate.of(2026, 8, 1))
+                    .coeff(1.0)
+                    .title("Final Exam")
+                    .course(course)
+                    .build();
 
     grade =
-        JGrade.builder()
-            .id(UUID.randomUUID())
-            .value(15.0)
-            .date(LocalDate.of(2026, 8, 1))
-            .student(student)
-            .exam(exam)
-            .build();
+            JGrade.builder()
+                    .id(UUID.randomUUID())
+                    .value(15.0)
+                    .date(LocalDate.of(2026, 8, 1))
+                    .student(student)
+                    .exam(exam)
+                    .build();
 
     history =
-        JStudentGroupHistory.builder()
-            .id(UUID.randomUUID())
-            .student(student)
-            .group(group)
-            .startDate(LocalDate.of(2026, 1, 1))
-            .endDate(null)
-            .build();
+            JStudentGroupHistory.builder()
+                    .id(UUID.randomUUID())
+                    .student(student)
+                    .group(group)
+                    .startDate(LocalDate.of(2026, 1, 1))
+                    .endDate(null)
+                    .build();
     lenient().when(courseAccessService.isAdmin()).thenReturn(true);
   }
 
   @Test
   void should_reject_null_level() {
     assertThatThrownBy(() -> transcriptService.getStudentTranscript(studentId, null))
-        .isInstanceOf(ResponseStatusException.class)
-        .hasMessageContaining("level must be 1, 2 or 3");
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("level must be 1, 2 or 3");
 
     verifyNoInteractions(studentRepository);
   }
@@ -139,8 +140,8 @@ class TranscriptServiceTest {
   @Test
   void should_reject_invalid_level() {
     assertThatThrownBy(() -> transcriptService.getStudentTranscript(studentId, 4))
-        .isInstanceOf(ResponseStatusException.class)
-        .hasMessageContaining("level must be 1, 2 or 3");
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("level must be 1, 2 or 3");
 
     verifyNoInteractions(studentRepository);
   }
@@ -148,8 +149,8 @@ class TranscriptServiceTest {
   @Test
   void should_reject_level_zero() {
     assertThatThrownBy(() -> transcriptService.getStudentTranscript(studentId, 0))
-        .isInstanceOf(ResponseStatusException.class)
-        .hasMessageContaining("level must be 1, 2 or 3");
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("level must be 1, 2 or 3");
   }
 
   @Test
@@ -157,8 +158,8 @@ class TranscriptServiceTest {
     when(studentRepository.findById(studentId)).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> transcriptService.getStudentTranscript(studentId, 1))
-        .isInstanceOf(ResponseStatusException.class)
-        .hasMessageContaining("student not found");
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("student not found");
 
     verify(studentRepository).findById(studentId);
   }
@@ -170,8 +171,8 @@ class TranscriptServiceTest {
     when(studentGroupHistoryRepository.findByStudent_Id(studentId)).thenReturn(List.of());
 
     assertThatThrownBy(() -> transcriptService.getStudentTranscript(studentId, 1))
-        .isInstanceOf(ResponseStatusException.class)
-        .hasMessageContaining("student has no group history");
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("student has no group history");
   }
 
   @Test
@@ -185,8 +186,8 @@ class TranscriptServiceTest {
     when(courseRepository.findBySpecialityIdAndLevel(specialityId, 1)).thenReturn(List.of());
 
     assertThatThrownBy(() -> transcriptService.getStudentTranscript(studentId, 1))
-        .isInstanceOf(ResponseStatusException.class)
-        .hasMessageContaining("no group of this student has completed the year for level 1");
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("no group of this student has completed the year for level 1");
   }
 
   @Test
@@ -214,18 +215,18 @@ class TranscriptServiceTest {
   @Test
   void should_return_false_when_group_courses_do_not_total_60_credits() {
     JCourse smallCourse =
-        JCourse.builder()
-            .id(courseId)
-            .reference("CS101")
-            .title("Programming")
-            .credit(30)
-            .level(1)
-            .build();
+            JCourse.builder()
+                    .id(courseId)
+                    .reference("CS101")
+                    .title("Programming")
+                    .credit(30)
+                    .level(1)
+                    .build();
 
     when(groupRepository.findById(groupId)).thenReturn(Optional.of(group));
 
     when(courseRepository.findBySpecialityIdAndLevel(specialityId, 1))
-        .thenReturn(List.of(smallCourse));
+            .thenReturn(List.of(smallCourse));
 
     boolean result = transcriptService.isGroupYearCompleteForLevel(groupId, 1);
 
@@ -239,13 +240,13 @@ class TranscriptServiceTest {
     when(courseRepository.findBySpecialityIdAndLevel(specialityId, 1)).thenReturn(List.of(course));
 
     JExam incompleteExam =
-        JExam.builder()
-            .id(examId)
-            .date(LocalDate.of(2026, 8, 1))
-            .coeff(0.5)
-            .title("Partial Exam")
-            .course(course)
-            .build();
+            JExam.builder()
+                    .id(examId)
+                    .date(LocalDate.of(2026, 8, 1))
+                    .coeff(0.5)
+                    .title("Partial Exam")
+                    .course(course)
+                    .build();
 
     when(examRepository.findByGroupId(groupId)).thenReturn(List.of(incompleteExam));
 
@@ -282,10 +283,10 @@ class TranscriptServiceTest {
     when(gradeRepository.findByStudent_Id(studentId)).thenReturn(List.of(grade));
 
     when(studentGroupHistoryRepository.findStudentGroupAtDate(studentId, exam.getDate()))
-        .thenReturn(Optional.of(history));
+            .thenReturn(Optional.of(history));
 
     when(groupExamRepository.findByGroup_IdAndExam_Id(groupId, examId))
-        .thenReturn(Optional.of(mock(com.school.hei.entity.JGroupExam.class)));
+            .thenReturn(Optional.of(mock(com.school.hei.entity.JGroupExam.class)));
 
     Transcript result = transcriptService.getStudentTranscript(studentId, 1);
 
@@ -319,8 +320,8 @@ class TranscriptServiceTest {
     when(courseRepository.findBySpecialityIdAndLevel(specialityId, 1)).thenReturn(List.of());
 
     assertThatThrownBy(() -> transcriptService.getStudentTranscript(studentId, 1))
-        .isInstanceOf(ResponseStatusException.class)
-        .hasMessageContaining("no group of this student has completed the year for level 1");
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("no group of this student has completed the year for level 1");
   }
 
   @Test
@@ -328,8 +329,8 @@ class TranscriptServiceTest {
     when(groupRepository.findById(groupId)).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> transcriptService.isGroupYearCompleteForLevel(groupId, 1))
-        .isInstanceOf(ResponseStatusException.class)
-        .hasMessageContaining("group not found");
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("group not found");
   }
 
   @Test
@@ -359,8 +360,79 @@ class TranscriptServiceTest {
   @Test
   void should_reject_invalid_level_for_all_transcripts() {
     assertThatThrownBy(() -> transcriptService.getAllTranscripts(4))
-        .isInstanceOf(ResponseStatusException.class)
-        .hasMessageContaining("level must be 1, 2 or 3");
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("level must be 1, 2 or 3");
+
+    verifyNoInteractions(studentRepository);
+  }
+
+  @Test
+  void should_allow_admin_to_access_any_transcript() {
+    when(courseAccessService.isAdmin()).thenReturn(true);
+
+    assertThatCode(() -> transcriptService.assertCanAccessTranscript(studentId))
+            .doesNotThrowAnyException();
+
+    verifyNoInteractions(studentRepository);
+  }
+
+  @Test
+  void should_allow_teacher_to_access_any_transcript() {
+    when(courseAccessService.isAdmin()).thenReturn(false);
+    when(courseAccessService.isTeacher()).thenReturn(true);
+
+    assertThatCode(() -> transcriptService.assertCanAccessTranscript(studentId))
+            .doesNotThrowAnyException();
+
+    verify(courseAccessService, never()).currentUserId();
+  }
+
+  @Test
+  void should_allow_student_to_access_own_transcript() {
+    when(courseAccessService.isAdmin()).thenReturn(false);
+    when(courseAccessService.isTeacher()).thenReturn(false);
+    when(courseAccessService.isStudent()).thenReturn(true);
+    when(courseAccessService.currentUserId()).thenReturn(studentId);
+
+    assertThatCode(() -> transcriptService.assertCanAccessTranscript(studentId))
+            .doesNotThrowAnyException();
+  }
+
+  @Test
+  void should_forbid_student_from_accessing_another_students_transcript() {
+    when(courseAccessService.isAdmin()).thenReturn(false);
+    when(courseAccessService.isTeacher()).thenReturn(false);
+    when(courseAccessService.isStudent()).thenReturn(true);
+    when(courseAccessService.currentUserId()).thenReturn(UUID.randomUUID());
+
+    assertThatThrownBy(() -> transcriptService.assertCanAccessTranscript(studentId))
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("not your transcript");
+  }
+
+  @Test
+  void should_forbid_access_when_user_has_no_recognized_role() {
+    when(courseAccessService.isAdmin()).thenReturn(false);
+    when(courseAccessService.isTeacher()).thenReturn(false);
+    when(courseAccessService.isStudent()).thenReturn(false);
+
+    assertThatThrownBy(() -> transcriptService.assertCanAccessTranscript(studentId))
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("access denied");
+
+    verify(courseAccessService, never()).currentUserId();
+  }
+
+  @Test
+  void should_forbid_student_from_reading_another_students_transcript() {
+    when(courseAccessService.isAdmin()).thenReturn(false);
+    when(courseAccessService.isTeacher()).thenReturn(false);
+    when(courseAccessService.isStudent()).thenReturn(true);
+    when(courseAccessService.currentUserId()).thenReturn(UUID.randomUUID());
+
+    assertThatThrownBy(() -> transcriptService.getStudentTranscript(studentId, 1))
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("not your transcript");
 
     verifyNoInteractions(studentRepository);
   }
