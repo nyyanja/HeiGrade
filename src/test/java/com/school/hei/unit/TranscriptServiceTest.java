@@ -376,20 +376,8 @@ class TranscriptServiceTest {
   }
 
   @Test
-  void should_allow_teacher_to_access_any_transcript() {
-    when(courseAccessService.isAdmin()).thenReturn(false);
-    when(courseAccessService.isTeacher()).thenReturn(true);
-
-    assertThatCode(() -> transcriptService.assertCanAccessTranscript(studentId))
-        .doesNotThrowAnyException();
-
-    verify(courseAccessService, never()).currentUserId();
-  }
-
-  @Test
   void should_allow_student_to_access_own_transcript() {
     when(courseAccessService.isAdmin()).thenReturn(false);
-    when(courseAccessService.isTeacher()).thenReturn(false);
     when(courseAccessService.isStudent()).thenReturn(true);
     when(courseAccessService.currentUserId()).thenReturn(studentId);
 
@@ -400,7 +388,6 @@ class TranscriptServiceTest {
   @Test
   void should_forbid_student_from_accessing_another_students_transcript() {
     when(courseAccessService.isAdmin()).thenReturn(false);
-    when(courseAccessService.isTeacher()).thenReturn(false);
     when(courseAccessService.isStudent()).thenReturn(true);
     when(courseAccessService.currentUserId()).thenReturn(UUID.randomUUID());
 
@@ -412,7 +399,6 @@ class TranscriptServiceTest {
   @Test
   void should_forbid_access_when_user_has_no_recognized_role() {
     when(courseAccessService.isAdmin()).thenReturn(false);
-    when(courseAccessService.isTeacher()).thenReturn(false);
     when(courseAccessService.isStudent()).thenReturn(false);
 
     assertThatThrownBy(() -> transcriptService.assertCanAccessTranscript(studentId))
@@ -425,7 +411,6 @@ class TranscriptServiceTest {
   @Test
   void should_forbid_student_from_reading_another_students_transcript() {
     when(courseAccessService.isAdmin()).thenReturn(false);
-    when(courseAccessService.isTeacher()).thenReturn(false);
     when(courseAccessService.isStudent()).thenReturn(true);
     when(courseAccessService.currentUserId()).thenReturn(UUID.randomUUID());
 
@@ -434,5 +419,13 @@ class TranscriptServiceTest {
         .hasMessageContaining("not your transcript");
 
     verifyNoInteractions(studentRepository);
+  }
+  @Test
+  void should_forbid_teacher_from_accessing_transcript() {
+    when(courseAccessService.isAdmin()).thenReturn(false);
+    when(courseAccessService.isStudent()).thenReturn(false);
+    assertThatThrownBy(() -> transcriptService.assertCanAccessTranscript(studentId))
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("access denied");
   }
 }

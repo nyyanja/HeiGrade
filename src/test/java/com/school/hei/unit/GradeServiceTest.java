@@ -377,11 +377,11 @@ class GradeServiceTest {
 
   @Test
   void should_throw_when_deleting_non_existing_grade() {
-    when(gradeRepository.findById(gradeId)).thenReturn(Optional.empty());
+    when(gradeRepository.existsById(gradeId)).thenReturn(false);
 
     assertThatThrownBy(() -> gradeService.delete(gradeId))
-        .isInstanceOf(ResponseStatusException.class)
-        .hasMessageContaining("grade not found");
+            .isInstanceOf(ResponseStatusException.class)
+            .hasMessageContaining("grade not found");
   }
 
   @Test

@@ -434,6 +434,7 @@ class CourseServiceTest {
     verify(courseRepository, never()).deleteById(courseId);
   }
 
+
   @Test
   void should_find_courses_by_teacher() {
     UUID teacherId = UUID.randomUUID();
@@ -521,24 +522,25 @@ class CourseServiceTest {
     UUID specialityId = UUID.randomUUID();
 
     JGroup group =
-        JGroup.builder()
-            .id(groupId)
-            .name("Group 1")
-            .speciality(JSpeciality.builder().id(specialityId).name("EL").build())
-            .build();
+            JGroup.builder()
+                    .id(groupId)
+                    .name("Group 1")
+                    .speciality(JSpeciality.builder().id(specialityId).name("EL").build())
+                    .build();
 
     JCourse course =
-        JCourse.builder()
-            .id(UUID.randomUUID())
-            .reference("PROG1")
-            .title("Programming")
-            .credit(6)
-            .level(1)
-            .build();
+            JCourse.builder()
+                    .id(UUID.randomUUID())
+                    .reference("PROG1")
+                    .title("Programming")
+                    .credit(6)
+                    .level(1)
+                    .build();
 
     when(groupRepository.findById(groupId)).thenReturn(Optional.of(group));
-    when(specialityRepository.existsById(specialityId)).thenReturn(true);
     when(courseRepository.findBySpecialityId(specialityId)).thenReturn(List.of(course));
+    when(teacherCourseRepository.findByCourse_Id(course.getId())).thenReturn(List.of());
+    when(specialityCourseRepository.findByCourse_Id(course.getId())).thenReturn(List.of());
 
     List<Course> result = courseService.findByGroup(groupId);
 
