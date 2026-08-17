@@ -116,7 +116,6 @@ public class UserService {
     if (name == null || name.isBlank()) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "name is required");
     }
-
     return userRepository
         .findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(name, name)
         .stream()
@@ -128,7 +127,6 @@ public class UserService {
     if (!groupRepository.existsById(groupId)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "group not found");
     }
-
     return studentRepository.findByGroup_Id(groupId).stream()
         .map(StudentMapper::toModel)
         .map(student -> (User) student)

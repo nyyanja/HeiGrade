@@ -1,4 +1,4 @@
-package com.school.hei.service;
+package com.school.hei.service.services;
 
 import com.school.hei.model.LoginRequest;
 import com.school.hei.model.LoginResponse;

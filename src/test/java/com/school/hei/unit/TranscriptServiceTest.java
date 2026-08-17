@@ -1,6 +1,7 @@
 package com.school.hei.unit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
@@ -362,5 +363,70 @@ class TranscriptServiceTest {
         .hasMessageContaining("level must be 1, 2 or 3");
 
     verifyNoInteractions(studentRepository);
+  }
+
+  @Test
+  void should_allow_admin_to_access_any_transcript() {
+    when(courseAccessService.isAdmin()).thenReturn(true);
+
+    assertThatCode(() -> transcriptService.assertCanAccessTranscript(studentId))
+        .doesNotThrowAnyException();
+
+    verifyNoInteractions(studentRepository);
+  }
+
+  @Test
+  void should_allow_student_to_access_own_transcript() {
+    when(courseAccessService.isAdmin()).thenReturn(false);
+    when(courseAccessService.isStudent()).thenReturn(true);
+    when(courseAccessService.currentUserId()).thenReturn(studentId);
+
+    assertThatCode(() -> transcriptService.assertCanAccessTranscript(studentId))
+        .doesNotThrowAnyException();
+  }
+
+  @Test
+  void should_forbid_student_from_accessing_another_students_transcript() {
+    when(courseAccessService.isAdmin()).thenReturn(false);
+    when(courseAccessService.isStudent()).thenReturn(true);
+    when(courseAccessService.currentUserId()).thenReturn(UUID.randomUUID());
+
+    assertThatThrownBy(() -> transcriptService.assertCanAccessTranscript(studentId))
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("not your transcript");
+  }
+
+  @Test
+  void should_forbid_access_when_user_has_no_recognized_role() {
+    when(courseAccessService.isAdmin()).thenReturn(false);
+    when(courseAccessService.isStudent()).thenReturn(false);
+
+    assertThatThrownBy(() -> transcriptService.assertCanAccessTranscript(studentId))
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("access denied");
+
+    verify(courseAccessService, never()).currentUserId();
+  }
+
+  @Test
+  void should_forbid_student_from_reading_another_students_transcript() {
+    when(courseAccessService.isAdmin()).thenReturn(false);
+    when(courseAccessService.isStudent()).thenReturn(true);
+    when(courseAccessService.currentUserId()).thenReturn(UUID.randomUUID());
+
+    assertThatThrownBy(() -> transcriptService.getStudentTranscript(studentId, 1))
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("not your transcript");
+
+    verifyNoInteractions(studentRepository);
+  }
+
+  @Test
+  void should_forbid_teacher_from_accessing_transcript() {
+    when(courseAccessService.isAdmin()).thenReturn(false);
+    when(courseAccessService.isStudent()).thenReturn(false);
+    assertThatThrownBy(() -> transcriptService.assertCanAccessTranscript(studentId))
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("access denied");
   }
 }
