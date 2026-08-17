@@ -420,12 +420,13 @@ class TranscriptServiceTest {
 
     verifyNoInteractions(studentRepository);
   }
+
   @Test
   void should_forbid_teacher_from_accessing_transcript() {
     when(courseAccessService.isAdmin()).thenReturn(false);
     when(courseAccessService.isStudent()).thenReturn(false);
     assertThatThrownBy(() -> transcriptService.assertCanAccessTranscript(studentId))
-            .isInstanceOf(ResponseStatusException.class)
-            .hasMessageContaining("access denied");
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("access denied");
   }
 }
