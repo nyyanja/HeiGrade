@@ -30,7 +30,6 @@ import com.school.hei.repository.StudentRepository;
 import com.school.hei.repository.UserRepository;
 import com.school.hei.entity.JSpecialityCourse;
 import com.school.hei.repository.SpecialityCourseRepository;
-import com.school.hei.repository.SpecialityCourseRepository;
 import com.school.hei.repository.TeacherCourseRepository;
 import java.time.LocalDate;
 import java.util.UUID;

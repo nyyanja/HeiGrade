@@ -538,6 +538,8 @@ class CourseServiceTest {
 
     when(groupRepository.findById(groupId)).thenReturn(Optional.of(group));
     when(courseRepository.findBySpecialityId(specialityId)).thenReturn(List.of(course));
+    when(teacherCourseRepository.findByCourse_Id(course.getId())).thenReturn(List.of());
+    when(specialityCourseRepository.findByCourse_Id(course.getId())).thenReturn(List.of());
 
     List<Course> result = courseService.findByGroup(groupId);
 

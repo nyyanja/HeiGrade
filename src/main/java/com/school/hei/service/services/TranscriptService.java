@@ -51,6 +51,53 @@ public class TranscriptService {
   public Transcript getStudentTranscript(UUID studentId, Integer level) {
     validateLevel(level);
     assertCanAccessTranscript(studentId);
+    return buildTranscript(studentId, level);
+  }
+
+  public void assertCanAccessTranscript(UUID studentId) {
+    if (courseAccessService.isAdmin()) {
+      return;
+    }
+    if (courseAccessService.isStudent()) {
+      if (!courseAccessService.currentUserId().equals(studentId)) {
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "not your transcript");
+      }
+      return;
+    }
+    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "access denied");
+  }
+
+  @Transactional(readOnly = true)
+  public Transcript getStudentTranscriptForSystem(UUID studentId, Integer level) {
+    validateLevel(level);
+    return buildTranscript(studentId, level);
+  }
+
+  @Transactional(readOnly = true)
+  public List<Transcript> getAllTranscripts(Integer level) {
+    validateLevel(level);
+
+    if (!courseAccessService.isAdmin()) {
+      throw new ResponseStatusException(
+          HttpStatus.FORBIDDEN, "only admin can list all transcripts");
+    }
+
+    List<Transcript> result = new ArrayList<>();
+    for (JStudent student : studentRepository.findAll()) {
+      try {
+        result.add(buildTranscript(student.getId(), level));
+      } catch (ResponseStatusException e) {
+        if (e.getStatusCode().equals(HttpStatus.BAD_REQUEST)
+            || e.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
+          continue;
+        }
+        throw e;
+      }
+    }
+    return result;
+  }
+
+  private Transcript buildTranscript(UUID studentId, Integer level) {
     JStudent student =
         studentRepository
             .findById(studentId)
@@ -146,28 +193,6 @@ public class TranscriptService {
   }
 
   @Transactional(readOnly = true)
-  public List<Transcript> getAllTranscripts(Integer level) {
-    validateLevel(level);
-    if (courseAccessService.isStudent()) {
-      throw new ResponseStatusException(
-          HttpStatus.FORBIDDEN, "students cannot list all transcripts");
-    }
-    List<Transcript> result = new ArrayList<>();
-    for (JStudent student : studentRepository.findAll()) {
-      try {
-        result.add(getStudentTranscript(student.getId(), level));
-      } catch (ResponseStatusException e) {
-        if (e.getStatusCode().equals(HttpStatus.BAD_REQUEST)
-            || e.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
-          continue;
-        }
-        throw e;
-      }
-    }
-    return result;
-  }
-
-  @Transactional(readOnly = true)
   public boolean isGroupYearCompleteForLevel(UUID groupId, Integer level) {
     JGroup group =
         groupRepository
@@ -210,7 +235,9 @@ public class TranscriptService {
 
   private Map<UUID, List<JExam>> resolveAllExamsByCourseForStudentGroups(
       Set<UUID> studentGroupIds, List<JCourse> courses) {
+
     Map<UUID, Map<UUID, JExam>> byCourseThenExamId = new HashMap<>();
+
     for (UUID groupId : studentGroupIds) {
       for (JCourse course : courses) {
         for (JExam exam : findExamsForGroupAndCourse(groupId, course.getId())) {
@@ -220,8 +247,9 @@ public class TranscriptService {
         }
       }
     }
+
     Map<UUID, List<JExam>> result = new HashMap<>();
-    for (var entry : byCourseThenExamId.entrySet()) {
+    for (Map.Entry<UUID, Map<UUID, JExam>> entry : byCourseThenExamId.entrySet()) {
       result.put(entry.getKey(), new ArrayList<>(entry.getValue().values()));
     }
     return result;
@@ -300,18 +328,5 @@ public class TranscriptService {
     if (level == null || level < 1 || level > 3) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "level must be 1, 2 or 3");
     }
-  }
-
-  private void assertCanAccessTranscript(UUID studentId) {
-    if (courseAccessService.isAdmin() || courseAccessService.isTeacher()) {
-      return;
-    }
-    if (courseAccessService.isStudent()) {
-      if (!courseAccessService.currentUserId().equals(studentId)) {
-        throw new ResponseStatusException(HttpStatus.FORBIDDEN, "not your transcript");
-      }
-      return;
-    }
-    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "access denied");
   }
 }

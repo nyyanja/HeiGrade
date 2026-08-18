@@ -442,6 +442,8 @@ class GradeServiceTest {
 
     gradeService.delete(gradeId);
 
+    verify(gradeRepository).findById(gradeId);
+    verify(courseAccessService).assertCanAccessCourse(courseId);
     verify(gradeRepository).deleteById(gradeId);
   }
 
@@ -459,6 +461,9 @@ class GradeServiceTest {
     assertThatThrownBy(() -> gradeService.delete(gradeId))
             .isInstanceOf(ResponseStatusException.class)
             .hasMessageContaining("grade not found");
+
+    verify(gradeRepository).findById(gradeId);
+    verify(gradeRepository, never()).deleteById(any());
   }
 
   // ---------------------------------------------------------------------------
