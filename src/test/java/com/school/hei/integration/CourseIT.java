@@ -26,7 +26,9 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional
 class CourseIT extends FacadeIT {
 
   @LocalServerPort private int port;
