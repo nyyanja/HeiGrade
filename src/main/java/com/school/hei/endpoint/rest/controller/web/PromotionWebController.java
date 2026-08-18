@@ -18,17 +18,19 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping("/web/promotions")
 public class PromotionWebController {
 
-    private final PromotionService promotionService;
-    private final GraduateExportService graduateExportService;
-    @GetMapping
-    public String listPromotions(Model model) {
-        List<Promotion> promotions = promotionService.findAll();
-        model.addAttribute("promotions", promotions);
-        return "promotions/list";
-    }
-    @GetMapping("/{promotionId}/graduates/download")
-    public RedirectView downloadGraduates(@PathVariable UUID promotionId) {
-        String downloadUrl = graduateExportService.exportGraduatesToExcel(promotionId);
-        return new RedirectView(downloadUrl);
-    }
+  private final PromotionService promotionService;
+  private final GraduateExportService graduateExportService;
+
+  @GetMapping
+  public String listPromotions(Model model) {
+    List<Promotion> promotions = promotionService.findAll();
+    model.addAttribute("promotions", promotions);
+    return "promotions/list";
+  }
+
+  @GetMapping("/{promotionId}/graduates/download")
+  public RedirectView downloadGraduates(@PathVariable UUID promotionId) {
+    String downloadUrl = graduateExportService.exportGraduatesToExcel(promotionId);
+    return new RedirectView(downloadUrl);
+  }
 }
