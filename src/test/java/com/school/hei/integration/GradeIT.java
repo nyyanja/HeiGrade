@@ -83,6 +83,7 @@ class GradeIT extends FacadeIT {
     groupRepository.deleteAll();
     courseRepository.deleteAll();
     teacherRepository.deleteAll();
+    promotionRepository.deleteAll();
     specialityRepository.deleteAll();
     userRepository.deleteAll();
 
