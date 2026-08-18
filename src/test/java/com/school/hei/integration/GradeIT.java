@@ -58,6 +58,8 @@ class GradeIT extends FacadeIT {
 
   @Autowired private PromotionRepository promotionRepository;
 
+  @Autowired private SpecialityCourseRepository specialityCourseRepository;
+
   private final String studentEmail = "grade.student@heigrade.com";
   private final String otherStudentEmail = "grade.other.student@heigrade.com";
   private final String teacherEmail = "grade.teacher@heigrade.com";
@@ -84,6 +86,7 @@ class GradeIT extends FacadeIT {
     studentGroupHistoryRepository.deleteAll();
     studentRepository.deleteAll();
     groupRepository.deleteAll();
+    specialityCourseRepository.deleteAll();
     courseRepository.deleteAll();
     teacherRepository.deleteAll();
     promotionRepository.deleteAll();
@@ -91,101 +94,101 @@ class GradeIT extends FacadeIT {
     userRepository.deleteAll();
 
     JSpeciality speciality =
-        specialityRepository.save(
-            JSpeciality.builder().id(UUID.randomUUID()).name(GroupSpeciality.EL.name()).build());
+            specialityRepository.save(
+                    JSpeciality.builder().id(UUID.randomUUID()).name(GroupSpeciality.EL.name()).build());
 
     JPromotion promotion =
-        promotionRepository.save(
-            JPromotion.builder().id(UUID.randomUUID()).name("Promotion 2026").year(2026).build());
+            promotionRepository.save(
+                    JPromotion.builder().id(UUID.randomUUID()).name("Promotion 2026").year(2026).build());
 
     group =
-        groupRepository.save(
-            JGroup.builder()
-                .id(UUID.randomUUID())
-                .name("G1")
-                .promotion(promotion)
-                .speciality(speciality)
-                .build());
+            groupRepository.save(
+                    JGroup.builder()
+                            .id(UUID.randomUUID())
+                            .name("G1")
+                            .promotion(promotion)
+                            .speciality(speciality)
+                            .build());
 
     student =
-        studentRepository.save(
-            JStudent.builder()
-                .id(UUID.randomUUID())
-                .firstName("Grade")
-                .lastName("Student")
-                .reference("STU-GRADE-001")
-                .email(studentEmail)
-                .password(passwordEncoder.encode(password))
-                .role(Role.STUDENT)
-                .group(group)
-                .build());
+            studentRepository.save(
+                    JStudent.builder()
+                            .id(UUID.randomUUID())
+                            .firstName("Grade")
+                            .lastName("Student")
+                            .reference("STU-GRADE-001")
+                            .email(studentEmail)
+                            .password(passwordEncoder.encode(password))
+                            .role(Role.STUDENT)
+                            .group(group)
+                            .build());
 
     otherStudent =
-        studentRepository.save(
-            JStudent.builder()
-                .id(UUID.randomUUID())
-                .firstName("Other")
-                .lastName("Student")
-                .reference("STU-GRADE-002")
-                .email(otherStudentEmail)
-                .password(passwordEncoder.encode(password))
-                .role(Role.STUDENT)
-                .group(group)
-                .build());
+            studentRepository.save(
+                    JStudent.builder()
+                            .id(UUID.randomUUID())
+                            .firstName("Other")
+                            .lastName("Student")
+                            .reference("STU-GRADE-002")
+                            .email(otherStudentEmail)
+                            .password(passwordEncoder.encode(password))
+                            .role(Role.STUDENT)
+                            .group(group)
+                            .build());
 
     teacher =
-        teacherRepository.save(
-            JTeacher.builder()
-                .id(UUID.randomUUID())
-                .firstName("Grade")
-                .lastName("Teacher")
-                .speciality("Computer Science")
-                .email(teacherEmail)
-                .password(passwordEncoder.encode(password))
-                .role(Role.TEACHER)
-                .build());
+            teacherRepository.save(
+                    JTeacher.builder()
+                            .id(UUID.randomUUID())
+                            .firstName("Grade")
+                            .lastName("Teacher")
+                            .speciality("Computer Science")
+                            .email(teacherEmail)
+                            .password(passwordEncoder.encode(password))
+                            .role(Role.TEACHER)
+                            .build());
 
     otherTeacher =
-        teacherRepository.save(
-            JTeacher.builder()
-                .id(UUID.randomUUID())
-                .firstName("Other")
-                .lastName("Teacher")
-                .speciality("Mathematics")
-                .email(otherTeacherEmail)
-                .password(passwordEncoder.encode(password))
-                .role(Role.TEACHER)
-                .build());
+            teacherRepository.save(
+                    JTeacher.builder()
+                            .id(UUID.randomUUID())
+                            .firstName("Other")
+                            .lastName("Teacher")
+                            .speciality("Mathematics")
+                            .email(otherTeacherEmail)
+                            .password(passwordEncoder.encode(password))
+                            .role(Role.TEACHER)
+                            .build());
 
     course =
-        courseRepository.save(
-            JCourse.builder()
-                .id(UUID.randomUUID())
-                .reference("JAVA-001")
-                .title("Java Programming")
-                .credit(6)
-                .level(1)
-                .build());
+            courseRepository.save(
+                    JCourse.builder()
+                            .id(UUID.randomUUID())
+                            .reference("JAVA-001")
+                            .title("Java Programming")
+                            .credit(6)
+                            .level(1)
+                            .build());
 
     otherCourse =
-        courseRepository.save(
-            JCourse.builder()
-                .id(UUID.randomUUID())
-                .reference("MATH-001")
-                .title("Mathematics")
-                .credit(6)
-                .level(1)
-                .build());
+            courseRepository.save(
+                    JCourse.builder()
+                            .id(UUID.randomUUID())
+                            .reference("MATH-001")
+                            .title("Mathematics")
+                            .credit(6)
+                            .level(1)
+                            .build());
 
     exam =
-        examRepository.save(
-            JExam.builder()
-                .id(UUID.randomUUID())
-                .date(LocalDate.now())
-                .coeff(1.0)
-                .title("Java Final Exam")
-                .course(course)
-                .build());
+            examRepository.save(
+                    JExam.builder()
+                            .id(UUID.randomUUID())
+                            .date(LocalDate.now())
+                            .coeff(1.0)
+                            .title("Java Final Exam")
+                            .course(course)
+                            .build());
     teacherCourseRepository.save(JTeacherCourse.builder().teacher(teacher).course(course).build());
 
     groupExamRepository.save(JGroupExam.builder().group(group).exam(exam).build());
@@ -195,8 +198,8 @@ class GradeIT extends FacadeIT {
     LoginRequest request = new LoginRequest(email, password);
 
     ResponseEntity<LoginResponse> response =
-        restTemplate.postForEntity(
-            "http://localhost:" + port + "/auth/login", request, LoginResponse.class);
+            restTemplate.postForEntity(
+                    "http://localhost:" + port + "/auth/login", request, LoginResponse.class);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(response.getBody()).isNotNull();
@@ -222,17 +225,17 @@ class GradeIT extends FacadeIT {
   @Test
   void studentShouldSeeOwnGrade() {
     JGrade savedGrade =
-        gradeRepository.save(
-            JGrade.builder().value(15.0).date(LocalDate.now()).student(student).exam(exam).build());
+            gradeRepository.save(
+                    JGrade.builder().value(15.0).date(LocalDate.now()).student(student).exam(exam).build());
 
     String token = login(studentEmail);
 
     ResponseEntity<String> response =
-        restTemplate.exchange(
-            "http://localhost:" + port + "/grades/" + savedGrade.getId(),
-            HttpMethod.GET,
-            authorizedRequest(token),
-            String.class);
+            restTemplate.exchange(
+                    "http://localhost:" + port + "/grades/" + savedGrade.getId(),
+                    HttpMethod.GET,
+                    authorizedRequest(token),
+                    String.class);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
   }
@@ -240,22 +243,22 @@ class GradeIT extends FacadeIT {
   @Test
   void studentShouldNotSeeAnotherStudentGrade() {
     JGrade savedGrade =
-        gradeRepository.save(
-            JGrade.builder()
-                .value(15.0)
-                .date(LocalDate.now())
-                .student(otherStudent)
-                .exam(exam)
-                .build());
+            gradeRepository.save(
+                    JGrade.builder()
+                            .value(15.0)
+                            .date(LocalDate.now())
+                            .student(otherStudent)
+                            .exam(exam)
+                            .build());
 
     String token = login(studentEmail);
 
     ResponseEntity<String> response =
-        restTemplate.exchange(
-            "http://localhost:" + port + "/grades/" + savedGrade.getId(),
-            HttpMethod.GET,
-            authorizedRequest(token),
-            String.class);
+            restTemplate.exchange(
+                    "http://localhost:" + port + "/grades/" + savedGrade.getId(),
+                    HttpMethod.GET,
+                    authorizedRequest(token),
+                    String.class);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
   }
@@ -265,22 +268,22 @@ class GradeIT extends FacadeIT {
     String token = login(teacherEmail);
 
     Grade grade =
-        Grade.builder()
-            .value(16.0)
-            .date(LocalDate.now())
-            .student(com.school.hei.model.Student.builder().id(student.getId()).build())
-            .exam(com.school.hei.model.Exam.builder().id(exam.getId()).build())
-            .build();
+            Grade.builder()
+                    .value(16.0)
+                    .date(LocalDate.now())
+                    .student(com.school.hei.model.Student.builder().id(student.getId()).build())
+                    .exam(com.school.hei.model.Exam.builder().id(exam.getId()).build())
+                    .build();
 
     ResponseEntity<String> response =
-        restTemplate.postForEntity(
-            "http://localhost:" + port + "/grades",
-            authorizedGradeRequest(token, grade),
-            String.class);
+            restTemplate.postForEntity(
+                    "http://localhost:" + port + "/grades",
+                    authorizedGradeRequest(token, grade),
+                    String.class);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
     assertThat(gradeRepository.findByStudent_IdAndExam_Id(student.getId(), exam.getId()))
-        .isPresent();
+            .isPresent();
   }
 
   @Test
@@ -288,18 +291,18 @@ class GradeIT extends FacadeIT {
     String token = login(otherTeacherEmail);
 
     Grade grade =
-        Grade.builder()
-            .value(16.0)
-            .date(LocalDate.now())
-            .student(com.school.hei.model.Student.builder().id(student.getId()).build())
-            .exam(com.school.hei.model.Exam.builder().id(exam.getId()).build())
-            .build();
+            Grade.builder()
+                    .value(16.0)
+                    .date(LocalDate.now())
+                    .student(com.school.hei.model.Student.builder().id(student.getId()).build())
+                    .exam(com.school.hei.model.Exam.builder().id(exam.getId()).build())
+                    .build();
 
     ResponseEntity<String> response =
-        restTemplate.postForEntity(
-            "http://localhost:" + port + "/grades",
-            authorizedGradeRequest(token, grade),
-            String.class);
+            restTemplate.postForEntity(
+                    "http://localhost:" + port + "/grades",
+                    authorizedGradeRequest(token, grade),
+                    String.class);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
   }
@@ -307,51 +310,51 @@ class GradeIT extends FacadeIT {
   @Test
   void updatingGradeShouldCreateHistory() {
     JGrade savedGrade =
-        gradeRepository.save(
-            JGrade.builder().value(12.0).date(LocalDate.now()).student(student).exam(exam).build());
+            gradeRepository.save(
+                    JGrade.builder().value(12.0).date(LocalDate.now()).student(student).exam(exam).build());
 
     String token = login(teacherEmail);
 
     Grade updatedGrade =
-        Grade.builder()
-            .id(savedGrade.getId())
-            .value(17.0)
-            .date(LocalDate.now())
-            .student(com.school.hei.model.Student.builder().id(student.getId()).build())
-            .exam(com.school.hei.model.Exam.builder().id(exam.getId()).build())
-            .build();
+            Grade.builder()
+                    .id(savedGrade.getId())
+                    .value(17.0)
+                    .date(LocalDate.now())
+                    .student(com.school.hei.model.Student.builder().id(student.getId()).build())
+                    .exam(com.school.hei.model.Exam.builder().id(exam.getId()).build())
+                    .build();
 
     HttpHeaders headers = authorizationHeaders(token);
     HttpEntity<Grade> request = new HttpEntity<>(updatedGrade, headers);
 
     ResponseEntity<String> response =
-        restTemplate.exchange(
-            "http://localhost:"
-                + port
-                + "/grades/"
-                + savedGrade.getId()
-                + "?reason=Correction of the exam&modifiedById="
-                + teacher.getId(),
-            HttpMethod.PUT,
-            request,
-            String.class);
+            restTemplate.exchange(
+                    "http://localhost:"
+                            + port
+                            + "/grades/"
+                            + savedGrade.getId()
+                            + "?reason=Correction of the exam&modifiedById="
+                            + teacher.getId(),
+                    HttpMethod.PUT,
+                    request,
+                    String.class);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
     assertThat(gradeRepository.findById(savedGrade.getId()))
-        .isPresent()
-        .get()
-        .extracting(JGrade::getValue)
-        .isEqualTo(17.0);
+            .isPresent()
+            .get()
+            .extracting(JGrade::getValue)
+            .isEqualTo(17.0);
 
     assertThat(gradeHistoryRepository.findAll())
-        .hasSize(1)
-        .first()
-        .satisfies(
-            history -> {
-              assertThat(history.getOldValue()).isEqualTo(12.0);
-              assertThat(history.getNewValue()).isEqualTo(17.0);
-              assertThat(history.getReason()).isEqualTo("Correction of the exam");
-            });
+            .hasSize(1)
+            .first()
+            .satisfies(
+                    history -> {
+                      assertThat(history.getOldValue()).isEqualTo(12.0);
+                      assertThat(history.getNewValue()).isEqualTo(17.0);
+                      assertThat(history.getReason()).isEqualTo("Correction of the exam");
+                    });
   }
 }
