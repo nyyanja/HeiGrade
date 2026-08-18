@@ -103,6 +103,8 @@ public class SecurityConfig {
                     .hasAnyRole("ADMIN", "TEACHER")
                     .requestMatchers("/teachers/**")
                     .hasRole("ADMIN")
+                    .requestMatchers("/web/promotions/**")
+                    .hasRole("ADMIN")
                     .anyRequest()
                     .authenticated())
         .oauth2ResourceServer(

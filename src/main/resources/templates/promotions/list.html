@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Promotions – Diplômés</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f1f5f9;
+            --muted: #94a3b8;
+            --accent: #38bdf8;
+            --btn: #0ea5e9;
+            --btn-hover: #0284c7;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        h1 {
+            font-size: 1.75rem;
+            margin: 0 0 0.25rem;
+        }
+        .subtitle {
+            color: var(--muted);
+            margin-bottom: 2rem;
+        }
+        table {
+            width: 100%;
+            max-width: 900px;
+            border-collapse: collapse;
+            background: var(--card);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,.35);
+        }
+        th, td {
+            padding: 0.9rem 1.1rem;
+            text-align: left;
+        }
+        th {
+            background: #334155;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--muted);
+        }
+        tr:not(:last-child) td {
+            border-bottom: 1px solid #334155;
+        }
+        .btn {
+            display: inline-block;
+            padding: 0.45rem 0.9rem;
+            background: var(--btn);
+            color: #0f172a;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.875rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background: var(--btn-hover);
+            color: white;
+        }
+        .empty {
+            color: var(--muted);
+            padding: 2rem;
+            background: var(--card);
+            border-radius: 12px;
+            max-width: 900px;
+        }
+    </style>
+</head>
+<body>
+<h1>Promotions</h1>
+<p class="subtitle">Télécharger la liste des diplômés (Excel) par promotion</p>
+
+<div th:if="${promotions == null or promotions.isEmpty()}" class="empty">
+    Aucune promotion enregistrée.
+</div>
+
+<table th:if="${promotions != null and !promotions.isEmpty()}">
+    <thead>
+    <tr>
+        <th>Nom</th>
+        <th>Année</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="p : ${promotions}">
+        <td th:text="${p.name}">Promo 2026</td>
+        <td th:text="${p.year}">2026</td>
+        <td>
+            <a class="btn"
+               th:href="@{/web/promotions/{id}/graduates/download(id=${p.id})}">
+                Télécharger les diplômés
+            </a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
