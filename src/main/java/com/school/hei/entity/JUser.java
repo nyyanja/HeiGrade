@@ -17,7 +17,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "user")
+@Table(name = "\"user\"")
 @Inheritance(strategy = InheritanceType.JOINED)
 public class JUser {
 
@@ -34,6 +34,7 @@ public class JUser {
   @Column(name = "birthday")
   private LocalDate birthday;
 
+  @Enumerated(EnumType.STRING)
   @Column(name = "sex")
   private Sex sex;
 
@@ -46,6 +47,7 @@ public class JUser {
   @Column(name = "password", nullable = false)
   private String password;
 
+  @Enumerated(EnumType.STRING)
   @Column(name = "role", nullable = false)
   private Role role;
 }
