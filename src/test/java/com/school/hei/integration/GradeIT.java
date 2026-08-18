@@ -186,7 +186,6 @@ class GradeIT extends FacadeIT {
                 .title("Java Final Exam")
                 .course(course)
                 .build());
-
     teacherCourseRepository.save(JTeacherCourse.builder().teacher(teacher).course(course).build());
 
     groupExamRepository.save(JGroupExam.builder().group(group).exam(exam).build());
