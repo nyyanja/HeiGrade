@@ -2,6 +2,7 @@ package com.school.hei.endpoint.rest.controller.controllers;
 
 import com.school.hei.model.GraduateRanking;
 import com.school.hei.model.GraduateStatus;
+import com.school.hei.service.services.GraduateExportService;
 import com.school.hei.service.services.GraduateService;
 import java.util.List;
 import java.util.UUID;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class GraduateController {
 
   private final GraduateService graduateService;
+  private final GraduateExportService graduateExportService;
 
   @GetMapping("/student/{studentId}")
   public GraduateStatus getStatus(@PathVariable UUID studentId) {
@@ -26,5 +28,10 @@ public class GraduateController {
   @GetMapping("/promotion/{promotionId}")
   public List<GraduateRanking> getByPromotion(@PathVariable UUID promotionId) {
     return graduateService.getGraduatesByPromotion(promotionId);
+  }
+
+  @GetMapping("/promotion/{promotionId}/export")
+  public String exportByPromotion(@PathVariable UUID promotionId) {
+    return graduateExportService.exportGraduatesToExcel(promotionId);
   }
 }
