@@ -7,6 +7,18 @@ import com.school.hei.entity.JUser;
 import com.school.hei.enums.Role;
 import com.school.hei.model.LoginRequest;
 import com.school.hei.model.LoginResponse;
+import com.school.hei.repository.CourseRepository;
+import com.school.hei.repository.ExamRepository;
+import com.school.hei.repository.GradeHistoryRepository;
+import com.school.hei.repository.GradeRepository;
+import com.school.hei.repository.GroupExamRepository;
+import com.school.hei.repository.GroupRepository;
+import com.school.hei.repository.PromotionRepository;
+import com.school.hei.repository.SpecialityRepository;
+import com.school.hei.repository.StudentGroupHistoryRepository;
+import com.school.hei.repository.StudentRepository;
+import com.school.hei.repository.TeacherCourseRepository;
+import com.school.hei.repository.TeacherRepository;
 import com.school.hei.repository.UserRepository;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,18 +39,61 @@ class ExamIT extends FacadeIT {
 
   @Autowired private TestRestTemplate restTemplate;
 
-  @Autowired private UserRepository userRepository;
-
   @Autowired private PasswordEncoder passwordEncoder;
 
-  private final String adminEmail = "exam.admin@heigrade.com";
-  private final String studentEmail = "exam.student@heigrade.com";
-  private final String teacherEmail = "exam.teacher@heigrade.com";
+  @Autowired private UserRepository userRepository;
+
+  @Autowired private StudentRepository studentRepository;
+
+  @Autowired private TeacherRepository teacherRepository;
+
+  @Autowired private GradeRepository gradeRepository;
+
+  @Autowired private GradeHistoryRepository gradeHistoryRepository;
+
+  @Autowired private StudentGroupHistoryRepository studentGroupHistoryRepository;
+
+  @Autowired private GroupExamRepository groupExamRepository;
+
+  @Autowired private ExamRepository examRepository;
+
+  @Autowired private TeacherCourseRepository teacherCourseRepository;
+
+  @Autowired private GroupRepository groupRepository;
+
+  @Autowired private CourseRepository courseRepository;
+
+  @Autowired private PromotionRepository promotionRepository;
+
+  @Autowired private SpecialityRepository specialityRepository;
+
+  private final String adminEmail = "[exam.admin@heigrade.com](mailto:exam.admin@heigrade.com)";
+  private final String studentEmail =
+      "[exam.student@heigrade.com](mailto:exam.student@heigrade.com)";
+  private final String teacherEmail =
+      "[exam.teacher@heigrade.com](mailto:exam.teacher@heigrade.com)";
 
   private final String password = "Password123!";
 
   @BeforeEach
   void setUp() {
+
+    gradeHistoryRepository.deleteAll();
+    gradeRepository.deleteAll();
+    groupExamRepository.deleteAll();
+    examRepository.deleteAll();
+    teacherCourseRepository.deleteAll();
+
+    studentGroupHistoryRepository.deleteAll();
+    studentRepository.deleteAll();
+
+    groupRepository.deleteAll();
+    courseRepository.deleteAll();
+    teacherRepository.deleteAll();
+
+    promotionRepository.deleteAll();
+    specialityRepository.deleteAll();
+
     userRepository.deleteAll();
 
     createUser(adminEmail, Role.ADMIN);
@@ -91,7 +146,6 @@ class ExamIT extends FacadeIT {
   @Test
   void shouldAllowAdminToGetExams() {
     String token = login(adminEmail);
-
     HttpEntity<Void> request = new HttpEntity<>(authorizationHeaders(token));
 
     ResponseEntity<String> response =

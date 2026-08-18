@@ -34,6 +34,8 @@ class GradeIT extends FacadeIT {
 
   @Autowired private UserRepository userRepository;
 
+  @Autowired private StudentGroupHistoryRepository studentGroupHistoryRepository;
+
   @Autowired private StudentRepository studentRepository;
 
   @Autowired private TeacherRepository teacherRepository;
@@ -79,6 +81,7 @@ class GradeIT extends FacadeIT {
     groupExamRepository.deleteAll();
     examRepository.deleteAll();
     teacherCourseRepository.deleteAll();
+    studentGroupHistoryRepository.deleteAll();
     studentRepository.deleteAll();
     groupRepository.deleteAll();
     courseRepository.deleteAll();
