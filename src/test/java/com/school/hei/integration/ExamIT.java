@@ -72,9 +72,9 @@ class ExamIT extends FacadeIT {
 
   private final String adminEmail = "[exam.admin@heigrade.com](mailto:exam.admin@heigrade.com)";
   private final String studentEmail =
-          "[exam.student@heigrade.com](mailto:exam.student@heigrade.com)";
+      "[exam.student@heigrade.com](mailto:exam.student@heigrade.com)";
   private final String teacherEmail =
-          "[exam.teacher@heigrade.com](mailto:exam.teacher@heigrade.com)";
+      "[exam.teacher@heigrade.com](mailto:exam.teacher@heigrade.com)";
 
   private final String password = "Password123!";
 
@@ -107,14 +107,14 @@ class ExamIT extends FacadeIT {
 
   private void createUser(String email, Role role) {
     JUser user =
-            JUser.builder()
-                    .id(UUID.randomUUID())
-                    .firstName("Integration")
-                    .lastName(role.name())
-                    .email(email)
-                    .password(passwordEncoder.encode(password))
-                    .role(role)
-                    .build();
+        JUser.builder()
+            .id(UUID.randomUUID())
+            .firstName("Integration")
+            .lastName(role.name())
+            .email(email)
+            .password(passwordEncoder.encode(password))
+            .role(role)
+            .build();
 
     userRepository.save(user);
   }
@@ -123,8 +123,8 @@ class ExamIT extends FacadeIT {
     LoginRequest request = new LoginRequest(email, password);
 
     ResponseEntity<LoginResponse> response =
-            restTemplate.postForEntity(
-                    "http://localhost:" + port + "/auth/login", request, LoginResponse.class);
+        restTemplate.postForEntity(
+            "http://localhost:" + port + "/auth/login", request, LoginResponse.class);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat(response.getBody()).isNotNull();
@@ -142,7 +142,7 @@ class ExamIT extends FacadeIT {
   @Test
   void shouldRejectUnauthenticatedRequest() {
     ResponseEntity<String> response =
-            restTemplate.getForEntity("http://localhost:" + port + "/exams", String.class);
+        restTemplate.getForEntity("http://localhost:" + port + "/exams", String.class);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
   }
@@ -153,8 +153,8 @@ class ExamIT extends FacadeIT {
     HttpEntity<Void> request = new HttpEntity<>(authorizationHeaders(token));
 
     ResponseEntity<String> response =
-            restTemplate.exchange(
-                    "http://localhost:" + port + "/exams", HttpMethod.GET, request, String.class);
+        restTemplate.exchange(
+            "http://localhost:" + port + "/exams", HttpMethod.GET, request, String.class);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
   }
@@ -166,8 +166,8 @@ class ExamIT extends FacadeIT {
     HttpEntity<Void> request = new HttpEntity<>(authorizationHeaders(token));
 
     ResponseEntity<String> response =
-            restTemplate.exchange(
-                    "http://localhost:" + port + "/exams", HttpMethod.GET, request, String.class);
+        restTemplate.exchange(
+            "http://localhost:" + port + "/exams", HttpMethod.GET, request, String.class);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
   }
@@ -179,8 +179,8 @@ class ExamIT extends FacadeIT {
     HttpEntity<Void> request = new HttpEntity<>(authorizationHeaders(token));
 
     ResponseEntity<String> response =
-            restTemplate.exchange(
-                    "http://localhost:" + port + "/exams", HttpMethod.GET, request, String.class);
+        restTemplate.exchange(
+            "http://localhost:" + port + "/exams", HttpMethod.GET, request, String.class);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
   }
