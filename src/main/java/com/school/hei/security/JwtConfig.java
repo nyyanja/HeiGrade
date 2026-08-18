@@ -23,32 +23,24 @@ public class JwtConfig {
   public SecretKey jwtSecretKey() {
 
     if (secret == null || secret.isBlank()) {
-      throw new IllegalStateException(
-              "JWT_SECRET environment variable is not configured");
+      throw new IllegalStateException("JWT_SECRET environment variable is not configured");
     }
 
     if (secret.getBytes(StandardCharsets.UTF_8).length < 32) {
-      throw new IllegalStateException(
-              "JWT_SECRET must contain at least 32 bytes");
+      throw new IllegalStateException("JWT_SECRET must contain at least 32 bytes");
     }
 
-    return new SecretKeySpec(
-            secret.getBytes(StandardCharsets.UTF_8),
-            "HmacSHA256");
+    return new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
   }
 
   @Bean
   public JwtEncoder jwtEncoder(SecretKey jwtSecretKey) {
-    return new NimbusJwtEncoder(
-            new ImmutableSecret<>(jwtSecretKey));
+    return new NimbusJwtEncoder(new ImmutableSecret<>(jwtSecretKey));
   }
 
   @Bean
   public JwtDecoder jwtDecoder(SecretKey jwtSecretKey) {
 
-    return NimbusJwtDecoder
-            .withSecretKey(jwtSecretKey)
-            .macAlgorithm(MacAlgorithm.HS256)
-            .build();
+    return NimbusJwtDecoder.withSecretKey(jwtSecretKey).macAlgorithm(MacAlgorithm.HS256).build();
   }
 }
