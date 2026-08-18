@@ -447,6 +447,7 @@ class GradeServiceTest {
         .hasMessageContaining("grade not found");
 
     verify(gradeRepository).findById(gradeId);
+    verify(courseAccessService, never()).assertCanAccessCourse(any());
     verify(gradeRepository, never()).deleteById(any());
   }
 
