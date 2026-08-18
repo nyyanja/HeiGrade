@@ -23,127 +23,107 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 class ExamIT extends FacadeIT {
 
-    @LocalServerPort
-    private int port;
+  @LocalServerPort private int port;
 
-    @Autowired
-    private TestRestTemplate restTemplate;
+  @Autowired private TestRestTemplate restTemplate;
 
-    @Autowired
-    private UserRepository userRepository;
+  @Autowired private UserRepository userRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+  @Autowired private PasswordEncoder passwordEncoder;
 
-    private final String adminEmail = "exam.admin@heigrade.com";
-    private final String studentEmail = "exam.student@heigrade.com";
-    private final String teacherEmail = "exam.teacher@heigrade.com";
+  private final String adminEmail = "exam.admin@heigrade.com";
+  private final String studentEmail = "exam.student@heigrade.com";
+  private final String teacherEmail = "exam.teacher@heigrade.com";
 
-    private final String password = "Password123!";
+  private final String password = "Password123!";
 
-    @BeforeEach
-    void setUp() {
-        userRepository.deleteAll();
+  @BeforeEach
+  void setUp() {
+    userRepository.deleteAll();
 
-        createUser(adminEmail, Role.ADMIN);
-        createUser(studentEmail, Role.STUDENT);
-        createUser(teacherEmail, Role.TEACHER);
-    }
+    createUser(adminEmail, Role.ADMIN);
+    createUser(studentEmail, Role.STUDENT);
+    createUser(teacherEmail, Role.TEACHER);
+  }
 
-    private void createUser(String email, Role role) {
-        JUser user =
-                JUser.builder()
-                        .id(UUID.randomUUID())
-                        .firstName("Integration")
-                        .lastName(role.name())
-                        .email(email)
-                        .password(passwordEncoder.encode(password))
-                        .role(role)
-                        .build();
+  private void createUser(String email, Role role) {
+    JUser user =
+        JUser.builder()
+            .id(UUID.randomUUID())
+            .firstName("Integration")
+            .lastName(role.name())
+            .email(email)
+            .password(passwordEncoder.encode(password))
+            .role(role)
+            .build();
 
-        userRepository.save(user);
-    }
+    userRepository.save(user);
+  }
 
-    private String login(String email) {
-        LoginRequest request = new LoginRequest(email, password);
+  private String login(String email) {
+    LoginRequest request = new LoginRequest(email, password);
 
-        ResponseEntity<LoginResponse> response =
-                restTemplate.postForEntity(
-                        "http://localhost:" + port + "/auth/login",
-                        request,
-                        LoginResponse.class);
+    ResponseEntity<LoginResponse> response =
+        restTemplate.postForEntity(
+            "http://localhost:" + port + "/auth/login", request, LoginResponse.class);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getToken()).isNotBlank();
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(response.getBody()).isNotNull();
+    assertThat(response.getBody().getToken()).isNotBlank();
 
-        return response.getBody().getToken();
-    }
+    return response.getBody().getToken();
+  }
 
-    private HttpHeaders authorizationHeaders(String token) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
-        return headers;
-    }
+  private HttpHeaders authorizationHeaders(String token) {
+    HttpHeaders headers = new HttpHeaders();
+    headers.setBearerAuth(token);
+    return headers;
+  }
 
-    @Test
-    void shouldRejectUnauthenticatedRequest() {
-        ResponseEntity<String> response =
-                restTemplate.getForEntity(
-                        "http://localhost:" + port + "/exams",
-                        String.class);
+  @Test
+  void shouldRejectUnauthenticatedRequest() {
+    ResponseEntity<String> response =
+        restTemplate.getForEntity("http://localhost:" + port + "/exams", String.class);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
-    }
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+  }
 
-    @Test
-    void shouldAllowAdminToGetExams() {
-        String token = login(adminEmail);
+  @Test
+  void shouldAllowAdminToGetExams() {
+    String token = login(adminEmail);
 
-        HttpEntity<Void> request =
-                new HttpEntity<>(authorizationHeaders(token));
+    HttpEntity<Void> request = new HttpEntity<>(authorizationHeaders(token));
 
-        ResponseEntity<String> response =
-                restTemplate.exchange(
-                        "http://localhost:" + port + "/exams",
-                        HttpMethod.GET,
-                        request,
-                        String.class);
+    ResponseEntity<String> response =
+        restTemplate.exchange(
+            "http://localhost:" + port + "/exams", HttpMethod.GET, request, String.class);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    }
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+  }
 
-    @Test
-    void shouldAllowStudentToGetExams() {
-        String token = login(studentEmail);
+  @Test
+  void shouldAllowStudentToGetExams() {
+    String token = login(studentEmail);
 
-        HttpEntity<Void> request =
-                new HttpEntity<>(authorizationHeaders(token));
+    HttpEntity<Void> request = new HttpEntity<>(authorizationHeaders(token));
 
-        ResponseEntity<String> response =
-                restTemplate.exchange(
-                        "http://localhost:" + port + "/exams",
-                        HttpMethod.GET,
-                        request,
-                        String.class);
+    ResponseEntity<String> response =
+        restTemplate.exchange(
+            "http://localhost:" + port + "/exams", HttpMethod.GET, request, String.class);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    }
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+  }
 
-    @Test
-    void shouldAllowTeacherToGetExams() {
-        String token = login(teacherEmail);
+  @Test
+  void shouldAllowTeacherToGetExams() {
+    String token = login(teacherEmail);
 
-        HttpEntity<Void> request =
-                new HttpEntity<>(authorizationHeaders(token));
+    HttpEntity<Void> request = new HttpEntity<>(authorizationHeaders(token));
 
-        ResponseEntity<String> response =
-                restTemplate.exchange(
-                        "http://localhost:" + port + "/exams",
-                        HttpMethod.GET,
-                        request,
-                        String.class);
+    ResponseEntity<String> response =
+        restTemplate.exchange(
+            "http://localhost:" + port + "/exams", HttpMethod.GET, request, String.class);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    }
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+  }
 }

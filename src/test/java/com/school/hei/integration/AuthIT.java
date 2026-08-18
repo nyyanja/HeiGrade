@@ -20,50 +20,44 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 class AuthIT extends FacadeIT {
 
-    @LocalServerPort
-    private int port;
+  @LocalServerPort private int port;
 
-    @Autowired
-    private TestRestTemplate restTemplate;
+  @Autowired private TestRestTemplate restTemplate;
 
-    @Autowired
-    private UserRepository userRepository;
+  @Autowired private UserRepository userRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+  @Autowired private PasswordEncoder passwordEncoder;
 
-    private final String email = "test.auth@heigrade.com";
-    private final String password = "Password123!";
+  private final String email = "test.auth@heigrade.com";
+  private final String password = "Password123!";
 
-    @BeforeEach
-    void setUp() {
-        userRepository.deleteAll();
+  @BeforeEach
+  void setUp() {
+    userRepository.deleteAll();
 
-        JUser user =
-                JUser.builder()
-                        .id(UUID.randomUUID())
-                        .firstName("Integration")
-                        .lastName("Test")
-                        .email(email)
-                        .password(passwordEncoder.encode(password))
-                        .role(Role.STUDENT)
-                        .build();
+    JUser user =
+        JUser.builder()
+            .id(UUID.randomUUID())
+            .firstName("Integration")
+            .lastName("Test")
+            .email(email)
+            .password(passwordEncoder.encode(password))
+            .role(Role.STUDENT)
+            .build();
 
-        userRepository.save(user);
-    }
+    userRepository.save(user);
+  }
 
-    @Test
-    void shouldLoginAndReturnJwt() {
-        LoginRequest request = new LoginRequest(email, password);
+  @Test
+  void shouldLoginAndReturnJwt() {
+    LoginRequest request = new LoginRequest(email, password);
 
-        ResponseEntity<LoginResponse> response =
-                restTemplate.postForEntity(
-                        "http://localhost:" + port + "/auth/login",
-                        request,
-                        LoginResponse.class);
+    ResponseEntity<LoginResponse> response =
+        restTemplate.postForEntity(
+            "http://localhost:" + port + "/auth/login", request, LoginResponse.class);
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody().getToken()).isNotBlank();
-    }
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(response.getBody()).isNotNull();
+    assertThat(response.getBody().getToken()).isNotBlank();
+  }
 }
