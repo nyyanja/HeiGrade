@@ -1,96 +1,140 @@
 openapi: 3.0.3
-
 info:
-  title: HEI Graduates Management API
-  version: 1.0.0
-
+  title: HeiGrade API
+  description: >
+    API REST de HeiGrade, une application de gestion scolaire (HEI) permettant
+    de gérer les utilisateurs (admins, enseignants, étudiants), les promotions,
+    spécialités, groupes, cours, examens, notes, historiques de notes,
+    bulletins (transcripts) et le suivi des diplômés.
+  version: "1.0.0"
+  contact:
+    name: HEI
 servers:
-  - url: https://2gp6nuj34oahmnhowpq4hxfu3e0mzprv.lambda-url.eu-west-3.on.aws/
+  - url: http://localhost:8080
+    description: Serveur local de développement
+
+security:
+  - bearerAuth: []
 
 tags:
+  - name: Auth
+    description: Authentification (connexion, génération de token JWT)
   - name: Users
+    description: Gestion générique des utilisateurs
   - name: Admins
-  - name: Students
+    description: Gestion des administrateurs
   - name: Teachers
-  - name: Courses
-  - name: Groups
+    description: Gestion des enseignants
+  - name: Students
+    description: Gestion des étudiants
   - name: Promotions
+    description: Gestion des promotions
   - name: Specialities
+    description: Gestion des spécialités
+  - name: SpecialityCourses
+    description: Association spécialité / cours
+  - name: Courses
+    description: Gestion des cours
+  - name: TeacherCourses
+    description: Association enseignant / cours
+  - name: Groups
+    description: Gestion des groupes d'étudiants
+  - name: GroupExams
+    description: Association groupe / examen
   - name: Exams
-  - name: Group Exams
-  - name: Speciality Courses
-  - name: Teacher Courses
+    description: Gestion des examens
   - name: Grades
-  - name: Grade History
+    description: Gestion des notes
+  - name: StudentGroupHistories
+    description: Historique d'appartenance des étudiants aux groupes
   - name: Transcripts
+    description: Bulletins de notes (relevés) des étudiants
   - name: Graduates
+    description: Suivi des diplômés et classement
+  - name: Health
+    description: Points de contrôle techniques (santé de l'application)
 
 paths:
-
-  /users:
-    get:
-      tags:
-        - Users
-      summary: Get all users
-      security:
-        - bearerAuth: []
+  # ============================================================
+  # AUTH
+  # ============================================================
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Authentifier un utilisateur
+      description: Authentifie un utilisateur avec son email et son mot de passe, et retourne un token JWT.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
       responses:
         '200':
-          description: Users retrieved successfully
+          description: Authentification réussie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Identifiants invalides
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # ============================================================
+  # USERS
+  # ============================================================
+  /users:
+    get:
+      tags: [Users]
+      summary: Lister tous les utilisateurs
+      responses:
+        '200':
+          description: Liste des utilisateurs
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/User'
-
     post:
-      tags:
-        - Users
-      summary: Create a user
-      security:
-        - bearerAuth: []
+      tags: [Users]
+      summary: Créer un utilisateur
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/CreateUserRequest'
       responses:
         '201':
-          description: User created successfully
+          description: Utilisateur créé
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
 
   /users/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
     get:
-      tags:
-        - Users
-      summary: Get a user
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
+      tags: [Users]
+      summary: Récupérer un utilisateur par son id
       responses:
         '200':
-          description: User retrieved successfully
+          description: Utilisateur trouvé
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
         '404':
           $ref: '#/components/responses/NotFound'
-
     put:
-      tags:
-        - Users
-      summary: Update a user
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
+      tags: [Users]
+      summary: Mettre à jour un utilisateur
       requestBody:
         required: true
         content:
@@ -99,79 +143,58 @@ paths:
               $ref: '#/components/schemas/User'
       responses:
         '200':
-          description: User updated successfully
+          description: Utilisateur mis à jour
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-
     delete:
-      tags:
-        - Users
-      summary: Delete a user
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
+      tags: [Users]
+      summary: Supprimer un utilisateur
       responses:
         '204':
-          description: User deleted successfully
+          description: Utilisateur supprimé
 
   /users/role/{role}:
-      get:
-        tags:
-          - Users
-        summary: Get users by role
-        parameters:
-          - name: role
-            in: path
-            required: true
-            schema:
-              type: string
-              enum:
-                - TEACHER
-                - STUDENT
-                - ADMIN
-        responses:
-          '200':
-            description: Users retrieved successfully
-            content:
-              application/json:
-                schema:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/User'
-          '400':
-            description: Role is required
-
-  /users/name/{name}:
     get:
-      tags:
-        - Users
-      summary: Search users by name
+      tags: [Users]
+      summary: Lister les utilisateurs par rôle
       parameters:
-        - name: name
+        - name: role
           in: path
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/Role'
       responses:
         '200':
-          description: Users retrieved successfully
+          description: Liste des utilisateurs ayant le rôle donné
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/User'
-        '400':
-          description: Name is required
+
+  /users/name/{name}:
+    get:
+      tags: [Users]
+      summary: Rechercher des utilisateurs par nom
+      parameters:
+        - $ref: '#/components/parameters/NamePath'
+      responses:
+        '200':
+          description: Liste des utilisateurs correspondants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
 
   /users/group/{groupId}:
     get:
-      tags:
-        - Users
-      summary: Get users by group
+      tags: [Users]
+      summary: Lister les utilisateurs appartenant à un groupe
       parameters:
         - name: groupId
           in: path
@@ -181,39 +204,33 @@ paths:
             format: uuid
       responses:
         '200':
-          description: Users retrieved successfully
+          description: Liste des utilisateurs du groupe
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/User'
-        '404':
-          $ref: '#/components/responses/NotFound'
 
+  # ============================================================
+  # ADMINS
+  # ============================================================
   /admins:
     get:
-      tags:
-        - Admins
-      summary: Get all administrators
-      security:
-        - bearerAuth: []
+      tags: [Admins]
+      summary: Lister tous les administrateurs
       responses:
         '200':
-          description: Administrators retrieved successfully
+          description: Liste des administrateurs
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Admin'
-
     post:
-      tags:
-        - Admins
-      summary: Create an administrator
-      security:
-        - bearerAuth: []
+      tags: [Admins]
+      summary: Créer un administrateur
       requestBody:
         required: true
         content:
@@ -222,39 +239,30 @@ paths:
               $ref: '#/components/schemas/Admin'
       responses:
         '201':
-          description: Administrator created successfully
+          description: Administrateur créé
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Admin'
 
   /admins/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
     get:
-      tags:
-        - Admins
-      summary: Get an administrator
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
+      tags: [Admins]
+      summary: Récupérer un administrateur par son id
       responses:
         '200':
-          description: Administrator retrieved successfully
+          description: Administrateur trouvé
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Admin'
         '404':
           $ref: '#/components/responses/NotFound'
-
     put:
-      tags:
-        - Admins
-      summary: Update an administrator
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
+      tags: [Admins]
+      summary: Mettre à jour un administrateur
       requestBody:
         required: true
         content:
@@ -263,47 +271,160 @@ paths:
               $ref: '#/components/schemas/Admin'
       responses:
         '200':
-          description: Administrator updated successfully
+          description: Administrateur mis à jour
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Admin'
-
     delete:
-      tags:
-        - Admins
-      summary: Delete an administrator
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
+      tags: [Admins]
+      summary: Supprimer un administrateur
       responses:
         '204':
-          description: Administrator deleted successfully
+          description: Administrateur supprimé
 
-  /students:
+  # ============================================================
+  # TEACHERS
+  # ============================================================
+  /teachers:
     get:
-      tags:
-        - Students
-      summary: Get all students
-      security:
-        - bearerAuth: [ ]
+      tags: [Teachers]
+      summary: Lister tous les enseignants
       responses:
         '200':
-          description: Students retrieved successfully
+          description: Liste des enseignants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Teacher'
+    post:
+      tags: [Teachers]
+      summary: Créer un enseignant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Teacher'
+      responses:
+        '201':
+          description: Enseignant créé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Teacher'
+
+  /teachers/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+    get:
+      tags: [Teachers]
+      summary: Récupérer un enseignant par son id
+      responses:
+        '200':
+          description: Enseignant trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Teacher'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Teachers]
+      summary: Mettre à jour un enseignant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Teacher'
+      responses:
+        '200':
+          description: Enseignant mis à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Teacher'
+    delete:
+      tags: [Teachers]
+      summary: Supprimer un enseignant
+      responses:
+        '204':
+          description: Enseignant supprimé
+
+  /teachers/speciality/{speciality}:
+    get:
+      tags: [Teachers]
+      summary: Lister les enseignants par spécialité
+      parameters:
+        - name: speciality
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Liste des enseignants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Teacher'
+
+  /teachers/name/{name}:
+    get:
+      tags: [Teachers]
+      summary: Rechercher des enseignants par nom
+      parameters:
+        - $ref: '#/components/parameters/NamePath'
+      responses:
+        '200':
+          description: Liste des enseignants correspondants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Teacher'
+
+  /teachers/course/{courseId}:
+    get:
+      tags: [Teachers]
+      summary: Lister les enseignants d'un cours
+      parameters:
+        - $ref: '#/components/parameters/CourseIdPath'
+      responses:
+        '200':
+          description: Liste des enseignants du cours
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Teacher'
+
+  # ============================================================
+  # STUDENTS
+  # ============================================================
+  /students:
+    get:
+      tags: [Students]
+      summary: Lister tous les étudiants
+      responses:
+        '200':
+          description: Liste des étudiants
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Student'
-
     post:
-      tags:
-        - Students
-      summary: Create a student
-      security:
-        - bearerAuth: [ ]
+      tags: [Students]
+      summary: Créer un étudiant
       requestBody:
         required: true
         content:
@@ -312,7 +433,7 @@ paths:
               $ref: '#/components/schemas/Student'
       responses:
         '201':
-          description: Student created successfully
+          description: Étudiant créé
           content:
             application/json:
               schema:
@@ -320,39 +441,68 @@ paths:
 
   /students/batch:
     post:
-      tags:
-        - Students
-      summary: Create multiple students
-      security:
-        - bearerAuth: [ ]
+      tags: [Students]
+      summary: Créer plusieurs étudiants en une seule requête
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: array
-              minItems: 1
               items:
                 $ref: '#/components/schemas/Student'
       responses:
         '201':
-          description: Students created successfully
+          description: Étudiants créés
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Student'
-        '400':
-          description: Invalid request or empty student list
+
+  /students/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+    get:
+      tags: [Students]
+      summary: Récupérer un étudiant par son id
+      responses:
+        '200':
+          description: Étudiant trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Students]
+      summary: Mettre à jour un étudiant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Student'
+      responses:
+        '200':
+          description: Étudiant mis à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+    delete:
+      tags: [Students]
+      summary: Supprimer un étudiant
+      responses:
+        '204':
+          description: Étudiant supprimé
 
   /students/reference/{reference}:
     get:
-      tags:
-        - Students
-      summary: Get a student by reference
-      security:
-        - bearerAuth: [ ]
+      tags: [Students]
+      summary: Récupérer un étudiant par sa référence
       parameters:
         - name: reference
           in: path
@@ -361,7 +511,7 @@ paths:
             type: string
       responses:
         '200':
-          description: Student retrieved successfully
+          description: Étudiant trouvé
           content:
             application/json:
               schema:
@@ -371,36 +521,24 @@ paths:
 
   /students/name/{name}:
     get:
-      tags:
-        - Students
-      summary: Search students by name
-      security:
-        - bearerAuth: [ ]
+      tags: [Students]
+      summary: Rechercher des étudiants par nom
       parameters:
-        - name: name
-          in: path
-          required: true
-          schema:
-            type: string
+        - $ref: '#/components/parameters/NamePath'
       responses:
         '200':
-          description: Students retrieved successfully
+          description: Liste des étudiants correspondants
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Student'
-        '400':
-          description: Name is required
 
   /students/group/{groupId}:
     get:
-      tags:
-        - Students
-      summary: Get students by group
-      security:
-        - bearerAuth: [ ]
+      tags: [Students]
+      summary: Lister les étudiants d'un groupe
       parameters:
         - name: groupId
           in: path
@@ -410,293 +548,298 @@ paths:
             format: uuid
       responses:
         '200':
-          description: Students retrieved successfully
+          description: Liste des étudiants du groupe
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Student'
-        '404':
-          $ref: '#/components/responses/NotFound'
 
   /students/speciality/{specialityId}:
     get:
-      tags:
-        - Students
-      summary: Get students by speciality
-      security:
-        - bearerAuth: [ ]
+      tags: [Students]
+      summary: Lister les étudiants d'une spécialité
       parameters:
-        - name: specialityId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
+        - $ref: '#/components/parameters/SpecialityIdPath'
       responses:
         '200':
-          description: Students retrieved successfully
+          description: Liste des étudiants de la spécialité
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Student'
-        '404':
-          $ref: '#/components/responses/NotFound'
 
-  /students/{id}:
+  # ============================================================
+  # PROMOTIONS
+  # ============================================================
+  /promotions:
     get:
-      tags:
-        - Students
-      summary: Get a student
-      security:
-        - bearerAuth: [ ]
-      parameters:
-        - $ref: '#/components/parameters/Id'
+      tags: [Promotions]
+      summary: Lister toutes les promotions
       responses:
         '200':
-          description: Student retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Student'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-    put:
-      tags:
-        - Students
-      summary: Update a student
-      security:
-        - bearerAuth: [ ]
-      parameters:
-        - $ref: '#/components/parameters/Id'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Student'
-      responses:
-        '200':
-          description: Student updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Student'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-    delete:
-      tags:
-        - Students
-      summary: Delete a student
-      security:
-        - bearerAuth: [ ]
-      parameters:
-        - $ref: '#/components/parameters/Id'
-      responses:
-        '204':
-          description: Student deleted successfully
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-  /teachers:
-    get:
-      tags:
-        - Teachers
-      summary: Get all teachers
-      security:
-        - bearerAuth: [ ]
-      responses:
-        '200':
-          description: Teachers retrieved successfully
+          description: Liste des promotions
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Teacher'
-
+                  $ref: '#/components/schemas/Promotion'
     post:
-      tags:
-        - Teachers
-      summary: Create a teacher
-      security:
-        - bearerAuth: [ ]
+      tags: [Promotions]
+      summary: Créer une promotion
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Teacher'
+              $ref: '#/components/schemas/Promotion'
       responses:
         '201':
-          description: Teacher created successfully
+          description: Promotion créée
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Teacher'
+                $ref: '#/components/schemas/Promotion'
 
-  /teachers/speciality/{speciality}:
+  /promotions/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
     get:
-      tags:
-        - Teachers
-      summary: Get teachers by speciality
-      security:
-        - bearerAuth: [ ]
-      parameters:
-        - name: speciality
-          in: path
-          required: true
-          schema:
-            type: string
+      tags: [Promotions]
+      summary: Récupérer une promotion par son id
       responses:
         '200':
-          description: Teachers retrieved successfully
+          description: Promotion trouvée
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Teacher'
-        '400':
-          description: Speciality is required
-
-  /teachers/name/{name}:
-    get:
-      tags:
-        - Teachers
-      summary: Search teachers by name
-      security:
-        - bearerAuth: [ ]
-      parameters:
-        - name: name
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Teachers retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Teacher'
-        '400':
-          description: Name is required
-
-  /teachers/course/{courseId}:
-    get:
-      tags:
-        - Teachers
-        - Courses
-      summary: Get teachers by course
-      security:
-        - bearerAuth: [ ]
-      parameters:
-        - name: courseId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Teachers retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Teacher'
+                $ref: '#/components/schemas/Promotion'
         '404':
           $ref: '#/components/responses/NotFound'
-
-  /teachers/{id}:
-    get:
-      tags:
-        - Teachers
-      summary: Get a teacher
-      security:
-        - bearerAuth: [ ]
-      parameters:
-        - $ref: '#/components/parameters/Id'
-      responses:
-        '200':
-          description: Teacher retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Teacher'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
     put:
-      tags:
-        - Teachers
-      summary: Update a teacher
-      security:
-        - bearerAuth: [ ]
-      parameters:
-        - $ref: '#/components/parameters/Id'
+      tags: [Promotions]
+      summary: Mettre à jour une promotion
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Teacher'
+              $ref: '#/components/schemas/Promotion'
       responses:
         '200':
-          description: Teacher updated successfully
+          description: Promotion mise à jour
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Teacher'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
+                $ref: '#/components/schemas/Promotion'
     delete:
-      tags:
-        - Teachers
-      summary: Delete a teacher
-      security:
-        - bearerAuth: [ ]
-      parameters:
-        - $ref: '#/components/parameters/Id'
+      tags: [Promotions]
+      summary: Supprimer une promotion
       responses:
         '204':
-          description: Teacher deleted successfully
-        '404':
-          $ref: '#/components/responses/NotFound'
+          description: Promotion supprimée
 
-  /courses:
+  /promotions/year/{year}:
     get:
-      tags:
-        - Courses
-      summary: Get all courses
-      security:
-        - bearerAuth: [ ]
+      tags: [Promotions]
+      summary: Lister les promotions par année
+      parameters:
+        - name: year
+          in: path
+          required: true
+          schema:
+            type: integer
       responses:
         '200':
-          description: Courses retrieved successfully
+          description: Liste des promotions de l'année
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Promotion'
+
+  /promotions/name/{name}:
+    get:
+      tags: [Promotions]
+      summary: Rechercher des promotions par nom
+      parameters:
+        - $ref: '#/components/parameters/NamePath'
+      responses:
+        '200':
+          description: Liste des promotions correspondantes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Promotion'
+
+  # ============================================================
+  # SPECIALITIES
+  # ============================================================
+  /specialities:
+    get:
+      tags: [Specialities]
+      summary: Lister toutes les spécialités
+      responses:
+        '200':
+          description: Liste des spécialités
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Speciality'
+    post:
+      tags: [Specialities]
+      summary: Créer une spécialité
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Speciality'
+      responses:
+        '201':
+          description: Spécialité créée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Speciality'
+
+  /specialities/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+    get:
+      tags: [Specialities]
+      summary: Récupérer une spécialité par son id
+      responses:
+        '200':
+          description: Spécialité trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Speciality'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Specialities]
+      summary: Mettre à jour une spécialité
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Speciality'
+      responses:
+        '200':
+          description: Spécialité mise à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Speciality'
+    delete:
+      tags: [Specialities]
+      summary: Supprimer une spécialité
+      responses:
+        '204':
+          description: Spécialité supprimée
+
+  # ============================================================
+  # SPECIALITY COURSES
+  # ============================================================
+  /speciality-courses:
+    get:
+      tags: [SpecialityCourses]
+      summary: Lister toutes les associations spécialité / cours
+      responses:
+        '200':
+          description: Liste des associations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SpecialityCourse'
+    post:
+      tags: [SpecialityCourses]
+      summary: Créer une association spécialité / cours
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpecialityCourse'
+      responses:
+        '201':
+          description: Association créée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpecialityCourse'
+
+  /speciality-courses/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+    get:
+      tags: [SpecialityCourses]
+      summary: Récupérer une association par son id
+      responses:
+        '200':
+          description: Association trouvée
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpecialityCourse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [SpecialityCourses]
+      summary: Mettre à jour une association spécialité / cours
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpecialityCourse'
+      responses:
+        '200':
+          description: Association mise à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpecialityCourse'
+    delete:
+      tags: [SpecialityCourses]
+      summary: Supprimer une association spécialité / cours
+      responses:
+        '204':
+          description: Association supprimée
+
+  # ============================================================
+  # COURSES
+  # ============================================================
+  /courses:
+    get:
+      tags: [Courses]
+      summary: Lister tous les cours
+      responses:
+        '200':
+          description: Liste des cours
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Course'
-
     post:
-      tags:
-        - Courses
-      summary: Create a course
-      security:
-        - bearerAuth: [ ]
+      tags: [Courses]
+      summary: Créer un cours
       requestBody:
         required: true
         content:
@@ -705,24 +848,54 @@ paths:
               $ref: '#/components/schemas/Course'
       responses:
         '201':
-          description: Course created successfully
+          description: Cours créé
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Course'
-        '400':
-          description: Invalid course data
+
+  /courses/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+    get:
+      tags: [Courses]
+      summary: Récupérer un cours par son id
+      responses:
+        '200':
+          description: Cours trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
         '404':
-          description: Teacher or speciality not found
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Courses]
+      summary: Mettre à jour un cours
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Course'
+      responses:
+        '200':
+          description: Cours mis à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+    delete:
+      tags: [Courses]
+      summary: Supprimer un cours
+      responses:
+        '204':
+          description: Cours supprimé
 
   /courses/teacher/{teacherId}:
     get:
-      tags:
-        - Courses
-        - Teachers
-      summary: Get courses by teacher
-      security:
-        - bearerAuth: [ ]
+      tags: [Courses]
+      summary: Lister les cours d'un enseignant
       parameters:
         - name: teacherId
           in: path
@@ -732,77 +905,54 @@ paths:
             format: uuid
       responses:
         '200':
-          description: Courses retrieved successfully
+          description: Liste des cours de l'enseignant
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Course'
-        '404':
-          description: Teacher not found
 
   /courses/speciality/{specialityId}:
     get:
-      tags:
-        - Courses
-        - Specialities
-      summary: Get courses by speciality
-      security:
-        - bearerAuth: [ ]
+      tags: [Courses]
+      summary: Lister les cours d'une spécialité
       parameters:
-        - name: specialityId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
+        - $ref: '#/components/parameters/SpecialityIdPath'
       responses:
         '200':
-          description: Courses retrieved successfully
+          description: Liste des cours de la spécialité
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Course'
-        '404':
-          description: Speciality not found
 
   /courses/credit/{credit}:
     get:
-      tags:
-        - Courses
-      summary: Get courses by credit
-      security:
-        - bearerAuth: [ ]
+      tags: [Courses]
+      summary: Lister les cours par nombre de crédits
       parameters:
         - name: credit
           in: path
           required: true
           schema:
             type: integer
-            minimum: 1
       responses:
         '200':
-          description: Courses retrieved successfully
+          description: Liste des cours correspondants
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Course'
-        '400':
-          description: Credit must be greater than 0
 
   /courses/group/{groupId}:
     get:
-      tags:
-        - Courses
-        - Groups
-      summary: Get courses by group
-      security:
-        - bearerAuth: [ ]
+      tags: [Courses]
+      summary: Lister les cours d'un groupe
       parameters:
         - name: groupId
           in: path
@@ -812,23 +962,18 @@ paths:
             format: uuid
       responses:
         '200':
-          description: Courses retrieved successfully
+          description: Liste des cours du groupe
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Course'
-        '404':
-          description: Group not found
 
   /courses/title/{title}:
     get:
-      tags:
-        - Courses
-      summary: Search courses by title
-      security:
-        - bearerAuth: [ ]
+      tags: [Courses]
+      summary: Rechercher des cours par titre
       parameters:
         - name: title
           in: path
@@ -837,322 +982,7 @@ paths:
             type: string
       responses:
         '200':
-          description: Courses retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Course'
-        '400':
-          description: Title is required
-
-  /courses/{id}:
-    get:
-      tags:
-        - Courses
-      summary: Get a course
-      security:
-        - bearerAuth: [ ]
-      parameters:
-        - $ref: '#/components/parameters/Id'
-      responses:
-        '200':
-          description: Course retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Course'
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-    put:
-      tags:
-        - Courses
-      summary: Update a course
-      security:
-        - bearerAuth: [ ]
-      parameters:
-        - $ref: '#/components/parameters/Id'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Course'
-      responses:
-        '200':
-          description: Course updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Course'
-        '400':
-          description: Invalid course data
-        '404':
-          description: Course, teacher or speciality not found
-
-    delete:
-      tags:
-        - Courses
-      summary: Delete a course
-      security:
-        - bearerAuth: [ ]
-      parameters:
-        - $ref: '#/components/parameters/Id'
-      responses:
-        '204':
-          description: Course deleted successfully
-        '404':
-          $ref: '#/components/responses/NotFound'
-
-  /courses/{id}/teachers:
-    get:
-      tags:
-        - Courses
-        - Teachers
-      summary: Get course teachers
-      security:
-        - bearerAuth: [ ]
-      parameters:
-        - $ref: '#/components/parameters/Id'
-      responses:
-        '200':
-          description: Teachers retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Teacher'
-
-  /courses/{id}/groups:
-    get:
-      tags:
-        - Courses
-        - Groups
-      summary: Get course groups
-      security:
-        - bearerAuth: [ ]
-      parameters:
-        - $ref: '#/components/parameters/Id'
-      responses:
-        '200':
-          description: Groups retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Group'
-
-  /groups:
-    get:
-      tags:
-        - Groups
-      summary: Get all groups
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Groups retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Group'
-
-    post:
-      tags:
-        - Groups
-      summary: Create a group
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Group'
-      responses:
-        '201':
-          description: Group created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Group'
-
-  /groups/speciality/{specialityId}:
-    get:
-      tags:
-        - Groups
-        - Specialities
-      summary: Get groups by speciality
-      security:
-        - bearerAuth: [ ]
-      parameters:
-        - name: specialityId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Groups retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Group'
-        '404':
-          description: Speciality not found
-
-  /groups/exam/{examId}:
-    get:
-      tags:
-        - Groups
-        - Exams
-      summary: Get groups by exam
-      security:
-        - bearerAuth: [ ]
-      parameters:
-        - name: examId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Groups retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Group'
-        '404':
-          description: Exam not found
-
-  /groups/course/{courseId}:
-    get:
-      tags:
-        - Groups
-        - Courses
-      summary: Get groups by course
-      security:
-        - bearerAuth: [ ]
-      parameters:
-        - name: courseId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Groups retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Group'
-        '404':
-          description: Course not found
-
-  /groups/name/{name}:
-    get:
-      tags:
-        - Groups
-      summary: Search groups by name
-      security:
-        - bearerAuth: [ ]
-      parameters:
-        - name: name
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Groups retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Group'
-        '400':
-          description: Name is required
-
-  /groups/{id}:
-    get:
-      tags:
-        - Groups
-      summary: Get a group
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
-      responses:
-        '200':
-          description: Group retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Group'
-
-    put:
-      tags:
-        - Groups
-      summary: Update a group
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Group'
-      responses:
-        '200':
-          description: Group updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Group'
-
-    delete:
-      tags:
-        - Groups
-      summary: Delete a group
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
-      responses:
-        '204':
-          description: Group deleted successfully
-
-  /groups/{id}/courses:
-    get:
-      tags:
-        - Groups
-        - Courses
-      summary: Get group courses
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
-      responses:
-        '200':
-          description: Courses retrieved successfully
+          description: Liste des cours correspondants
           content:
             application/json:
               schema:
@@ -1160,399 +990,251 @@ paths:
                 items:
                   $ref: '#/components/schemas/Course'
 
-  /promotions:
+  /courses/level/{level}:
     get:
-      tags:
-        - Promotions
-      summary: Get all promotions
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Promotions retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Promotion'
-
-    post:
-      tags:
-        - Promotions
-      summary: Create a promotion
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Promotion'
-      responses:
-        '201':
-          description: Promotion created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Promotion'
-
-  /promotions/year/{year}:
-    get:
-      tags:
-        - Promotions
-      summary: Get promotions by year
-      security:
-        - bearerAuth: [ ]
+      tags: [Courses]
+      summary: Lister les cours par niveau
       parameters:
-        - name: year
+        - name: level
           in: path
           required: true
           schema:
             type: integer
       responses:
         '200':
-          description: Promotions retrieved successfully
+          description: Liste des cours correspondants
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Promotion'
-        '400':
-          description: Year is required
+                  $ref: '#/components/schemas/Course'
 
-  /promotions/name/{name}:
+  # ============================================================
+  # TEACHER COURSES
+  # ============================================================
+  /teacher-courses:
     get:
-      tags:
-        - Promotions
-      summary: Search promotions by name
-      security:
-        - bearerAuth: [ ]
-      parameters:
-        - name: name
-          in: path
-          required: true
-          schema:
-            type: string
+      tags: [TeacherCourses]
+      summary: Lister toutes les associations enseignant / cours
       responses:
         '200':
-          description: Promotions retrieved successfully
+          description: Liste des associations
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Promotion'
-        '400':
-          description: Name is required
-
-  /promotions/{id}:
-    get:
-      tags:
-        - Promotions
-      summary: Get a promotion
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
-      responses:
-        '200':
-          description: Promotion retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Promotion'
-
-    put:
-      tags:
-        - Promotions
-      summary: Update a promotion
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Promotion'
-      responses:
-        '200':
-          description: Promotion updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Promotion'
-
-    delete:
-      tags:
-        - Promotions
-      summary: Delete a promotion
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
-      responses:
-        '204':
-          description: Promotion deleted successfully
-
-  /promotions/{id}/results:
-    get:
-      tags:
-        - Promotions
-      summary: Get promotion results
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
-      responses:
-        '200':
-          description: Promotion results retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/StudentPromotionResult'
-
-  /promotions/{id}/graduates:
-    get:
-      tags:
-        - Graduates
-      summary: Get promotion graduates
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
-      responses:
-        '200':
-          description: Graduates retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Graduate'
-
-  /promotions/{id}/graduates/excel:
-    get:
-      tags:
-        - Graduates
-      summary: Download graduates Excel file
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
-      responses:
-        '200':
-          description: Excel file
-          content:
-            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
-              schema:
-                type: string
-                format: binary
-
-  /specialities:
-    get:
-      tags:
-        - Specialities
-      summary: Get all specialities
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Specialities retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Speciality'
-
+                  $ref: '#/components/schemas/TeacherCourse'
     post:
-      tags:
-        - Specialities
-      summary: Create a speciality
-      security:
-        - bearerAuth: []
+      tags: [TeacherCourses]
+      summary: Créer une association enseignant / cours
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Speciality'
+              $ref: '#/components/schemas/TeacherCourse'
       responses:
         '201':
-          description: Speciality created successfully
+          description: Association créée
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Speciality'
+                $ref: '#/components/schemas/TeacherCourse'
 
-  /specialities/{id}:
+  /teacher-courses/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
     get:
-      tags:
-        - Specialities
-      summary: Get a speciality
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
+      tags: [TeacherCourses]
+      summary: Récupérer une association par son id
       responses:
         '200':
-          description: Speciality retrieved successfully
+          description: Association trouvée
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Speciality'
-
+                $ref: '#/components/schemas/TeacherCourse'
+        '404':
+          $ref: '#/components/responses/NotFound'
     put:
-      tags:
-        - Specialities
-      summary: Update a speciality
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
+      tags: [TeacherCourses]
+      summary: Mettre à jour une association enseignant / cours
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Speciality'
+              $ref: '#/components/schemas/TeacherCourse'
       responses:
         '200':
-          description: Speciality updated successfully
+          description: Association mise à jour
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Speciality'
-
+                $ref: '#/components/schemas/TeacherCourse'
     delete:
-      tags:
-        - Specialities
-      summary: Delete a speciality
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
+      tags: [TeacherCourses]
+      summary: Supprimer une association enseignant / cours
       responses:
         '204':
-          description: Speciality deleted successfully
+          description: Association supprimée
 
-  /exams:
+  # ============================================================
+  # GROUPS
+  # ============================================================
+  /groups:
     get:
-      tags:
-        - Exams
-      summary: Get all exams
-      security:
-        - bearerAuth: []
+      tags: [Groups]
+      summary: Lister tous les groupes
       responses:
         '200':
-          description: Exams retrieved successfully
+          description: Liste des groupes
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Exam'
-
+                  $ref: '#/components/schemas/Group'
     post:
-      tags:
-        - Exams
-      summary: Create an exam
-      security:
-        - bearerAuth: []
+      tags: [Groups]
+      summary: Créer un groupe
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Exam'
+              $ref: '#/components/schemas/Group'
       responses:
         '201':
-          description: Exam created successfully
+          description: Groupe créé
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Exam'
+                $ref: '#/components/schemas/Group'
 
-  /exams/{id}:
+  /groups/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
     get:
-      tags:
-        - Exams
-      summary: Get an exam
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
+      tags: [Groups]
+      summary: Récupérer un groupe par son id
       responses:
         '200':
-          description: Exam retrieved successfully
+          description: Groupe trouvé
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Exam'
-
+                $ref: '#/components/schemas/Group'
+        '404':
+          $ref: '#/components/responses/NotFound'
     put:
-      tags:
-        - Exams
-      summary: Update an exam
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
+      tags: [Groups]
+      summary: Mettre à jour un groupe
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Exam'
+              $ref: '#/components/schemas/Group'
       responses:
         '200':
-          description: Exam updated successfully
+          description: Groupe mis à jour
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Exam'
-
+                $ref: '#/components/schemas/Group'
     delete:
-      tags:
-        - Exams
-      summary: Delete an exam
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
+      tags: [Groups]
+      summary: Supprimer un groupe
       responses:
         '204':
-          description: Exam deleted successfully
+          description: Groupe supprimé
 
+  /groups/speciality/{specialityId}:
+    get:
+      tags: [Groups]
+      summary: Lister les groupes d'une spécialité
+      parameters:
+        - $ref: '#/components/parameters/SpecialityIdPath'
+      responses:
+        '200':
+          description: Liste des groupes de la spécialité
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Group'
+
+  /groups/exam/{examId}:
+    get:
+      tags: [Groups]
+      summary: Lister les groupes participant à un examen
+      parameters:
+        - $ref: '#/components/parameters/ExamIdPath'
+      responses:
+        '200':
+          description: Liste des groupes concernés par l'examen
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Group'
+
+  /groups/course/{courseId}:
+    get:
+      tags: [Groups]
+      summary: Lister les groupes suivant un cours
+      parameters:
+        - $ref: '#/components/parameters/CourseIdPath'
+      responses:
+        '200':
+          description: Liste des groupes suivant le cours
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Group'
+
+  /groups/name/{name}:
+    get:
+      tags: [Groups]
+      summary: Rechercher des groupes par nom
+      parameters:
+        - $ref: '#/components/parameters/NamePath'
+      responses:
+        '200':
+          description: Liste des groupes correspondants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Group'
+
+  # ============================================================
+  # GROUP EXAMS
+  # ============================================================
   /group-exams:
     get:
-      tags:
-        - Group Exams
-      summary: Get all group exams
-      security:
-        - bearerAuth: []
+      tags: [GroupExams]
+      summary: Lister toutes les associations groupe / examen
       responses:
         '200':
-          description: Group exams retrieved successfully
+          description: Liste des associations
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/GroupExam'
-
     post:
-      tags:
-        - Group Exams
-      summary: Create a group exam
-      security:
-        - bearerAuth: []
+      tags: [GroupExams]
+      summary: Créer une association groupe / examen
       requestBody:
         required: true
         content:
@@ -1561,37 +1243,30 @@ paths:
               $ref: '#/components/schemas/GroupExam'
       responses:
         '201':
-          description: Group exam created successfully
+          description: Association créée
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/GroupExam'
 
   /group-exams/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
     get:
-      tags:
-        - Group Exams
-      summary: Get a group exam
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
+      tags: [GroupExams]
+      summary: Récupérer une association par son id
       responses:
         '200':
-          description: Group exam retrieved successfully
+          description: Association trouvée
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/GroupExam'
-
+        '404':
+          $ref: '#/components/responses/NotFound'
     put:
-      tags:
-        - Group Exams
-      summary: Update a group exam
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
+      tags: [GroupExams]
+      summary: Mettre à jour une association groupe / examen
       requestBody:
         required: true
         content:
@@ -1600,84 +1275,125 @@ paths:
               $ref: '#/components/schemas/GroupExam'
       responses:
         '200':
-          description: Group exam updated successfully
+          description: Association mise à jour
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/GroupExam'
-
     delete:
-      tags:
-        - Group Exams
-      summary: Delete a group exam
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
+      tags: [GroupExams]
+      summary: Supprimer une association groupe / examen
       responses:
         '204':
-          description: Group exam deleted successfully
+          description: Association supprimée
 
-  /exams/course/{courseId}/remaining-coeff:
+  # ============================================================
+  # EXAMS
+  # ============================================================
+  /exams:
     get:
-      tags:
-        - Exams
-        - Courses
-      summary: Get remaining exam coefficient for a course
-      security:
-        - bearerAuth: [ ]
-      parameters:
-        - name: courseId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
+      tags: [Exams]
+      summary: Lister tous les examens
       responses:
         '200':
-          description: Remaining coefficient retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: number
-                format: double
-        '404':
-          description: Course not found
-
-  /exams/course/{courseId}:
-    get:
-      tags:
-        - Exams
-        - Courses
-      summary: Get exams by course
-      security:
-        - bearerAuth: [ ]
-      parameters:
-        - name: courseId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Exams retrieved successfully
+          description: Liste des examens
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Exam'
+    post:
+      tags: [Exams]
+      summary: Créer un examen
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Exam'
+      responses:
+        '201':
+          description: Examen créé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+
+  /exams/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
+    get:
+      tags: [Exams]
+      summary: Récupérer un examen par son id
+      responses:
+        '200':
+          description: Examen trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
         '404':
-          description: Course not found
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Exams]
+      summary: Mettre à jour un examen
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Exam'
+      responses:
+        '200':
+          description: Examen mis à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exam'
+    delete:
+      tags: [Exams]
+      summary: Supprimer un examen
+      responses:
+        '204':
+          description: Examen supprimé
+
+  /exams/course/{courseId}/remaining-coeff:
+    get:
+      tags: [Exams]
+      summary: Coefficient restant disponible pour un cours
+      description: Retourne le coefficient restant pouvant être attribué à un nouvel examen pour ce cours (la somme des coefficients de tous les examens d'un cours ne doit pas dépasser 1).
+      parameters:
+        - $ref: '#/components/parameters/CourseIdPath'
+      responses:
+        '200':
+          description: Coefficient restant
+          content:
+            application/json:
+              schema:
+                type: number
+                format: double
+
+  /exams/course/{courseId}:
+    get:
+      tags: [Exams]
+      summary: Lister les examens d'un cours
+      parameters:
+        - $ref: '#/components/parameters/CourseIdPath'
+      responses:
+        '200':
+          description: Liste des examens du cours
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Exam'
 
   /exams/title/{title}:
     get:
-      tags:
-        - Exams
-      summary: Search exams by title
-      security:
-        - bearerAuth: [ ]
+      tags: [Exams]
+      summary: Rechercher des examens par titre
       parameters:
         - name: title
           in: path
@@ -1686,23 +1402,18 @@ paths:
             type: string
       responses:
         '200':
-          description: Exams retrieved successfully
+          description: Liste des examens correspondants
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Exam'
-        '400':
-          description: Title is required
 
   /exams/date/{date}:
     get:
-      tags:
-        - Exams
-      summary: Get exams by date
-      security:
-        - bearerAuth: [ ]
+      tags: [Exams]
+      summary: Lister les examens par date
       parameters:
         - name: date
           in: path
@@ -1712,23 +1423,18 @@ paths:
             format: date
       responses:
         '200':
-          description: Exams retrieved successfully
+          description: Liste des examens à cette date
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Exam'
-        '400':
-          description: Date is required
 
   /exams/coeff/{coeff}:
     get:
-      tags:
-        - Exams
-      summary: Get exams by coefficient
-      security:
-        - bearerAuth: [ ]
+      tags: [Exams]
+      summary: Lister les examens par coefficient
       parameters:
         - name: coeff
           in: path
@@ -1736,27 +1442,20 @@ paths:
           schema:
             type: number
             format: double
-            exclusiveMinimum: 0
       responses:
         '200':
-          description: Exams retrieved successfully
+          description: Liste des examens correspondants
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Exam'
-        '400':
-          description: Coefficient must be greater than 0
 
   /exams/group/{groupId}:
     get:
-      tags:
-        - Exams
-        - Groups
-      summary: Get exams by group
-      security:
-        - bearerAuth: [ ]
+      tags: [Exams]
+      summary: Lister les examens d'un groupe
       parameters:
         - name: groupId
           in: path
@@ -1766,242 +1465,49 @@ paths:
             format: uuid
       responses:
         '200':
-          description: Exams retrieved successfully
+          description: Liste des examens du groupe
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Exam'
-        '404':
-          description: Group not found
 
   /exams/speciality/{specialityId}:
     get:
-      tags:
-        - Exams
-        - Specialities
-      summary: Get exams by speciality
-      security:
-        - bearerAuth: [ ]
+      tags: [Exams]
+      summary: Lister les examens d'une spécialité
       parameters:
-        - name: specialityId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
+        - $ref: '#/components/parameters/SpecialityIdPath'
       responses:
         '200':
-          description: Exams retrieved successfully
+          description: Liste des examens de la spécialité
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Exam'
-        '404':
-          description: Speciality not found
 
-  /speciality-courses:
-    get:
-      tags:
-        - Speciality Courses
-      summary: Get all speciality courses
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Speciality courses retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/SpecialityCourse'
-
-    post:
-      tags:
-        - Speciality Courses
-      summary: Create a speciality course
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SpecialityCourse'
-      responses:
-        '201':
-          description: Speciality course created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SpecialityCourse'
-
-  /speciality-courses/{id}:
-    get:
-      tags:
-        - Speciality Courses
-      summary: Get a speciality course
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
-      responses:
-        '200':
-          description: Speciality course retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SpecialityCourse'
-
-    put:
-      tags:
-        - Speciality Courses
-      summary: Update a speciality course
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SpecialityCourse'
-      responses:
-        '200':
-          description: Speciality course updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SpecialityCourse'
-
-    delete:
-      tags:
-        - Speciality Courses
-      summary: Delete a speciality course
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
-      responses:
-        '204':
-          description: Speciality course deleted successfully
-
-  /teacher-courses:
-    get:
-      tags:
-        - Teacher Courses
-      summary: Get all teacher courses
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Teacher courses retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/TeacherCourse'
-
-    post:
-      tags:
-        - Teacher Courses
-      summary: Create a teacher course
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TeacherCourse'
-      responses:
-        '201':
-          description: Teacher course created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TeacherCourse'
-
-  /teacher-courses/{id}:
-    get:
-      tags:
-        - Teacher Courses
-      summary: Get a teacher course
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
-      responses:
-        '200':
-          description: Teacher course retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TeacherCourse'
-
-    put:
-      tags:
-        - Teacher Courses
-      summary: Update a teacher course
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TeacherCourse'
-      responses:
-        '200':
-          description: Teacher course updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TeacherCourse'
-
-    delete:
-      tags:
-        - Teacher Courses
-      summary: Delete a teacher course
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
-      responses:
-        '204':
-          description: Teacher course deleted successfully
-
+  # ============================================================
+  # GRADES
+  # ============================================================
   /grades:
     get:
-      tags:
-        - Grades
-      summary: Get all grades
-      security:
-        - bearerAuth: []
+      tags: [Grades]
+      summary: Lister toutes les notes
       responses:
         '200':
-          description: Grades retrieved successfully
+          description: Liste des notes
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Grade'
-
     post:
-      tags:
-        - Grades
-      summary: Create a grade
-      security:
-        - bearerAuth: []
+      tags: [Grades]
+      summary: Créer une note
       requestBody:
         required: true
         content:
@@ -2010,142 +1516,862 @@ paths:
               $ref: '#/components/schemas/Grade'
       responses:
         '201':
-          description: Grade created successfully
+          description: Note créée
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Grade'
 
-  /grades/{id}:
-    get:
-      tags:
-        - Grades
-      summary: Get a grade
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
-      responses:
-        '200':
-          description: Grade retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Grade'
-
-    put:
-      tags:
-        - Grades
-      summary: Update a grade
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
+  /grades/batch:
+    post:
+      tags: [Grades]
+      summary: Créer plusieurs notes en une seule requête
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/GradeModification'
-      responses:
-        '200':
-          description: Grade updated successfully
-          content:
-            application/json:
-              schema:
+              type: array
+              items:
                 $ref: '#/components/schemas/Grade'
-
-    delete:
-      tags:
-        - Grades
-      summary: Delete a grade
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
-      responses:
-        '204':
-          description: Grade deleted successfully
-
-  /grades/{id}/history:
-    get:
-      tags:
-        - Grade History
-      summary: Get grade history
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
       responses:
         '200':
-          description: Grade history retrieved successfully
+          description: Notes créées
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/GradeHistory'
+                  $ref: '#/components/schemas/Grade'
 
-  /students/{id}/transcript:
+  /grades/{id}:
+    parameters:
+      - $ref: '#/components/parameters/IdPath'
     get:
-      tags:
-        - Transcripts
-      summary: Get student transcript
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/Id'
+      tags: [Grades]
+      summary: Récupérer une note par son id
       responses:
         '200':
-          description: Transcript PDF
+          description: Note trouvée
           content:
-            application/pdf:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Grade'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Grades]
+      summary: Mettre à jour une note
+      description: >
+        Met à jour une note existante. La raison de la modification (`reason`) et
+        l'identifiant de l'utilisateur ayant effectué la modification (`modifiedById`)
+        sont obligatoires et sont utilisés pour tracer la modification dans l'historique des notes.
+      parameters:
+        - name: reason
+          in: query
+          required: true
+          description: Raison de la modification de la note
+          schema:
+            type: string
+        - name: modifiedById
+          in: query
+          required: true
+          description: Identifiant de l'utilisateur ayant effectué la modification
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Grade'
+      responses:
+        '200':
+          description: Note mise à jour
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Grade'
+    delete:
+      tags: [Grades]
+      summary: Supprimer une note
+      responses:
+        '204':
+          description: Note supprimée
+
+  /grades/exam/{examId}:
+    get:
+      tags: [Grades]
+      summary: Lister les notes d'un examen
+      parameters:
+        - $ref: '#/components/parameters/ExamIdPath'
+      responses:
+        '200':
+          description: Liste des notes de l'examen
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Grade'
+
+  /grades/student/{studentId}:
+    get:
+      tags: [Grades]
+      summary: Lister les notes d'un étudiant
+      parameters:
+        - $ref: '#/components/parameters/StudentIdPath'
+      responses:
+        '200':
+          description: Liste des notes de l'étudiant
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Grade'
+
+  /grades/course/{courseId}:
+    get:
+      tags: [Grades]
+      summary: Lister les notes d'un cours
+      parameters:
+        - $ref: '#/components/parameters/CourseIdPath'
+      responses:
+        '200':
+          description: Liste des notes du cours
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Grade'
+
+  /grades/student/{studentId}/course/{courseId}:
+    get:
+      tags: [Grades]
+      summary: Lister les notes d'un étudiant pour un cours donné
+      parameters:
+        - $ref: '#/components/parameters/StudentIdPath'
+        - $ref: '#/components/parameters/CourseIdPath'
+      responses:
+        '200':
+          description: Liste des notes correspondantes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Grade'
+
+  /grades/group/{groupId}:
+    get:
+      tags: [Grades]
+      summary: Lister les notes d'un groupe
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Liste des notes du groupe
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Grade'
+
+  /grades/group/{groupId}/exam/{examId}:
+    get:
+      tags: [Grades]
+      summary: Lister les notes d'un groupe pour un examen donné
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/ExamIdPath'
+      responses:
+        '200':
+          description: Liste des notes correspondantes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Grade'
+
+  /grades/group/{groupId}/course/{courseId}:
+    get:
+      tags: [Grades]
+      summary: Lister les notes d'un groupe pour un cours donné
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/CourseIdPath'
+      responses:
+        '200':
+          description: Liste des notes correspondantes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Grade'
+
+  /grades/speciality/{specialityId}:
+    get:
+      tags: [Grades]
+      summary: Lister les notes d'une spécialité
+      parameters:
+        - $ref: '#/components/parameters/SpecialityIdPath'
+      responses:
+        '200':
+          description: Liste des notes de la spécialité
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Grade'
+
+  /grades/speciality/{specialityId}/exam/{examId}:
+    get:
+      tags: [Grades]
+      summary: Lister les notes d'une spécialité pour un examen donné
+      parameters:
+        - $ref: '#/components/parameters/SpecialityIdPath'
+        - $ref: '#/components/parameters/ExamIdPath'
+      responses:
+        '200':
+          description: Liste des notes correspondantes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Grade'
+
+  /grades/speciality/{specialityId}/course/{courseId}:
+    get:
+      tags: [Grades]
+      summary: Lister les notes d'une spécialité pour un cours donné
+      parameters:
+        - $ref: '#/components/parameters/SpecialityIdPath'
+        - $ref: '#/components/parameters/CourseIdPath'
+      responses:
+        '200':
+          description: Liste des notes correspondantes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Grade'
+
+  /grades/student/{studentId}/exam/{examId}:
+    get:
+      tags: [Grades]
+      summary: Récupérer la note d'un étudiant pour un examen donné
+      parameters:
+        - $ref: '#/components/parameters/StudentIdPath'
+        - $ref: '#/components/parameters/ExamIdPath'
+      responses:
+        '200':
+          description: Note correspondante
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Grade'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /grades/date/{date}:
+    get:
+      tags: [Grades]
+      summary: Lister les notes par date
+      parameters:
+        - name: date
+          in: path
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Liste des notes à cette date
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Grade'
+
+  /grades/min-value/{minValue}:
+    get:
+      tags: [Grades]
+      summary: Lister les notes supérieures ou égales à une valeur minimale
+      parameters:
+        - name: minValue
+          in: path
+          required: true
+          schema:
+            type: number
+            format: double
+      responses:
+        '200':
+          description: Liste des notes correspondantes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Grade'
+
+  # ============================================================
+  # STUDENT GROUP HISTORIES
+  # ============================================================
+  /student-group-histories/{id}:
+    get:
+      tags: [StudentGroupHistories]
+      summary: Récupérer un historique de groupe par son id
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '200':
+          description: Historique trouvé
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentGroupHistory'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /student-group-histories/student/{studentId}:
+    get:
+      tags: [StudentGroupHistories]
+      summary: Lister l'historique des groupes d'un étudiant
+      parameters:
+        - $ref: '#/components/parameters/StudentIdPath'
+      responses:
+        '200':
+          description: Liste des historiques de l'étudiant
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentGroupHistory'
+
+  /student-group-histories/group/{groupId}:
+    get:
+      tags: [StudentGroupHistories]
+      summary: Lister l'historique des étudiants d'un groupe
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Liste des historiques du groupe
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentGroupHistory'
+
+  # ============================================================
+  # TRANSCRIPTS
+  # ============================================================
+  /transcripts/student/{studentId}/L1:
+    get:
+      tags: [Transcripts]
+      summary: Récupérer le bulletin de niveau L1 d'un étudiant
+      parameters:
+        - $ref: '#/components/parameters/StudentIdPath'
+      responses:
+        '200':
+          description: Bulletin L1 de l'étudiant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transcript'
+
+  /transcripts/student/{studentId}/L2:
+    get:
+      tags: [Transcripts]
+      summary: Récupérer le bulletin de niveau L2 d'un étudiant
+      parameters:
+        - $ref: '#/components/parameters/StudentIdPath'
+      responses:
+        '200':
+          description: Bulletin L2 de l'étudiant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transcript'
+
+  /transcripts/student/{studentId}/L3:
+    get:
+      tags: [Transcripts]
+      summary: Récupérer le bulletin de niveau L3 d'un étudiant
+      parameters:
+        - $ref: '#/components/parameters/StudentIdPath'
+      responses:
+        '200':
+          description: Bulletin L3 de l'étudiant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transcript'
+
+  /transcripts/L1:
+    get:
+      tags: [Transcripts]
+      summary: Lister tous les bulletins de niveau L1
+      responses:
+        '200':
+          description: Liste des bulletins L1
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transcript'
+
+  /transcripts/L2:
+    get:
+      tags: [Transcripts]
+      summary: Lister tous les bulletins de niveau L2
+      responses:
+        '200':
+          description: Liste des bulletins L2
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transcript'
+
+  /transcripts/L3:
+    get:
+      tags: [Transcripts]
+      summary: Lister tous les bulletins de niveau L3
+      responses:
+        '200':
+          description: Liste des bulletins L3
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transcript'
+
+  /transcripts/student/{studentId}/L{level}/send-email:
+    post:
+      tags: [Transcripts]
+      summary: Envoyer le bulletin d'un étudiant par email
+      description: >
+        Déclenche l'envoi asynchrone (via un événement) du bulletin de notes
+        d'un étudiant par email, pour le niveau (L1, L2 ou L3) demandé.
+      parameters:
+        - $ref: '#/components/parameters/StudentIdPath'
+        - name: level
+          in: path
+          required: true
+          description: Niveau du bulletin (1, 2 ou 3)
+          schema:
+            type: integer
+            enum: [1, 2, 3]
+      responses:
+        '200':
+          description: Confirmation de la demande d'envoi
+          content:
+            application/json:
               schema:
                 type: string
-                format: binary
+                example: "Transcript email requested for student 3fa85f64-5717-4562-b3fc-2c963f66afa6 level L1"
+        '400':
+          description: Niveau invalide (doit être 1, 2 ou 3)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
-  /students/{id}/transcript/send:
-    post:
-      tags:
-        - Transcripts
-      summary: Send transcript by email
-      security:
-        - bearerAuth: []
+  # ============================================================
+  # GRADUATES
+  # ============================================================
+  /graduates/student/{studentId}:
+    get:
+      tags: [Graduates]
+      summary: Récupérer le statut de diplomation d'un étudiant
       parameters:
-        - $ref: '#/components/parameters/Id'
+        - $ref: '#/components/parameters/StudentIdPath'
       responses:
-        '202':
-          description: Transcript sending accepted
+        '200':
+          description: Statut de diplomation de l'étudiant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraduateStatus'
+
+  /graduates/promotion/{promotionId}:
+    get:
+      tags: [Graduates]
+      summary: Lister le classement des diplômés d'une promotion
+      parameters:
+        - name: promotionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Classement des diplômés de la promotion
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GraduateRanking'
+
+  /graduates/promotion/{promotionId}/export:
+    get:
+      tags: [Graduates]
+      summary: Exporter le classement des diplômés d'une promotion vers Excel
+      parameters:
+        - name: promotionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: URL du fichier Excel généré (lien de téléchargement)
+          content:
+            application/json:
+              schema:
+                type: string
+                format: uri
+
+  # ============================================================
+  # HEALTH (endpoints techniques du framework poja)
+  # ============================================================
+  /ping:
+    get:
+      tags: [Health]
+      summary: Vérifier que l'application répond
+      security: []
+      responses:
+        '200':
+          description: L'application répond
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: pong
+
+  /health/db:
+    get:
+      tags: [Health]
+      summary: Vérifier la connexion à la base de données
+      security: []
+      responses:
+        '200':
+          description: Base de données accessible (OK) ou non (KO)
+          content:
+            text/plain:
+              schema:
+                type: string
+                enum: [OK, KO]
+
+  /health/bucket:
+    get:
+      tags: [Health]
+      summary: Vérifier l'accès au bucket de stockage de fichiers
+      security: []
+      responses:
+        '200':
+          description: URL pré-signée du fichier de test uploadé
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /health/email:
+    get:
+      tags: [Health]
+      summary: Vérifier l'envoi d'emails
+      security: []
+      parameters:
+        - name: to
+          in: query
+          required: true
+          description: Adresse email de destination des emails de test
+          schema:
+            type: string
+            format: email
+      responses:
+        '200':
+          description: Emails envoyés avec succès
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: OK
+
+  /health/event1:
+    get:
+      tags: [Health]
+      summary: Vérifier le traitement des événements (type 1)
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/NbEventQuery'
+        - $ref: '#/components/parameters/WaitInSecondsQuery'
+      responses:
+        '200':
+          description: Liste des UUID des événements générés
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  format: uuid
+
+  /health/event2:
+    get:
+      tags: [Health]
+      summary: Vérifier le traitement des événements (type 2)
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/NbEventQuery'
+        - $ref: '#/components/parameters/WaitInSecondsQuery'
+      responses:
+        '200':
+          description: Liste des UUID des événements générés
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  format: uuid
+
+  /health/event/uuids:
+    post:
+      tags: [Health]
+      summary: Vérifier que des UUID d'événements ont bien été persistés
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+                format: uuid
+      responses:
+        '200':
+          description: Tous les UUID ont été trouvés (OK) ou non (KO)
+          content:
+            text/plain:
+              schema:
+                type: string
+                enum: [OK, KO]
 
 components:
-
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+      description: >
+        Token JWT obtenu via `POST /auth/login`, à transmettre dans l'en-tête
+        `Authorization: Bearer <token>`.
 
   parameters:
-    Id:
+    IdPath:
       name: id
       in: path
       required: true
+      description: Identifiant unique (UUID) de la ressource
       schema:
         type: string
         format: uuid
+    NamePath:
+      name: name
+      in: path
+      required: true
+      description: Nom (ou fragment de nom) recherché
+      schema:
+        type: string
+    StudentIdPath:
+      name: studentId
+      in: path
+      required: true
+      description: Identifiant unique (UUID) de l'étudiant
+      schema:
+        type: string
+        format: uuid
+    CourseIdPath:
+      name: courseId
+      in: path
+      required: true
+      description: Identifiant unique (UUID) du cours
+      schema:
+        type: string
+        format: uuid
+    ExamIdPath:
+      name: examId
+      in: path
+      required: true
+      description: Identifiant unique (UUID) de l'examen
+      schema:
+        type: string
+        format: uuid
+    SpecialityIdPath:
+      name: specialityId
+      in: path
+      required: true
+      description: Identifiant unique (UUID) de la spécialité
+      schema:
+        type: string
+        format: uuid
+    NbEventQuery:
+      name: nbEvent
+      in: query
+      required: false
+      description: Nombre d'événements à générer (entre 1 et 500)
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+        maximum: 500
+    WaitInSecondsQuery:
+      name: waitInSeconds
+      in: query
+      required: false
+      description: Délai (en secondes) avant traitement de l'événement
+      schema:
+        type: integer
+        default: 2
 
   responses:
     NotFound:
-      description: Resource not found
+      description: Ressource non trouvée
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Authentification requise ou invalide
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: Accès refusé (rôle insuffisant)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
 
   schemas:
+    Error:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+          example: 404
+        error:
+          type: string
+          example: Not Found
+        message:
+          type: string
+        path:
+          type: string
+
+    Role:
+      type: string
+      description: Rôle de l'utilisateur dans l'application
+      enum: [TEACHER, STUDENT, ADMIN]
+
+    Sex:
+      type: string
+      description: Sexe de l'utilisateur
+      enum: [MALE, FEMALE]
+
+    GroupSpeciality:
+      type: string
+      description: Nom de la spécialité d'un groupe
+      enum: [EL, TN, COMMON_PART]
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: Token JWT à utiliser pour les appels authentifiés
+
+    CreateUserRequest:
+      type: object
+      description: Requête de création d'un utilisateur générique
+      required: [firstName, lastName, email, password, role]
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+        role:
+          $ref: '#/components/schemas/Role'
 
     User:
       type: object
+      description: Utilisateur de base (admin, enseignant ou étudiant)
       properties:
         id:
           type: string
           format: uuid
+          readOnly: true
         firstName:
           type: string
         lastName:
@@ -2154,23 +2380,17 @@ components:
           type: string
           format: date
         sex:
-          type: string
-          enum:
-            - MALE
-            - FEMALE
+          $ref: '#/components/schemas/Sex'
         address:
           type: string
         email:
           type: string
           format: email
         role:
-          type: string
-          enum:
-            - TEACHER
-            - STUDENT
-            - ADMIN
+          $ref: '#/components/schemas/Role'
 
     Admin:
+      description: Administrateur (hérite de User)
       allOf:
         - $ref: '#/components/schemas/User'
         - type: object
@@ -2178,59 +2398,27 @@ components:
             adminReference:
               type: string
 
-    Student:
-      allOf:
-        - $ref: '#/components/schemas/User'
-        - type: object
-          properties:
-            reference:
-              type: string
-
     Teacher:
+      description: Enseignant (hérite de User)
       allOf:
         - $ref: '#/components/schemas/User'
         - type: object
           properties:
             speciality:
               type: string
+              description: Spécialité d'enseignement du professeur
 
-    Course:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        reference:
-          type: string
-        title:
-          type: string
-        credit:
-          type: integer
-        teachers:
-          type: array
-          items:
-            $ref: '#/components/schemas/Teacher'
-        specialities:
-          type: array
-          items:
-            $ref: '#/components/schemas/Speciality'
-
-    Group:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        promotion:
-          $ref: '#/components/schemas/Promotion'
-        speciality:
-          $ref: '#/components/schemas/Speciality'
-        students:
-          type: array
-          items:
-            $ref: '#/components/schemas/Student'
+    Student:
+      description: Étudiant (hérite de User)
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          properties:
+            reference:
+              type: string
+              description: Référence/matricule unique de l'étudiant
+            group:
+              $ref: '#/components/schemas/Group'
 
     Promotion:
       type: object
@@ -2238,6 +2426,7 @@ components:
         id:
           type: string
           format: uuid
+          readOnly: true
         name:
           type: string
         year:
@@ -2249,12 +2438,91 @@ components:
         id:
           type: string
           format: uuid
+          readOnly: true
+        name:
+          $ref: '#/components/schemas/GroupSpeciality'
+
+    SpecialityCourse:
+      type: object
+      description: Association entre une spécialité et un cours
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        speciality:
+          $ref: '#/components/schemas/Speciality'
+        course:
+          $ref: '#/components/schemas/Course'
+
+    Course:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        reference:
+          type: string
+        title:
+          type: string
+        credit:
+          type: integer
+        level:
+          type: integer
+          description: Niveau du cours (1 = L1, 2 = L2, 3 = L3)
+        teachers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Teacher'
+        specialities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Speciality'
+
+    TeacherCourse:
+      type: object
+      description: Association entre un enseignant et un cours
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        teacher:
+          $ref: '#/components/schemas/Teacher'
+        course:
+          $ref: '#/components/schemas/Course'
+
+    Group:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
         name:
           type: string
-          enum:
-            - EL
-            - TN
-            - COMMON_PART
+        promotion:
+          $ref: '#/components/schemas/Promotion'
+        speciality:
+          $ref: '#/components/schemas/Speciality'
+        students:
+          type: array
+          items:
+            $ref: '#/components/schemas/Student'
+
+    GroupExam:
+      type: object
+      description: Association entre un groupe et un examen
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        group:
+          $ref: '#/components/schemas/Group'
+        exam:
+          $ref: '#/components/schemas/Exam'
 
     Exam:
       type: object
@@ -2262,12 +2530,14 @@ components:
         id:
           type: string
           format: uuid
+          readOnly: true
         date:
           type: string
           format: date
         coeff:
           type: number
           format: double
+          description: Coefficient de l'examen (la somme des coefficients des examens d'un cours ne doit pas dépasser 1)
         title:
           type: string
         course:
@@ -2277,50 +2547,17 @@ components:
           items:
             $ref: '#/components/schemas/Group'
 
-    GroupExam:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        group:
-          $ref: '#/components/schemas/Group'
-        exam:
-          $ref: '#/components/schemas/Exam'
-
-    SpecialityCourse:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        speciality:
-          $ref: '#/components/schemas/Speciality'
-        course:
-          $ref: '#/components/schemas/Course'
-
-    TeacherCourse:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        teacher:
-          $ref: '#/components/schemas/Teacher'
-        course:
-          $ref: '#/components/schemas/Course'
-
     Grade:
       type: object
       properties:
         id:
           type: string
           format: uuid
+          readOnly: true
         value:
           type: number
           format: double
-          minimum: 0
-          maximum: 20
+          description: Valeur de la note (généralement entre 0 et 20)
         date:
           type: string
           format: date
@@ -2329,26 +2566,14 @@ components:
         exam:
           $ref: '#/components/schemas/Exam'
 
-    GradeModification:
-      type: object
-      required:
-        - value
-        - reason
-      properties:
-        value:
-          type: number
-          format: double
-          minimum: 0
-          maximum: 20
-        reason:
-          type: string
-
     GradeHistory:
       type: object
+      description: Historique d'une modification de note
       properties:
         id:
           type: string
           format: uuid
+          readOnly: true
         date:
           type: string
           format: date-time
@@ -2367,16 +2592,16 @@ components:
 
     StudentGroupHistory:
       type: object
+      description: Historique d'appartenance d'un étudiant à un groupe
       properties:
         id:
           type: string
           format: uuid
-        studentId:
-          type: string
-          format: uuid
-        groupId:
-          type: string
-          format: uuid
+          readOnly: true
+        student:
+          $ref: '#/components/schemas/Student'
+        group:
+          $ref: '#/components/schemas/Group'
         startDate:
           type: string
           format: date
@@ -2385,38 +2610,109 @@ components:
           format: date
           nullable: true
 
-    StudentPromotionResult:
+    TranscriptCourseLine:
       type: object
+      description: Ligne de cours dans un bulletin de notes
       properties:
-        studentId:
+        courseId:
           type: string
           format: uuid
-        studentName:
+        reference:
           type: string
-        promotionId:
+        title:
           type: string
-          format: uuid
+        credit:
+          type: integer
         average:
           type: number
           format: double
-        status:
-          type: string
+        obtainedCredit:
+          type: integer
 
-    Graduate:
+    Transcript:
       type: object
+      description: Bulletin de notes (relevé) d'un étudiant pour un niveau donné
       properties:
         studentId:
           type: string
           format: uuid
-        registrationNumber:
+        reference:
           type: string
         firstName:
           type: string
         lastName:
           type: string
-        promotionId:
-          type: string
-          format: uuid
-        average:
+        level:
+          type: integer
+          description: Niveau du bulletin (1, 2 ou 3)
+        courses:
+          type: array
+          items:
+            $ref: '#/components/schemas/TranscriptCourseLine'
+        generalAverage:
           type: number
           format: double
+        totalCredit:
+          type: integer
+
+    GraduateStatus:
+      type: object
+      description: Statut de diplomation d'un étudiant
+      properties:
+        studentId:
+          type: string
+          format: uuid
+        reference:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        graduated:
+          type: boolean
+        totalCredit:
+          type: integer
+        generalAverage:
+          type: number
+          format: double
+        l1Credit:
+          type: integer
+        l2Credit:
+          type: integer
+        l3Credit:
+          type: integer
+        l1Average:
+          type: number
+          format: double
+        l2Average:
+          type: number
+          format: double
+        l3Average:
+          type: number
+          format: double
+
+    GraduateRanking:
+      type: object
+      description: Classement d'un étudiant diplômé dans sa promotion
+      properties:
+        rank:
+          type: integer
+        studentId:
+          type: string
+          format: uuid
+        reference:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        groupId:
+          type: string
+          format: uuid
+        groupName:
+          type: string
+        generalAverage:
+          type: number
+          format: double
+        totalCredit:
+          type: integer
