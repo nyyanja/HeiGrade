@@ -71,33 +71,6 @@ The application manages students, teachers, courses, grades, transcripts, and gr
 * JUnit 5
 * Mockito
 
----
-
-## Git Workflow
-
-```text
-main
-│
-└── develop
-     ├── feat/api-spec
-     ├── feat/security
-     ├── feat/student-management
-     ├── feat/course-management
-     ├── feat/grade-history
-     ├── feat/pdf-transcript
-     ├── feat/email-service
-     ├── feat/excel-export
-     └── feat/thymeleaf-ui
-```
-
-Rules:
-
-* Never develop directly on `main`
-* Never develop directly on `develop`
-* Every feature must be developed in a dedicated feature branch
-* All changes must be merged through Pull Requests
-
----
 
 ## Environment Variables
 
