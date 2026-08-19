@@ -45,6 +45,16 @@ public class GraduateExportService {
 
     File file = createTempFile("graduates-" + promotionId, ".xlsx");
     try {
+      System.out.println("Graduates count = " + rankings.size());
+
+      for (GraduateRanking ranking : rankings) {
+        System.out.println(
+            ranking.getReference()
+                + " "
+                + ranking.getFirstName()
+                + " "
+                + ranking.getGeneralAverage());
+      }
       writeWorkbook(rankings, file);
 
       String bucketKey = "graduates/" + promotionId + "-" + Instant.now().toEpochMilli() + ".xlsx";
