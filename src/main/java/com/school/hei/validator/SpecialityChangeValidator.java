@@ -14,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
-
 @Component
 @RequiredArgsConstructor
 public class SpecialityChangeValidator {
@@ -87,4 +86,3 @@ public class SpecialityChangeValidator {
     return name.toString().trim();
   }
 }
-

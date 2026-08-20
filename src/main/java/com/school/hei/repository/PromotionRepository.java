@@ -10,4 +10,3 @@ public interface PromotionRepository extends JpaRepository<JPromotion, UUID> {
 
   List<JPromotion> findByNameContainingIgnoreCase(String name);
 }
-

@@ -382,4 +382,3 @@ class TranscriptIT extends FacadeIT {
     assertThat(response.getBody().getTotalCredit()).isEqualTo(54);
   }
 }
-

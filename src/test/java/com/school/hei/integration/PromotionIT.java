@@ -119,4 +119,3 @@ class PromotionIT extends FacadeIT {
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
   }
 }
-

@@ -106,4 +106,3 @@ public class HealthEventController {
     return savedUuids.containsAll(uuids);
   }
 }
-

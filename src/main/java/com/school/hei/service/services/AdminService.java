@@ -28,11 +28,11 @@ public class AdminService {
 
   public Admin findById(UUID id) {
     return adminRepository
-            .findById(id)
-            .map(AdminMapper::toModel)
-            .orElseThrow(
-                    () ->
-                            new ResponseStatusException(HttpStatus.NOT_FOUND, "admin not found with id " + id));
+        .findById(id)
+        .map(AdminMapper::toModel)
+        .orElseThrow(
+            () ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "admin not found with id " + id));
   }
 
   @Transactional
@@ -52,12 +52,12 @@ public class AdminService {
   @Transactional
   public Admin update(UUID id, Admin admin) {
     JAdmin existing =
-            adminRepository
-                    .findById(id)
-                    .orElseThrow(
-                            () ->
-                                    new ResponseStatusException(
-                                            HttpStatus.NOT_FOUND, "admin not found with id " + id));
+        adminRepository
+            .findById(id)
+            .orElseThrow(
+                () ->
+                    new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "admin not found with id " + id));
 
     admin.setId(id);
     adminValidator.accept(admin);

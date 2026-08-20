@@ -56,4 +56,3 @@ public class TranscriptPdfService {
     return file;
   }
 }
-

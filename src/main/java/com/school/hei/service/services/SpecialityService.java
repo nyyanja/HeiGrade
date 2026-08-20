@@ -58,4 +58,3 @@ public class SpecialityService {
     specialityRepository.deleteById(id);
   }
 }
-

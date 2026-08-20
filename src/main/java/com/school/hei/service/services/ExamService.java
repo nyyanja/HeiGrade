@@ -152,10 +152,9 @@ public class ExamService {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "course id is required");
     }
     return courseRepository
-            .findById(course.getId())
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found"));
+        .findById(course.getId())
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found"));
   }
-
 
   public void delete(UUID id) {
     if (!examRepository.existsById(id)) {
@@ -250,4 +249,3 @@ public class ExamService {
     return model;
   }
 }
-

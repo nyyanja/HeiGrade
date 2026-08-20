@@ -77,4 +77,3 @@ public class HealthEmailController {
     return OK;
   }
 }
-

@@ -49,4 +49,3 @@ public class CourseValidator implements SaveValidator<Course> {
             });
   }
 }
-

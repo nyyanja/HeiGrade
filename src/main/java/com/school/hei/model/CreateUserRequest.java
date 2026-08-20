@@ -2,10 +2,9 @@ package com.school.hei.model;
 
 import com.school.hei.enums.Role;
 import com.school.hei.enums.Sex;
+import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -20,4 +19,3 @@ public class CreateUserRequest {
   private LocalDate birthday;
   private String address;
 }
-

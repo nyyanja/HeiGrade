@@ -158,4 +158,3 @@ class SpecialityServiceTest {
     verify(specialityRepository, never()).deleteById(id);
   }
 }
-

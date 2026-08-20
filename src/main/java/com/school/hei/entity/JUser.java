@@ -51,4 +51,3 @@ public class JUser {
   @Column(name = "role", nullable = false)
   private Role role;
 }
-

@@ -266,7 +266,6 @@ class GraduateServiceTest {
     assertThat(result.get(0).getStudentId()).isEqualTo(studentId);
   }
 
-  
   private void mockFullGraduate(UUID id, double average) {
     Transcript t =
         Transcript.builder().studentId(id).generalAverage(average).totalCredit(60).build();
@@ -275,4 +274,3 @@ class GraduateServiceTest {
     when(transcriptService.getStudentTranscriptForSystem(eq(id), eq(3))).thenReturn(t);
   }
 }
-

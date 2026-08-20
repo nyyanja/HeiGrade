@@ -15,7 +15,5 @@ import lombok.experimental.SuperBuilder;
 public class Student extends User {
 
   private String reference;
-  @JsonBackReference
-  private Group group;
+  @JsonBackReference private Group group;
 }
-

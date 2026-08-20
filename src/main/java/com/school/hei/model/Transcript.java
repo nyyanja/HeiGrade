@@ -31,4 +31,3 @@ public class Transcript {
 
   private Integer totalCredit;
 }
-

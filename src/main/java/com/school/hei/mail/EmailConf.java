@@ -25,4 +25,3 @@ public class EmailConf {
     return SesClient.builder().region(region).build();
   }
 }
-

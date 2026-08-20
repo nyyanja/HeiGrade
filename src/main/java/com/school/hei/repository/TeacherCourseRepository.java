@@ -16,4 +16,3 @@ public interface TeacherCourseRepository extends JpaRepository<JTeacherCourse, U
 
   void deleteByCourse_Id(UUID courseId);
 }
-

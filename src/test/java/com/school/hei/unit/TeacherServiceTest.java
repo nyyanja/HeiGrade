@@ -45,25 +45,24 @@ class TeacherServiceTest {
     courseId = UUID.randomUUID();
 
     teacherEntity =
-            JTeacher.builder()
-                    .id(teacherId)
-                    .firstName("John")
-                    .lastName("Doe")
-                    .email("john.doe@test.com")
-                    .speciality("Computer Science")
-                    .password("oldEncoded")
-                    .build();
+        JTeacher.builder()
+            .id(teacherId)
+            .firstName("John")
+            .lastName("Doe")
+            .email("john.doe@test.com")
+            .speciality("Computer Science")
+            .password("oldEncoded")
+            .build();
 
     teacher =
-            Teacher.builder()
-                    .id(teacherId)
-                    .firstName("John")
-                    .lastName("Doe")
-                    .email("john.doe@test.com")
-                    .speciality("Computer Science")
-                    .build();
+        Teacher.builder()
+            .id(teacherId)
+            .firstName("John")
+            .lastName("Doe")
+            .email("john.doe@test.com")
+            .speciality("Computer Science")
+            .build();
   }
-
 
   @Test
   void should_find_all_teachers() {
@@ -93,14 +92,14 @@ class TeacherServiceTest {
     when(teacherRepository.findById(teacherId)).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> teacherService.findById(teacherId))
-            .isInstanceOf(ResponseStatusException.class)
-            .hasMessageContaining("teacher not found");
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("teacher not found");
   }
 
   @Test
   void should_find_teachers_by_speciality() {
     when(teacherRepository.findBySpecialityContainingIgnoreCase("Computer"))
-            .thenReturn(List.of(teacherEntity));
+        .thenReturn(List.of(teacherEntity));
 
     List<Teacher> result = teacherService.findBySpeciality("Computer");
 
@@ -111,35 +110,35 @@ class TeacherServiceTest {
   @Test
   void should_reject_blank_speciality() {
     assertThatThrownBy(() -> teacherService.findBySpeciality(" "))
-            .isInstanceOf(ResponseStatusException.class)
-            .hasMessageContaining("speciality is required");
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("speciality is required");
   }
 
   @Test
   void should_reject_null_speciality() {
     assertThatThrownBy(() -> teacherService.findBySpeciality(null))
-            .isInstanceOf(ResponseStatusException.class)
-            .hasMessageContaining("speciality is required");
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("speciality is required");
   }
 
   @Test
   void should_find_teachers_by_name() {
     when(teacherRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(
             "John", "John"))
-            .thenReturn(List.of(teacherEntity));
+        .thenReturn(List.of(teacherEntity));
 
     List<Teacher> result = teacherService.findByName("John");
 
     assertThat(result).hasSize(1);
     verify(teacherRepository)
-            .findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase("John", "John");
+        .findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase("John", "John");
   }
 
   @Test
   void should_reject_blank_name() {
     assertThatThrownBy(() -> teacherService.findByName(" "))
-            .isInstanceOf(ResponseStatusException.class)
-            .hasMessageContaining("name is required");
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("name is required");
   }
 
   @Test
@@ -153,27 +152,26 @@ class TeacherServiceTest {
     verify(teacherRepository).findByCourseId(courseId);
   }
 
-
   @Test
   void should_save_teacher() {
     Teacher toSave =
-            Teacher.builder()
-                    .firstName("John")
-                    .lastName("Doe")
-                    .email("john.doe@test.com")
-                    .speciality("Computer Science")
-                    .password("plainPassword123")
-                    .build();
+        Teacher.builder()
+            .firstName("John")
+            .lastName("Doe")
+            .email("john.doe@test.com")
+            .speciality("Computer Science")
+            .password("plainPassword123")
+            .build();
 
     JTeacher saved =
-            JTeacher.builder()
-                    .id(teacherId)
-                    .firstName("John")
-                    .lastName("Doe")
-                    .email("john.doe@test.com")
-                    .speciality("Computer Science")
-                    .password("encodedPassword")
-                    .build();
+        JTeacher.builder()
+            .id(teacherId)
+            .firstName("John")
+            .lastName("Doe")
+            .email("john.doe@test.com")
+            .speciality("Computer Science")
+            .password("encodedPassword")
+            .build();
 
     when(passwordEncoder.encode("plainPassword123")).thenReturn("encodedPassword");
     when(teacherRepository.save(any(JTeacher.class))).thenReturn(saved);
@@ -189,41 +187,40 @@ class TeacherServiceTest {
   @Test
   void should_throw_when_password_missing_on_save() {
     Teacher toSave =
-            Teacher.builder()
-                    .firstName("John")
-                    .lastName("Doe")
-                    .email("john.doe@test.com")
-                    .speciality("Computer Science")
-                    .build(); // no password
+        Teacher.builder()
+            .firstName("John")
+            .lastName("Doe")
+            .email("john.doe@test.com")
+            .speciality("Computer Science")
+            .build(); // no password
 
     assertThatThrownBy(() -> teacherService.save(toSave))
-            .isInstanceOf(ResponseStatusException.class)
-            .hasMessageContaining("password is required");
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("password is required");
 
     verify(passwordEncoder, never()).encode(anyString());
     verify(teacherRepository, never()).save(any());
   }
 
-
   @Test
   void should_update_teacher_without_password() {
     Teacher updatedTeacher =
-            Teacher.builder()
-                    .firstName("Jane")
-                    .lastName("Doe")
-                    .email("jane.doe@test.com")
-                    .speciality("Data Science")
-                    .build(); // no password
+        Teacher.builder()
+            .firstName("Jane")
+            .lastName("Doe")
+            .email("jane.doe@test.com")
+            .speciality("Data Science")
+            .build(); // no password
 
     JTeacher updatedEntity =
-            JTeacher.builder()
-                    .id(teacherId)
-                    .firstName("Jane")
-                    .lastName("Doe")
-                    .email("jane.doe@test.com")
-                    .speciality("Data Science")
-                    .password("oldEncoded")
-                    .build();
+        JTeacher.builder()
+            .id(teacherId)
+            .firstName("Jane")
+            .lastName("Doe")
+            .email("jane.doe@test.com")
+            .speciality("Data Science")
+            .password("oldEncoded")
+            .build();
 
     when(teacherRepository.findById(teacherId)).thenReturn(Optional.of(teacherEntity));
     when(teacherRepository.save(any(JTeacher.class))).thenReturn(updatedEntity);
@@ -243,13 +240,13 @@ class TeacherServiceTest {
   @Test
   void should_update_teacher_and_change_password_when_provided() {
     Teacher updatedTeacher =
-            Teacher.builder()
-                    .firstName("Jane")
-                    .lastName("Doe")
-                    .email("jane.doe@test.com")
-                    .speciality("Data Science")
-                    .password("newPlainPassword")
-                    .build();
+        Teacher.builder()
+            .firstName("Jane")
+            .lastName("Doe")
+            .email("jane.doe@test.com")
+            .speciality("Data Science")
+            .password("newPlainPassword")
+            .build();
 
     when(teacherRepository.findById(teacherId)).thenReturn(Optional.of(teacherEntity));
     when(passwordEncoder.encode("newPlainPassword")).thenReturn("newEncoded");
@@ -267,14 +264,13 @@ class TeacherServiceTest {
     when(teacherRepository.findById(teacherId)).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> teacherService.update(teacherId, teacher))
-            .isInstanceOf(ResponseStatusException.class)
-            .hasMessageContaining("teacher not found");
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("teacher not found");
 
     verify(teacherRepository).findById(teacherId);
     verify(teacherRepository, never()).save(any());
     verify(teacherValidator, never()).accept(any());
   }
-
 
   @Test
   void should_delete_teacher() {
@@ -291,8 +287,8 @@ class TeacherServiceTest {
     when(teacherRepository.existsById(teacherId)).thenReturn(false);
 
     assertThatThrownBy(() -> teacherService.delete(teacherId))
-            .isInstanceOf(ResponseStatusException.class)
-            .hasMessageContaining("teacher not found");
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("teacher not found");
 
     verify(teacherRepository).existsById(teacherId);
     verify(teacherRepository, never()).deleteById(any());

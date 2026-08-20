@@ -32,4 +32,3 @@ public class JPromotion {
   @Column(name = "year", nullable = false)
   private Integer year;
 }
-

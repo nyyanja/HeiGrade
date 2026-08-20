@@ -21,11 +21,7 @@ public class FacadeIT {
   @BeforeAll
   static void beforeAll() {
     POSTGRES_CONF.start();
-    getRuntime()
-
-
-
-        .addShutdownHook(new Thread(POSTGRES_CONF::stop));
+    getRuntime().addShutdownHook(new Thread(POSTGRES_CONF::stop));
   }
 
   @SneakyThrows
@@ -47,4 +43,3 @@ public class FacadeIT {
     }
   }
 }
-

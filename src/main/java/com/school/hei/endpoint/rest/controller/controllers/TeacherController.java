@@ -57,4 +57,3 @@ public class TeacherController {
     return teacherService.findByCourse(courseId);
   }
 }
-

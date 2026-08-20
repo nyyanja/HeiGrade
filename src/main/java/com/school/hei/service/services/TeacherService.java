@@ -29,8 +29,8 @@ public class TeacherService {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "speciality is required");
     }
     return teacherRepository.findBySpecialityContainingIgnoreCase(speciality).stream()
-            .map(TeacherMapper::toModel)
-            .toList();
+        .map(TeacherMapper::toModel)
+        .toList();
   }
 
   public List<Teacher> findByName(String name) {
@@ -38,10 +38,10 @@ public class TeacherService {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "name is required");
     }
     return teacherRepository
-            .findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(name, name)
-            .stream()
-            .map(TeacherMapper::toModel)
-            .toList();
+        .findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(name, name)
+        .stream()
+        .map(TeacherMapper::toModel)
+        .toList();
   }
 
   public List<Teacher> findByCourse(UUID courseId) {
@@ -57,12 +57,12 @@ public class TeacherService {
 
   public Teacher findById(UUID id) {
     return teacherRepository
-            .findById(id)
-            .map(TeacherMapper::toModel)
-            .orElseThrow(
-                    () ->
-                            new ResponseStatusException(
-                                    HttpStatus.NOT_FOUND, "teacher not found with id " + id));
+        .findById(id)
+        .map(TeacherMapper::toModel)
+        .orElseThrow(
+            () ->
+                new ResponseStatusException(
+                    HttpStatus.NOT_FOUND, "teacher not found with id " + id));
   }
 
   @Transactional
@@ -82,12 +82,12 @@ public class TeacherService {
   @Transactional
   public Teacher update(UUID id, Teacher teacher) {
     JTeacher existing =
-            teacherRepository
-                    .findById(id)
-                    .orElseThrow(
-                            () ->
-                                    new ResponseStatusException(
-                                            HttpStatus.NOT_FOUND, "teacher not found with id " + id));
+        teacherRepository
+            .findById(id)
+            .orElseThrow(
+                () ->
+                    new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "teacher not found with id " + id));
 
     teacher.setId(id);
     teacherValidator.accept(teacher);

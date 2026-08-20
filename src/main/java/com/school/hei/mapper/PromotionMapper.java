@@ -22,9 +22,6 @@ public class PromotionMapper {
       return null;
     }
 
-    return JPromotion.builder()
-        .id(model.getId())
-        .build();
+    return JPromotion.builder().id(model.getId()).build();
   }
 }
-

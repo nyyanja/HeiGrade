@@ -31,4 +31,3 @@ public class LambdaHandler implements RequestStreamHandler {
     handler.proxyStream(input, output, context);
   }
 }
-

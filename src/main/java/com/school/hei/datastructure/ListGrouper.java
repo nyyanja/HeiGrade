@@ -24,4 +24,3 @@ public class ListGrouper<T> implements BiFunction<List<T>, Integer, List<List<T>
     return groupedList;
   }
 }
-

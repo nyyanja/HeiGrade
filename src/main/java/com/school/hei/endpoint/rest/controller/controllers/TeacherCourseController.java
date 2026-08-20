@@ -50,4 +50,3 @@ public class TeacherCourseController {
     teacherCourseService.delete(id);
   }
 }
-

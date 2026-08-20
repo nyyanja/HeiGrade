@@ -12,4 +12,3 @@ public interface DummyUuidRepository extends JpaRepository<DummyUuid, String> {
   @Override
   List<DummyUuid> findAllById(Iterable<String> ids);
 }
-

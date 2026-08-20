@@ -36,4 +36,3 @@ public class EventConsumer implements Consumer<List<ConsumableEvent>> {
     };
   }
 }
-

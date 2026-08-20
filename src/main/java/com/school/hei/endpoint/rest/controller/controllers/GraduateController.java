@@ -35,4 +35,3 @@ public class GraduateController {
     return graduateExportService.exportGraduatesToExcel(promotionId);
   }
 }
-

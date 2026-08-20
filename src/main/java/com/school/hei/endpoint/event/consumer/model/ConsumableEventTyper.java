@@ -101,4 +101,3 @@ public class ConsumableEventTyper implements Function<List<SQSMessage>, List<Con
     return eventConf.getSqsClient();
   }
 }
-

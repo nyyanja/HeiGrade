@@ -123,4 +123,3 @@ public class EventProducer<T extends PojaEvent> implements Consumer<Collection<T
     }
   }
 }
-

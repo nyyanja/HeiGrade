@@ -30,4 +30,3 @@ public class AuthService {
     return new LoginResponse(token);
   }
 }
-

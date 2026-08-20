@@ -213,4 +213,3 @@ class SecurityIT extends FacadeIT {
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
   }
 }
-

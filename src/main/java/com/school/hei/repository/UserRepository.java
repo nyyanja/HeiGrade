@@ -15,4 +15,3 @@ public interface UserRepository extends JpaRepository<JUser, UUID> {
   List<JUser> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(
       String firstName, String lastName);
 }
-

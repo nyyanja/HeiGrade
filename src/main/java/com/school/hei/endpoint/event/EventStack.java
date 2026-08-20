@@ -16,4 +16,3 @@ public enum EventStack {
     this.sqsQueueUrl = sqsQueueUrl;
   }
 }
-

@@ -25,9 +25,7 @@ public class StudentValidator implements SaveValidator<Student> {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "student reference is required");
     }
     if (student.getRole() != Role.STUDENT) {
-      throw new ResponseStatusException(
-              HttpStatus.BAD_REQUEST,
-              "student role must be STUDENT");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "student role must be STUDENT");
     }
     studentRepository
         .findByReference(student.getReference())
@@ -55,4 +53,3 @@ public class StudentValidator implements SaveValidator<Student> {
     }
   }
 }
-

@@ -54,4 +54,3 @@ public class Workers<T> implements Function<List<Callable<T>>, List<T>> {
     }
   }
 }
-

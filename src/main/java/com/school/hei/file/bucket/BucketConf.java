@@ -33,4 +33,3 @@ public class BucketConf {
     this.s3Client = S3Client.builder().region(region).build();
   }
 }
-

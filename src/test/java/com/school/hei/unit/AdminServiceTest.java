@@ -44,31 +44,31 @@ class AdminServiceTest {
     adminId = UUID.randomUUID();
 
     admin =
-            Admin.builder()
-                    .id(adminId)
-                    .firstName("John")
-                    .lastName("Doe")
-                    .birthday(LocalDate.of(1995, 5, 10))
-                    .sex(Sex.MALE)
-                    .address("Antananarivo")
-                    .email("john.doe@hei.school")
-                    .role(Role.ADMIN)
-                    .adminReference("ADM-001")
-                    .build();
+        Admin.builder()
+            .id(adminId)
+            .firstName("John")
+            .lastName("Doe")
+            .birthday(LocalDate.of(1995, 5, 10))
+            .sex(Sex.MALE)
+            .address("Antananarivo")
+            .email("john.doe@hei.school")
+            .role(Role.ADMIN)
+            .adminReference("ADM-001")
+            .build();
 
     jAdmin =
-            JAdmin.builder()
-                    .id(adminId)
-                    .firstName("John")
-                    .lastName("Doe")
-                    .birthday(LocalDate.of(1995, 5, 10))
-                    .sex(Sex.MALE)
-                    .address("Antananarivo")
-                    .email("john.doe@hei.school")
-                    .role(Role.ADMIN)
-                    .adminReference("ADM-001")
-                    .password("oldEncoded")
-                    .build();
+        JAdmin.builder()
+            .id(adminId)
+            .firstName("John")
+            .lastName("Doe")
+            .birthday(LocalDate.of(1995, 5, 10))
+            .sex(Sex.MALE)
+            .address("Antananarivo")
+            .email("john.doe@hei.school")
+            .role(Role.ADMIN)
+            .adminReference("ADM-001")
+            .password("oldEncoded")
+            .build();
   }
 
   @Test
@@ -109,36 +109,35 @@ class AdminServiceTest {
     when(adminRepository.findById(adminId)).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> adminService.findById(adminId))
-            .isInstanceOf(ResponseStatusException.class)
-            .hasMessageContaining("admin not found with id " + adminId);
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("admin not found with id " + adminId);
   }
-
 
   @Test
   void should_save_admin() {
     Admin toSave =
-            Admin.builder()
-                    .firstName("John")
-                    .lastName("Doe")
-                    .birthday(LocalDate.of(1995, 5, 10))
-                    .sex(Sex.MALE)
-                    .address("Antananarivo")
-                    .email("john.doe@hei.school")
-                    .role(Role.ADMIN)
-                    .adminReference("ADM-001")
-                    .password("plainPassword123")
-                    .build();
+        Admin.builder()
+            .firstName("John")
+            .lastName("Doe")
+            .birthday(LocalDate.of(1995, 5, 10))
+            .sex(Sex.MALE)
+            .address("Antananarivo")
+            .email("john.doe@hei.school")
+            .role(Role.ADMIN)
+            .adminReference("ADM-001")
+            .password("plainPassword123")
+            .build();
 
     JAdmin saved =
-            JAdmin.builder()
-                    .id(adminId)
-                    .firstName("John")
-                    .lastName("Doe")
-                    .email("john.doe@hei.school")
-                    .role(Role.ADMIN)
-                    .adminReference("ADM-001")
-                    .password("encodedPassword")
-                    .build();
+        JAdmin.builder()
+            .id(adminId)
+            .firstName("John")
+            .lastName("Doe")
+            .email("john.doe@hei.school")
+            .role(Role.ADMIN)
+            .adminReference("ADM-001")
+            .password("encodedPassword")
+            .build();
 
     when(passwordEncoder.encode("plainPassword123")).thenReturn("encodedPassword");
     when(adminRepository.save(any(JAdmin.class))).thenReturn(saved);
@@ -155,39 +154,38 @@ class AdminServiceTest {
   void should_throw_when_password_missing_on_save() {
 
     assertThatThrownBy(() -> adminService.save(admin))
-            .isInstanceOf(ResponseStatusException.class)
-            .hasMessageContaining("password is required");
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("password is required");
 
     verify(passwordEncoder, never()).encode(anyString());
     verify(adminRepository, never()).save(any());
   }
 
-
   @Test
   void should_update_admin_without_password() {
     Admin updated =
-            Admin.builder()
-                    .firstName("Jane")
-                    .lastName("Doe")
-                    .birthday(LocalDate.of(1995, 5, 10))
-                    .sex(Sex.FEMALE)
-                    .address("Antananarivo")
-                    .email("jane.doe@hei.school")
-                    .role(Role.ADMIN)
-                    .adminReference("ADM-002")
-                    .build(); // no password
+        Admin.builder()
+            .firstName("Jane")
+            .lastName("Doe")
+            .birthday(LocalDate.of(1995, 5, 10))
+            .sex(Sex.FEMALE)
+            .address("Antananarivo")
+            .email("jane.doe@hei.school")
+            .role(Role.ADMIN)
+            .adminReference("ADM-002")
+            .build(); // no password
 
     JAdmin updatedEntity =
-            JAdmin.builder()
-                    .id(adminId)
-                    .firstName("Jane")
-                    .lastName("Doe")
-                    .sex(Sex.FEMALE)
-                    .email("jane.doe@hei.school")
-                    .role(Role.ADMIN)
-                    .adminReference("ADM-002")
-                    .password("oldEncoded")
-                    .build();
+        JAdmin.builder()
+            .id(adminId)
+            .firstName("Jane")
+            .lastName("Doe")
+            .sex(Sex.FEMALE)
+            .email("jane.doe@hei.school")
+            .role(Role.ADMIN)
+            .adminReference("ADM-002")
+            .password("oldEncoded")
+            .build();
 
     when(adminRepository.findById(adminId)).thenReturn(Optional.of(jAdmin));
     when(adminRepository.save(any(JAdmin.class))).thenReturn(updatedEntity);
@@ -207,17 +205,17 @@ class AdminServiceTest {
   @Test
   void should_update_admin_and_change_password_when_provided() {
     Admin updated =
-            Admin.builder()
-                    .firstName("Jane")
-                    .lastName("Doe")
-                    .birthday(LocalDate.of(1995, 5, 10))
-                    .sex(Sex.FEMALE)
-                    .address("Antananarivo")
-                    .email("jane.doe@hei.school")
-                    .role(Role.ADMIN)
-                    .adminReference("ADM-002")
-                    .password("newPlainPassword")
-                    .build();
+        Admin.builder()
+            .firstName("Jane")
+            .lastName("Doe")
+            .birthday(LocalDate.of(1995, 5, 10))
+            .sex(Sex.FEMALE)
+            .address("Antananarivo")
+            .email("jane.doe@hei.school")
+            .role(Role.ADMIN)
+            .adminReference("ADM-002")
+            .password("newPlainPassword")
+            .build();
 
     when(adminRepository.findById(adminId)).thenReturn(Optional.of(jAdmin));
     when(passwordEncoder.encode("newPlainPassword")).thenReturn("newEncoded");
@@ -235,14 +233,13 @@ class AdminServiceTest {
     when(adminRepository.findById(adminId)).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> adminService.update(adminId, admin))
-            .isInstanceOf(ResponseStatusException.class)
-            .hasMessageContaining("admin not found with id " + adminId);
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("admin not found with id " + adminId);
 
     verify(adminRepository).findById(adminId);
     verify(adminValidator, never()).accept(any(Admin.class));
     verify(adminRepository, never()).save(any(JAdmin.class));
   }
-
 
   @Test
   void should_delete_admin() {
@@ -259,8 +256,8 @@ class AdminServiceTest {
     when(adminRepository.existsById(adminId)).thenReturn(false);
 
     assertThatThrownBy(() -> adminService.delete(adminId))
-            .isInstanceOf(ResponseStatusException.class)
-            .hasMessageContaining("admin not found with id " + adminId);
+        .isInstanceOf(ResponseStatusException.class)
+        .hasMessageContaining("admin not found with id " + adminId);
 
     verify(adminRepository).existsById(adminId);
     verify(adminRepository, never()).deleteById(any(UUID.class));

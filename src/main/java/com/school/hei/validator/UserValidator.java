@@ -56,4 +56,3 @@ public class UserValidator {
     return value == null || value.isBlank();
   }
 }
-

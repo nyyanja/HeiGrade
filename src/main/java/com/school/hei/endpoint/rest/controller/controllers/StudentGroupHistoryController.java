@@ -32,4 +32,3 @@ public class StudentGroupHistoryController {
     return studentGroupHistoryService.findByGroup(groupId);
   }
 }
-

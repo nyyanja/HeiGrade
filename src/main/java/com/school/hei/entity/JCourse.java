@@ -38,4 +38,3 @@ public class JCourse {
   @Column(name = "level", nullable = false)
   private Integer level;
 }
-

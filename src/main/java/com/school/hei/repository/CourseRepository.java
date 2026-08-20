@@ -40,4 +40,3 @@ public interface CourseRepository extends JpaRepository<JCourse, UUID> {
 
   List<JCourse> findByTitleContainingIgnoreCase(String title);
 }
-

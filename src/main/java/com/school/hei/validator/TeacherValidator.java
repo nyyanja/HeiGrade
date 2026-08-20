@@ -20,10 +20,7 @@ public class TeacherValidator implements SaveValidator<Teacher> {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "teacher speciality is required");
     }
     if (teacher.getRole() != Role.TEACHER) {
-      throw new ResponseStatusException(
-              HttpStatus.BAD_REQUEST,
-              "teacher role must be TEACHER");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "teacher role must be TEACHER");
     }
   }
 }
-

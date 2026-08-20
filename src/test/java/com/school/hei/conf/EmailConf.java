@@ -10,4 +10,3 @@ public class EmailConf {
     registry.add("aws.ses.source", () -> "dummy-ses-source");
   }
 }
-

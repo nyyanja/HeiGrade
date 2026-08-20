@@ -77,8 +77,9 @@ public class GroupService {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "speciality id is required");
     }
     return specialityRepository
-            .findById(speciality.getId())
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "speciality not found"));
+        .findById(speciality.getId())
+        .orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "speciality not found"));
   }
 
   private JPromotion resolvePromotion(Promotion promotion) {
@@ -86,8 +87,9 @@ public class GroupService {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "promotion id is required");
     }
     return promotionRepository
-            .findById(promotion.getId())
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "promotion not found"));
+        .findById(promotion.getId())
+        .orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "promotion not found"));
   }
 
   public void delete(UUID id) {
@@ -189,4 +191,3 @@ public class GroupService {
     return model;
   }
 }
-

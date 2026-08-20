@@ -26,6 +26,7 @@ public class User {
   private String address;
   private String email;
   private Role role;
+
   @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   private String password;
 }

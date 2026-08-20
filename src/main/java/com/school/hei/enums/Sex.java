@@ -5,4 +5,3 @@ public enum Sex {
   FEMALE,
   OTHER
 }
-

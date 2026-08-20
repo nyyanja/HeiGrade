@@ -13,4 +13,3 @@ public interface DummyRepository extends JpaRepository<Dummy, String> {
   @Override
   List<Dummy> findAll();
 }
-

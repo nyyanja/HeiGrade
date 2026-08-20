@@ -34,4 +34,3 @@ public class PromotionWebController {
     return new RedirectView(downloadUrl);
   }
 }
-
