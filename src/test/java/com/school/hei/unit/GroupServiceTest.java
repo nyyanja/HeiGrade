@@ -5,20 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import com.school.hei.entity.JGroup;
-import com.school.hei.entity.JSpeciality;
-import com.school.hei.entity.JStudent;
-import com.school.hei.entity.JStudentGroupHistory;
+import com.school.hei.entity.*;
 import com.school.hei.enums.GroupSpeciality;
 import com.school.hei.model.Group;
+import com.school.hei.model.Promotion;
 import com.school.hei.model.Speciality;
 import com.school.hei.model.Student;
-import com.school.hei.repository.CourseRepository;
-import com.school.hei.repository.ExamRepository;
-import com.school.hei.repository.GroupRepository;
-import com.school.hei.repository.SpecialityRepository;
-import com.school.hei.repository.StudentGroupHistoryRepository;
-import com.school.hei.repository.StudentRepository;
+import com.school.hei.repository.*;
 import com.school.hei.service.services.GroupService;
 import com.school.hei.validator.GroupValidator;
 import com.school.hei.validator.SpecialityChangeValidator;
@@ -52,7 +45,11 @@ class GroupServiceTest {
 
   @Mock private SpecialityChangeValidator specialityChangeValidator;
 
+  @Mock private PromotionRepository promotionRepository;
+
   @InjectMocks private GroupService groupService;
+
+
 
   @Test
   void should_find_all_groups() {
@@ -104,13 +101,25 @@ class GroupServiceTest {
   void should_save_group_without_students() {
     UUID groupId = UUID.randomUUID();
     UUID specialityId = UUID.randomUUID();
+    UUID promotionId = UUID.randomUUID();
 
     Speciality speciality = Speciality.builder().id(specialityId).name(GroupSpeciality.EL).build();
+    Promotion promotion = Promotion.builder().id(promotionId).name("P1").year(2026).build();
 
-    Group group = Group.builder().name("G1").speciality(speciality).students(List.of()).build();
+    Group group =
+            Group.builder()
+                    .name("G1")
+                    .speciality(speciality)
+                    .promotion(promotion)
+                    .students(List.of())
+                    .build();
 
+    JSpeciality jSpeciality = JSpeciality.builder().id(specialityId).name("EL").build();
+    JPromotion jPromotion = JPromotion.builder().id(promotionId).name("P1").year(2026).build();
     JGroup savedGroup = JGroup.builder().id(groupId).name("G1").build();
 
+    when(specialityRepository.findById(specialityId)).thenReturn(Optional.of(jSpeciality));
+    when(promotionRepository.findById(promotionId)).thenReturn(Optional.of(jPromotion));
     when(groupRepository.save(any(JGroup.class))).thenReturn(savedGroup);
     when(studentRepository.findByGroup_Id(groupId)).thenReturn(List.of());
 
@@ -126,15 +135,29 @@ class GroupServiceTest {
   @Test
   void should_update_group() {
     UUID groupId = UUID.randomUUID();
+    UUID specialityId = UUID.randomUUID();
+    UUID promotionId = UUID.randomUUID();
 
-    Group group = Group.builder().name("Updated Group").students(List.of()).build();
+    Speciality speciality = Speciality.builder().id(specialityId).name(GroupSpeciality.EL).build();
+    Promotion promotion = Promotion.builder().id(promotionId).name("P1").year(2026).build();
+
+    Group group =
+            Group.builder()
+                    .name("Updated Group")
+                    .speciality(speciality)
+                    .promotion(promotion)
+                    .students(List.of())
+                    .build();
 
     JGroup existing = JGroup.builder().id(groupId).name("Old Group").build();
-
+    JSpeciality jSpeciality = JSpeciality.builder().id(specialityId).name("EL").build();
+    JPromotion jPromotion = JPromotion.builder().id(promotionId).name("P1").year(2026).build();
     JGroup updated = JGroup.builder().id(groupId).name("Updated Group").build();
 
     when(groupRepository.findById(groupId)).thenReturn(Optional.of(existing));
     when(studentRepository.findByGroup_Id(groupId)).thenReturn(List.of());
+    when(specialityRepository.findById(specialityId)).thenReturn(Optional.of(jSpeciality));
+    when(promotionRepository.findById(promotionId)).thenReturn(Optional.of(jPromotion));
     when(groupRepository.save(any(JGroup.class))).thenReturn(updated);
 
     Group result = groupService.update(groupId, group);
@@ -146,7 +169,6 @@ class GroupServiceTest {
     verify(groupValidator).accept(group);
     verify(groupRepository).save(any(JGroup.class));
   }
-
   @Test
   void should_delete_group() {
     UUID groupId = UUID.randomUUID();
@@ -277,17 +299,30 @@ class GroupServiceTest {
   void should_assign_student_to_group_and_create_history() {
     UUID groupId = UUID.randomUUID();
     UUID studentId = UUID.randomUUID();
+    UUID specialityId = UUID.randomUUID();
+    UUID promotionId = UUID.randomUUID();
 
+    Speciality speciality = Speciality.builder().id(specialityId).name(GroupSpeciality.EL).build();
+    Promotion promotion = Promotion.builder().id(promotionId).name("P1").year(2026).build();
+
+    JSpeciality jSpeciality = JSpeciality.builder().id(specialityId).name("EL").build();
+    JPromotion jPromotion = JPromotion.builder().id(promotionId).name("P1").year(2026).build();
     JGroup group = JGroup.builder().id(groupId).name("G1").build();
-
     JStudent student = JStudent.builder().id(studentId).build();
-
     Student studentModel = Student.builder().id(studentId).build();
 
-    Group groupModel = Group.builder().name("G1").students(List.of(studentModel)).build();
+    Group groupModel =
+            Group.builder()
+                    .name("G1")
+                    .speciality(speciality)
+                    .promotion(promotion)
+                    .students(List.of(studentModel))
+                    .build();
 
     JGroup savedGroup = JGroup.builder().id(groupId).name("G1").build();
 
+    when(specialityRepository.findById(specialityId)).thenReturn(Optional.of(jSpeciality));
+    when(promotionRepository.findById(promotionId)).thenReturn(Optional.of(jPromotion));
     when(groupRepository.save(any(JGroup.class))).thenReturn(savedGroup);
     when(studentRepository.findById(studentId)).thenReturn(Optional.of(student));
     when(studentGroupHistoryRepository.findByStudent_Id(studentId)).thenReturn(List.of());
@@ -303,32 +338,45 @@ class GroupServiceTest {
 
     assertThat(student.getGroup()).isEqualTo(savedGroup);
   }
-
   @Test
   void should_close_old_history_when_student_changes_group() {
     UUID groupId = UUID.randomUUID();
     UUID oldGroupId = UUID.randomUUID();
     UUID studentId = UUID.randomUUID();
+    UUID specialityId = UUID.randomUUID();
+    UUID promotionId = UUID.randomUUID();
+
+    Speciality speciality = Speciality.builder().id(specialityId).name(GroupSpeciality.EL).build();
+    Promotion promotion = Promotion.builder().id(promotionId).name("P1").year(2026).build();
+
+    JSpeciality jSpeciality = JSpeciality.builder().id(specialityId).name("EL").build();
+    JPromotion jPromotion = JPromotion.builder().id(promotionId).name("P1").year(2026).build();
 
     JGroup oldGroup = JGroup.builder().id(oldGroupId).name("Old Group").build();
-
     JGroup newGroup = JGroup.builder().id(groupId).name("New Group").build();
-
     JStudent student = JStudent.builder().id(studentId).group(oldGroup).build();
 
     JStudentGroupHistory oldHistory =
-        JStudentGroupHistory.builder()
-            .id(UUID.randomUUID())
-            .student(student)
-            .group(oldGroup)
-            .startDate(LocalDate.now().minusMonths(1))
-            .endDate(null)
-            .build();
+            JStudentGroupHistory.builder()
+                    .id(UUID.randomUUID())
+                    .student(student)
+                    .group(oldGroup)
+                    .startDate(LocalDate.now().minusMonths(1))
+                    .endDate(null)
+                    .build();
 
     Student studentModel = Student.builder().id(studentId).build();
 
-    Group groupModel = Group.builder().name("New Group").students(List.of(studentModel)).build();
+    Group groupModel =
+            Group.builder()
+                    .name("New Group")
+                    .speciality(speciality)
+                    .promotion(promotion)
+                    .students(List.of(studentModel))
+                    .build();
 
+    when(specialityRepository.findById(specialityId)).thenReturn(Optional.of(jSpeciality));
+    when(promotionRepository.findById(promotionId)).thenReturn(Optional.of(jPromotion));
     when(groupRepository.save(any(JGroup.class))).thenReturn(newGroup);
     when(studentRepository.findById(studentId)).thenReturn(Optional.of(student));
     when(studentGroupHistoryRepository.findByStudent_Id(studentId)).thenReturn(List.of(oldHistory));
@@ -339,7 +387,7 @@ class GroupServiceTest {
     assertThat(oldHistory.getEndDate()).isEqualTo(LocalDate.now().minusDays(1));
 
     verify(studentGroupHistoryRepository, times(2)).save(any(JStudentGroupHistory.class));
-
     verify(studentRepository).save(student);
   }
 }
+

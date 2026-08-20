@@ -172,3 +172,4 @@ class StudentGroupHistoryServiceTest {
     assertThat(result.get(1).getGroup().getName()).isEqualTo("K5");
   }
 }
+

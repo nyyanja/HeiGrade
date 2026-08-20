@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import com.school.hei.entity.JCourse;
 import com.school.hei.entity.JExam;
 import com.school.hei.entity.JGroup;
 import com.school.hei.entity.JGroupExam;
@@ -327,7 +328,6 @@ class ExamServiceTest {
     verify(courseRepository).existsById(courseId);
     verify(examRepository, never()).findByCourse_Id(courseId);
   }
-
   @Test
   void should_save_exam_with_groups() {
     UUID examId = UUID.randomUUID();
@@ -337,17 +337,21 @@ class ExamServiceTest {
     Exam exam = createExamModel(courseId, groupId, 0.4);
 
     JExam savedExam = createExamEntity(examId, "Programming Exam", 0.4);
-
     JGroup group = createGroupEntity(groupId);
+    JCourse jCourse =
+            JCourse.builder()
+                    .id(courseId)
+                    .reference("COURSE-001")
+                    .title("Programming")
+                    .credit(4)
+                    .level(2)
+                    .build();
 
     when(groupRepository.existsById(groupId)).thenReturn(true);
-
     when(examRepository.findByCourse_Id(courseId)).thenReturn(List.of());
-
+    when(courseRepository.findById(courseId)).thenReturn(Optional.of(jCourse));  // ← AJOUT
     when(examRepository.save(any(JExam.class))).thenReturn(savedExam);
-
     when(groupRepository.getReferenceById(groupId)).thenReturn(group);
-
     when(groupExamRepository.findByExam_Id(examId)).thenReturn(List.of());
 
     Exam result = examService.save(exam);
@@ -439,7 +443,6 @@ class ExamServiceTest {
     verify(examRepository).findByCourse_Id(courseId);
     verify(examRepository, never()).save(any(JExam.class));
   }
-
   @Test
   void should_update_exam() {
     UUID examId = UUID.randomUUID();
@@ -449,21 +452,23 @@ class ExamServiceTest {
     Exam exam = createExamModel(courseId, groupId, 0.5);
 
     JExam existingExam = createExamEntity(examId, "Old Exam", 0.4);
-
     JExam updatedExam = createExamEntity(examId, "Updated Exam", 0.5);
-
     JGroup group = createGroupEntity(groupId);
+    JCourse jCourse =
+            JCourse.builder()
+                    .id(courseId)
+                    .reference("COURSE-001")
+                    .title("Programming")
+                    .credit(4)
+                    .level(2)
+                    .build();
 
     when(examRepository.findById(examId)).thenReturn(Optional.of(existingExam));
-
     when(groupExamRepository.findByExam_Id(examId)).thenReturn(List.of());
-
     when(groupRepository.existsById(groupId)).thenReturn(true);
-
     when(examRepository.findByCourse_Id(courseId)).thenReturn(List.of(existingExam));
-
+    when(courseRepository.findById(courseId)).thenReturn(Optional.of(jCourse));  // ← AJOUT
     when(examRepository.save(any(JExam.class))).thenReturn(updatedExam);
-
     when(groupRepository.getReferenceById(groupId)).thenReturn(group);
 
     Exam result = examService.update(examId, exam);
@@ -553,3 +558,4 @@ class ExamServiceTest {
     return JGroup.builder().id(groupId).name("Group A").build();
   }
 }
+

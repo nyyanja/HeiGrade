@@ -208,3 +208,4 @@ class GradeHistoryValidatorTest {
     verify(userRepository).existsById(userId);
   }
 }
+

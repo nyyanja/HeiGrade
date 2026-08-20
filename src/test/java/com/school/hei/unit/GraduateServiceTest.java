@@ -64,7 +64,6 @@ class GraduateServiceTest {
 
     group = JGroup.builder().id(groupId).name("Group K1").build();
 
-    // sécu : par défaut admin OK ; assertCanAccessTranscript no-op
     lenient().when(courseAccessService.isAdmin()).thenReturn(true);
     lenient().doNothing().when(transcriptService).assertCanAccessTranscript(any());
   }
@@ -156,7 +155,6 @@ class GraduateServiceTest {
         .isInstanceOf(ResponseStatusException.class)
         .hasMessageContaining("student not found");
 
-    // assertCanAccessTranscript est appelé, mais pas getStudentTranscript
     verify(transcriptService, never()).getStudentTranscript(any(), anyInt());
   }
 
@@ -177,7 +175,6 @@ class GraduateServiceTest {
     when(groupRepository.findByPromotion_Id(promotionId)).thenReturn(List.of(group));
     when(studentRepository.findByGroup_Id(groupId)).thenReturn(List.of(student, student2));
 
-    // getGraduatesByPromotion → getGraduateStatusForSystem → getStudentTranscriptForSystem
     mockFullGraduate(studentId, 14.0);
     mockFullGraduate(studentId2, 16.0);
 
@@ -211,7 +208,6 @@ class GraduateServiceTest {
     when(studentRepository.findByGroup_Id(groupId)).thenReturn(List.of(student));
     when(studentRepository.findById(studentId)).thenReturn(Optional.of(student));
 
-    // crédits < 180
     when(transcriptService.getStudentTranscriptForSystem(eq(studentId), eq(1)))
         .thenReturn(Transcript.builder().generalAverage(12.0).totalCredit(60).build());
     when(transcriptService.getStudentTranscriptForSystem(eq(studentId), eq(2)))
@@ -231,7 +227,6 @@ class GraduateServiceTest {
     when(studentRepository.findByGroup_Id(groupId)).thenReturn(List.of(student));
     when(studentRepository.findById(studentId)).thenReturn(Optional.of(student));
 
-    // 180 crédits mais moyennes manquantes → generalAverage null
     when(transcriptService.getStudentTranscriptForSystem(eq(studentId), anyInt()))
         .thenReturn(Transcript.builder().totalCredit(60).generalAverage(null).build());
 
@@ -271,7 +266,7 @@ class GraduateServiceTest {
     assertThat(result.get(0).getStudentId()).isEqualTo(studentId);
   }
 
-  /** L1+L2+L3 complets pour un étudiant (chemin système). */
+  
   private void mockFullGraduate(UUID id, double average) {
     Transcript t =
         Transcript.builder().studentId(id).generalAverage(average).totalCredit(60).build();
@@ -280,3 +275,4 @@ class GraduateServiceTest {
     when(transcriptService.getStudentTranscriptForSystem(eq(id), eq(3))).thenReturn(t);
   }
 }
+

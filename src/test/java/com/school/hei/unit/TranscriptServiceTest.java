@@ -430,3 +430,4 @@ class TranscriptServiceTest {
         .hasMessageContaining("access denied");
   }
 }
+
