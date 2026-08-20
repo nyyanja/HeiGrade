@@ -1,5 +1,6 @@
 package com.school.hei.validator;
 
+import com.school.hei.enums.Role;
 import com.school.hei.model.Teacher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,9 @@ public class TeacherValidator implements SaveValidator<Teacher> {
     userValidator.validateCommonFields(teacher);
     if (teacher.getSpeciality() == null || teacher.getSpeciality().isBlank()) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "teacher speciality is required");
+    }
+    if (teacher.getRole() != Role.TEACHER) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "teacher role must be TEACHER");
     }
   }
 }

@@ -1,5 +1,6 @@
 package com.school.hei.validator;
 
+import com.school.hei.enums.Role;
 import com.school.hei.model.Student;
 import com.school.hei.repository.GroupRepository;
 import com.school.hei.repository.StudentRepository;
@@ -23,7 +24,9 @@ public class StudentValidator implements SaveValidator<Student> {
     if (student.getReference() == null || student.getReference().isBlank()) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "student reference is required");
     }
-
+    if (student.getRole() != Role.STUDENT) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "student role must be STUDENT");
+    }
     studentRepository
         .findByReference(student.getReference())
         .ifPresent(
