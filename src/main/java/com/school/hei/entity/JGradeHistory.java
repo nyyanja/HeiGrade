@@ -49,3 +49,4 @@ public class JGradeHistory {
   @JoinColumn(name = "modified_by", nullable = false)
   private JUser modifiedBy;
 }
+

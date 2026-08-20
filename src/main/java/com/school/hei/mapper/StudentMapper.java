@@ -21,6 +21,7 @@ public class StudentMapper {
         .role(entity.getRole())
         .reference(entity.getReference())
         .group(GroupMapper.toModel(entity.getGroup()))
+        .password(entity.getPassword())
         .build();
   }
 
@@ -40,6 +41,8 @@ public class StudentMapper {
         .role(model.getRole())
         .reference(model.getReference())
         .group(GroupMapper.toEntity(model.getGroup()))
+        .password(model.getPassword())
         .build();
   }
 }
+

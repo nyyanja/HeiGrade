@@ -31,3 +31,4 @@ public class UuidCreated extends PojaEvent {
     return Duration.ofSeconds(30);
   }
 }
+

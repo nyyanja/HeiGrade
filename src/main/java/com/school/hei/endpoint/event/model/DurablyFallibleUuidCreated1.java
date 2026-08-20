@@ -38,3 +38,4 @@ public class DurablyFallibleUuidCreated1 extends PojaEvent {
     return uuidCreated.maxConsumerBackoffBetweenRetries();
   }
 }
+

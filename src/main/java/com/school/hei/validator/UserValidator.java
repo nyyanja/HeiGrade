@@ -37,6 +37,9 @@ public class UserValidator {
     if (user.getSex() == null) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "sex is required");
     }
+    if (user.getPassword() == null || user.getPassword().isBlank()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "password is required");
+    }
 
     userRepository
         .findByEmailIgnoreCase(user.getEmail())
@@ -53,3 +56,4 @@ public class UserValidator {
     return value == null || value.isBlank();
   }
 }
+

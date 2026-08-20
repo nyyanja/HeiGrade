@@ -2,6 +2,8 @@ package com.school.hei.model;
 
 import java.util.List;
 import java.util.UUID;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,5 +21,7 @@ public class Group {
   private String name;
   private Promotion promotion;
   private Speciality speciality;
+  @JsonManagedReference
   private List<Student> students;
 }
+

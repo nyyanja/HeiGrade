@@ -25,3 +25,4 @@ public class StudentGroupHistory {
 
   private LocalDate endDate;
 }
+

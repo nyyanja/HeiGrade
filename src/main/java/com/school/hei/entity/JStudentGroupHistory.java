@@ -36,3 +36,4 @@ public class JStudentGroupHistory {
   @Column(name = "end_date")
   private LocalDate endDate;
 }
+

@@ -50,3 +50,4 @@ public class GroupExamController {
     groupExamService.delete(id);
   }
 }
+

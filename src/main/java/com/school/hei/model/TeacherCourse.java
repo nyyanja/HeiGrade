@@ -18,3 +18,4 @@ public class TeacherCourse {
   private Teacher teacher;
   private Course course;
 }
+

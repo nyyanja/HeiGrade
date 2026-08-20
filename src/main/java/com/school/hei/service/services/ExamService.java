@@ -1,9 +1,11 @@
 package com.school.hei.service.services;
 
+import com.school.hei.entity.JCourse;
 import com.school.hei.entity.JExam;
 import com.school.hei.entity.JGroupExam;
 import com.school.hei.mapper.ExamMapper;
 import com.school.hei.mapper.GroupMapper;
+import com.school.hei.model.Course;
 import com.school.hei.model.Exam;
 import com.school.hei.model.Group;
 import com.school.hei.repository.CourseRepository;
@@ -119,7 +121,10 @@ public class ExamService {
     validateGroups(exam);
     validateCoeffSum(exam, null);
 
-    JExam savedExam = examRepository.save(ExamMapper.toEntity(exam));
+    JExam entityToSave = ExamMapper.toEntity(exam);
+    entityToSave.setCourse(resolveCourse(exam.getCourse()));
+
+    JExam savedExam = examRepository.save(entityToSave);
     exam.setId(savedExam.getId());
     saveGroupExams(exam, savedExam);
     return toModelWithGroups(savedExam);
@@ -133,11 +138,24 @@ public class ExamService {
     validateGroups(exam);
     validateCoeffSum(exam, id);
 
-    JExam savedExam = examRepository.save(ExamMapper.toEntity(exam));
+    JExam entityToSave = ExamMapper.toEntity(exam);
+    entityToSave.setCourse(resolveCourse(exam.getCourse()));
+
+    JExam savedExam = examRepository.save(entityToSave);
     groupExamRepository.deleteByExam_Id(id);
     saveGroupExams(exam, savedExam);
     return toModelWithGroups(savedExam);
   }
+
+  private JCourse resolveCourse(Course course) {
+    if (course == null || course.getId() == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "course id is required");
+    }
+    return courseRepository
+            .findById(course.getId())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "course not found"));
+  }
+
 
   public void delete(UUID id) {
     if (!examRepository.existsById(id)) {
@@ -232,3 +250,4 @@ public class ExamService {
     return model;
   }
 }
+

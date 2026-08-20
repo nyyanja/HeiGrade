@@ -14,11 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
-/**
- * Règles L1 / L2 / L3 sur le changement de spécialité : - COMMON_PART : toujours autorisé - EL / TN
- * : au plus 1 changement de spécialité spécialisée (L2) - Empêche tout nouveau changement ensuite
- * (L3 invariant)
- */
+
 @Component
 @RequiredArgsConstructor
 public class SpecialityChangeValidator {
@@ -91,3 +87,4 @@ public class SpecialityChangeValidator {
     return name.toString().trim();
   }
 }
+

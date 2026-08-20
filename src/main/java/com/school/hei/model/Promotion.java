@@ -18,3 +18,4 @@ public class Promotion {
   private String name;
   private Integer year;
 }
+

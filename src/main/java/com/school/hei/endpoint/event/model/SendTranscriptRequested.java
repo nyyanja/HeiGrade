@@ -30,3 +30,4 @@ public class SendTranscriptRequested extends PojaEvent {
     return Duration.ofSeconds(30);
   }
 }
+

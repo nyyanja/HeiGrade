@@ -50,3 +50,4 @@ public class AdminController {
     adminService.delete(id);
   }
 }
+

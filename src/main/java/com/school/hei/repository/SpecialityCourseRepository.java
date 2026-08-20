@@ -17,3 +17,4 @@ public interface SpecialityCourseRepository extends JpaRepository<JSpecialityCou
 
   List<JSpecialityCourse> findBySpeciality_Id(UUID specialityId);
 }
+

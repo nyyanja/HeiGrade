@@ -86,3 +86,4 @@ public interface GradeRepository extends JpaRepository<JGrade, UUID> {
 
   List<JGrade> findByValueGreaterThanEqual(Double value);
 }
+

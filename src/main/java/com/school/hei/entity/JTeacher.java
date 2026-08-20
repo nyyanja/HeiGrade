@@ -20,3 +20,4 @@ public class JTeacher extends JUser {
   @Column(name = "speciality")
   private String speciality;
 }
+

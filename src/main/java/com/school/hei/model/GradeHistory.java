@@ -23,3 +23,4 @@ public class GradeHistory {
   private Grade grade;
   private User modifiedBy;
 }
+

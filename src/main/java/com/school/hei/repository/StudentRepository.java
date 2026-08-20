@@ -16,3 +16,4 @@ public interface StudentRepository extends JpaRepository<JStudent, UUID> {
 
   List<JStudent> findByGroup_Speciality_Id(UUID specialityId);
 }
+

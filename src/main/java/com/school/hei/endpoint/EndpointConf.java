@@ -22,3 +22,4 @@ public class EndpointConf {
     return objectMapper;
   }
 }
+

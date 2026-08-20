@@ -35,3 +35,4 @@ public class SpecialityValidator implements SaveValidator<Speciality> {
             });
   }
 }
+

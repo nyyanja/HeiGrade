@@ -45,3 +45,4 @@ public class DurablyFallibleUuidCreated2 extends PojaEvent {
     return EVENT_STACK_2;
   }
 }
+

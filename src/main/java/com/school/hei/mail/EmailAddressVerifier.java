@@ -22,3 +22,4 @@ public class EmailAddressVerifier implements Consumer<InternetAddress> {
             VerifyEmailIdentityRequest.builder().emailAddress(emailAddress.getAddress()).build());
   }
 }
+

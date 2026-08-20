@@ -1,18 +1,13 @@
 package com.school.hei.service.services;
 
-import com.school.hei.entity.JGroup;
-import com.school.hei.entity.JStudent;
-import com.school.hei.entity.JStudentGroupHistory;
+import com.school.hei.entity.*;
 import com.school.hei.mapper.GroupMapper;
 import com.school.hei.mapper.StudentMapper;
 import com.school.hei.model.Group;
+import com.school.hei.model.Promotion;
+import com.school.hei.model.Speciality;
 import com.school.hei.model.Student;
-import com.school.hei.repository.CourseRepository;
-import com.school.hei.repository.ExamRepository;
-import com.school.hei.repository.GroupRepository;
-import com.school.hei.repository.SpecialityRepository;
-import com.school.hei.repository.StudentGroupHistoryRepository;
-import com.school.hei.repository.StudentRepository;
+import com.school.hei.repository.*;
 import com.school.hei.validator.GroupValidator;
 import com.school.hei.validator.SpecialityChangeValidator;
 import java.time.LocalDate;
@@ -36,6 +31,7 @@ public class GroupService {
   private final CourseRepository courseRepository;
   private final StudentGroupHistoryRepository studentGroupHistoryRepository;
   private final SpecialityChangeValidator specialityChangeValidator;
+  private final PromotionRepository promotionRepository;
 
   public List<Group> findAll() {
     return groupRepository.findAll().stream().map(this::toModelWithStudents).toList();
@@ -55,7 +51,10 @@ public class GroupService {
   @Transactional
   public Group save(Group group) {
     groupValidator.accept(group);
-    JGroup saved = groupRepository.save(GroupMapper.toEntity(group));
+    JGroup entityToSave = GroupMapper.toEntity(group);
+    entityToSave.setSpeciality(resolveSpeciality(group.getSpeciality()));
+    entityToSave.setPromotion(resolvePromotion(group.getPromotion()));
+    JGroup saved = groupRepository.save(entityToSave);
     assignStudents(group.getStudents(), saved);
     return toModelWithStudents(saved);
   }
@@ -65,9 +64,30 @@ public class GroupService {
     findById(id);
     group.setId(id);
     groupValidator.accept(group);
-    JGroup saved = groupRepository.save(GroupMapper.toEntity(group));
+    JGroup entityToSave = GroupMapper.toEntity(group);
+    entityToSave.setSpeciality(resolveSpeciality(group.getSpeciality()));
+    entityToSave.setPromotion(resolvePromotion(group.getPromotion()));
+    JGroup saved = groupRepository.save(entityToSave);
     assignStudents(group.getStudents(), saved);
     return toModelWithStudents(saved);
+  }
+
+  private JSpeciality resolveSpeciality(Speciality speciality) {
+    if (speciality == null || speciality.getId() == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "speciality id is required");
+    }
+    return specialityRepository
+            .findById(speciality.getId())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "speciality not found"));
+  }
+
+  private JPromotion resolvePromotion(Promotion promotion) {
+    if (promotion == null || promotion.getId() == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "promotion id is required");
+    }
+    return promotionRepository
+            .findById(promotion.getId())
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "promotion not found"));
   }
 
   public void delete(UUID id) {
@@ -138,7 +158,7 @@ public class GroupService {
           if (h.getGroup() != null && h.getGroup().getId().equals(group.getId())) {
             entity.setGroup(group);
             studentRepository.save(entity);
-            return;
+            continue;
           }
           h.setEndDate(today.minusDays(1));
           studentGroupHistoryRepository.save(h);
@@ -169,3 +189,4 @@ public class GroupService {
     return model;
   }
 }
+

@@ -31,11 +31,12 @@ public class JGroup {
   @Column(name = "name", nullable = false)
   private String name;
 
-  @ManyToOne
-  @JoinColumn(name = "promotion_id")
+  @ManyToOne(optional = false)
+  @JoinColumn(name = "promotion_id", nullable = false)
   private JPromotion promotion;
 
   @ManyToOne
   @JoinColumn(name = "speciality_id", nullable = false)
   private JSpeciality speciality;
 }
+

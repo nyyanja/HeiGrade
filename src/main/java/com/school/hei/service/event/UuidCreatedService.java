@@ -24,3 +24,4 @@ public class UuidCreatedService implements Consumer<UuidCreated> {
     dummyUuidRepository.save(dummyUuid);
   }
 }
+

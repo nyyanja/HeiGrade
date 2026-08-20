@@ -43,3 +43,4 @@ public abstract class PojaEvent implements Serializable {
     return "com.school.hei.event2";
   }
 }
+

@@ -8,3 +8,4 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface SpecialityRepository extends JpaRepository<JSpeciality, UUID> {
   Optional<JSpeciality> findByNameIgnoreCase(String name);
 }
+

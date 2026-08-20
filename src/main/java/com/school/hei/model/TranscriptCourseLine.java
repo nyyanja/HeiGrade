@@ -21,3 +21,4 @@ public class TranscriptCourseLine {
   private Double average;
   private Integer obtainedCredit;
 }
+

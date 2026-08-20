@@ -21,3 +21,4 @@ public class EventConf {
     return SqsClient.builder().region(region).build();
   }
 }
+

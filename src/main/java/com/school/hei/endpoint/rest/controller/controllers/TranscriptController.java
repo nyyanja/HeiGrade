@@ -64,3 +64,4 @@ public class TranscriptController {
     return "Transcript email requested for student " + studentId + " level L" + level;
   }
 }
+

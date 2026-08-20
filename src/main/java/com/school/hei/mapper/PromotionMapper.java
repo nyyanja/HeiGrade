@@ -24,8 +24,7 @@ public class PromotionMapper {
 
     return JPromotion.builder()
         .id(model.getId())
-        .name(model.getName())
-        .year(model.getYear())
         .build();
   }
 }
+

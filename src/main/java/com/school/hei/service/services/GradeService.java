@@ -316,7 +316,7 @@ public class GradeService {
                 () ->
                     new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "grade not found with id " + id));
-    // DELETE réservé ADMIN via SecurityConfig ; ici on garde une vérif de cohérence
+
     courseAccessService.assertCanAccessCourse(resolveCourseIdFromExistingGrade(existing));
     gradeRepository.deleteById(id);
   }
@@ -596,3 +596,4 @@ public class GradeService {
     }
   }
 }
+

@@ -15,6 +15,7 @@ public class ExamMapper {
         .date(entity.getDate())
         .coeff(entity.getCoeff())
         .title(entity.getTitle())
+        .course(CourseMapper.toModel(entity.getCourse()))
         .build();
   }
 
@@ -28,6 +29,8 @@ public class ExamMapper {
         .date(model.getDate())
         .coeff(model.getCoeff())
         .title(model.getTitle())
+        .course(CourseMapper.toEntity(model.getCourse()))
         .build();
   }
 }
+

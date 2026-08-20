@@ -31,3 +31,4 @@ public interface ExamRepository extends JpaRepository<JExam, UUID> {
       """)
   List<JExam> findBySpecialityId(@Param("specialityId") UUID specialityId);
 }
+

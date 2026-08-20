@@ -25,3 +25,4 @@ public class GraduateRanking {
   private Double generalAverage;
   private Integer totalCredit;
 }
+

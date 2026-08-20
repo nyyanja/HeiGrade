@@ -52,6 +52,9 @@ public class UserService {
             .firstName(request.getFirstName())
             .lastName(request.getLastName())
             .email(request.getEmail())
+            .sex(request.getSex())
+            .birthday(request.getBirthday())
+            .address(request.getAddress())
             .role(request.getRole())
             .build();
 
@@ -65,6 +68,9 @@ public class UserService {
             .lastName(request.getLastName())
             .email(request.getEmail())
             .role(request.getRole())
+            .address(request.getAddress())
+            .birthday(request.getBirthday())
+            .sex(request.getSex())
             .password(encodedPassword)
             .build();
 
@@ -133,3 +139,4 @@ public class UserService {
         .toList();
   }
 }
+
