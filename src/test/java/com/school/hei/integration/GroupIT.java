@@ -119,3 +119,4 @@ class GroupIT extends FacadeIT {
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
   }
 }
+

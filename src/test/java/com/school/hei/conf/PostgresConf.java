@@ -23,3 +23,4 @@ public class PostgresConf {
     registry.add("spring.datasource.password", postgres::getPassword);
   }
 }
+
