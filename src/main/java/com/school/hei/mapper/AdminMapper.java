@@ -38,6 +38,7 @@ public class AdminMapper {
         .email(model.getEmail())
         .role(model.getRole())
         .adminReference(model.getAdminReference())
+        .password(model.getPassword())
         .build();
   }
 }

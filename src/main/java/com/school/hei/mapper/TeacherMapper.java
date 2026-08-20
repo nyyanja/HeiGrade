@@ -38,6 +38,7 @@ public class TeacherMapper {
         .email(model.getEmail())
         .role(model.getRole())
         .speciality(model.getSpeciality())
+        .password(model.getPassword())
         .build();
   }
 }
