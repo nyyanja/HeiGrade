@@ -1,5 +1,6 @@
 package com.school.hei.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,5 +15,5 @@ import lombok.experimental.SuperBuilder;
 public class Student extends User {
 
   private String reference;
-  private Group group;
+  @JsonBackReference private Group group;
 }
