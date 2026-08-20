@@ -20,6 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.server.ResponseStatusException;
 
 @ExtendWith(MockitoExtension.class)
@@ -30,6 +31,8 @@ class TeacherServiceTest {
   @Mock private TeacherValidator teacherValidator;
 
   @Mock private CourseRepository courseRepository;
+
+  @Mock private PasswordEncoder passwordEncoder;
 
   @InjectMocks private TeacherService teacherService;
 
@@ -61,6 +64,8 @@ class TeacherServiceTest {
             .email("john.doe@test.com")
             .speciality("Computer Science")
             .build();
+
+    lenient().when(passwordEncoder.encode(any(String.class))).thenReturn("encoded-password");
   }
 
   @Test
@@ -204,6 +209,7 @@ class TeacherServiceTest {
             .lastName("Doe")
             .email("john.doe@test.com")
             .speciality("Computer Science")
+            .password("Password123!")
             .build();
 
     when(teacherRepository.save(any(JTeacher.class))).thenReturn(teacherEntity);

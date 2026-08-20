@@ -105,6 +105,8 @@ public class SecurityConfig {
                     .hasRole("ADMIN")
                     .requestMatchers("/web/promotions/**")
                     .hasRole("ADMIN")
+                    .requestMatchers("/users/**")
+                    .hasRole("ADMIN")
                     .anyRequest()
                     .authenticated())
         .oauth2ResourceServer(

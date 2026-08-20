@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import com.school.hei.entity.JCourse;
 import com.school.hei.entity.JExam;
 import com.school.hei.entity.JGroup;
 import com.school.hei.entity.JGroupExam;
@@ -350,6 +351,9 @@ class ExamServiceTest {
 
     when(groupExamRepository.findByExam_Id(examId)).thenReturn(List.of());
 
+    JCourse courseEntity = JCourse.builder().id(courseId).build();
+    when(courseRepository.findById(courseId)).thenReturn(Optional.of(courseEntity));
+
     Exam result = examService.save(exam);
 
     assertThat(result.getId()).isEqualTo(examId);
@@ -465,6 +469,9 @@ class ExamServiceTest {
     when(examRepository.save(any(JExam.class))).thenReturn(updatedExam);
 
     when(groupRepository.getReferenceById(groupId)).thenReturn(group);
+
+    JCourse courseEntity = JCourse.builder().id(courseId).build();
+    when(courseRepository.findById(courseId)).thenReturn(Optional.of(courseEntity));
 
     Exam result = examService.update(examId, exam);
 

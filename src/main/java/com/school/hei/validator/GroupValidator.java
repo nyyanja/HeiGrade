@@ -29,10 +29,11 @@ public class GroupValidator implements SaveValidator<Group> {
     if (!specialityRepository.existsById(group.getSpeciality().getId())) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "speciality not found");
     }
-    if (group.getPromotion() != null && group.getPromotion().getId() != null) {
-      if (!promotionRepository.existsById(group.getPromotion().getId())) {
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "promotion not found");
-      }
+    if (group.getPromotion() == null || group.getPromotion().getId() == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "group promotion is required");
+    }
+    if (!promotionRepository.existsById(group.getPromotion().getId())) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "promotion not found");
     }
   }
 }

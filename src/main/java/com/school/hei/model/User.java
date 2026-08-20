@@ -1,5 +1,6 @@
 package com.school.hei.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.school.hei.enums.Role;
 import com.school.hei.enums.Sex;
 import java.time.LocalDate;
@@ -25,4 +26,7 @@ public class User {
   private String address;
   private String email;
   private Role role;
+
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+  private String password;
 }

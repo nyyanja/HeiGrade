@@ -18,6 +18,7 @@ import java.util.Objects;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -33,13 +34,20 @@ public class StudentService {
   private final StudentGroupHistoryRepository studentGroupHistoryRepository;
   private final SpecialityChangeValidator specialityChangeValidator;
   private final CourseAccessService courseAccessService;
+  private final PasswordEncoder passwordEncoder;
 
   @Transactional
   public Student save(Student student) {
     studentValidator.accept(student);
 
+    if (student.getPassword() == null || student.getPassword().isBlank()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "password is required");
+    }
+
     JStudent entity = StudentMapper.toEntity(student);
+    entity.setPassword(passwordEncoder.encode(student.getPassword()));
     setGroup(entity, student);
+
     if (entity.getGroup() != null) {
       specialityChangeValidator.accept(entity, entity.getGroup());
     }
@@ -62,7 +70,12 @@ public class StudentService {
         students.stream()
             .map(
                 student -> {
+                  if (student.getPassword() == null || student.getPassword().isBlank()) {
+                    throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST, "password is required for all students");
+                  }
                   JStudent entity = StudentMapper.toEntity(student);
+                  entity.setPassword(passwordEncoder.encode(student.getPassword()));
                   setGroup(entity, student);
                   if (entity.getGroup() != null) {
                     specialityChangeValidator.accept(entity, entity.getGroup());
@@ -79,7 +92,7 @@ public class StudentService {
 
   @Transactional
   public Student update(UUID id, Student student) {
-    JStudent existingStudent =
+    JStudent existing =
         studentRepository
             .findById(id)
             .orElseThrow(
@@ -87,21 +100,33 @@ public class StudentService {
                     new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "student not found with id " + id));
 
-    UUID oldGroupId =
-        existingStudent.getGroup() == null ? null : existingStudent.getGroup().getId();
+    UUID oldGroupId = existing.getGroup() == null ? null : existing.getGroup().getId();
 
     student.setId(id);
     studentValidator.accept(student);
 
-    UUID newGroupId = student.getGroup() == null ? null : student.getGroup().getId();
+    existing.setFirstName(student.getFirstName());
+    existing.setLastName(student.getLastName());
+    existing.setBirthday(student.getBirthday());
+    existing.setSex(student.getSex());
+    existing.setAddress(student.getAddress());
+    existing.setEmail(student.getEmail());
+    existing.setRole(student.getRole());
+    existing.setReference(student.getReference());
 
-    JStudent entity = StudentMapper.toEntity(student);
-    setGroup(entity, student);
-    if (!Objects.equals(oldGroupId, newGroupId) && entity.getGroup() != null) {
-      specialityChangeValidator.accept(entity, entity.getGroup());
+    if (student.getPassword() != null && !student.getPassword().isBlank()) {
+      existing.setPassword(passwordEncoder.encode(student.getPassword()));
     }
 
-    JStudent updatedStudent = studentRepository.save(entity);
+    setGroup(existing, student);
+
+    UUID newGroupId = existing.getGroup() == null ? null : existing.getGroup().getId();
+
+    if (!Objects.equals(oldGroupId, newGroupId) && existing.getGroup() != null) {
+      specialityChangeValidator.accept(existing, existing.getGroup());
+    }
+
+    JStudent updatedStudent = studentRepository.save(existing);
 
     if (!Objects.equals(oldGroupId, newGroupId)) {
       updateGroupHistory(updatedStudent, oldGroupId, newGroupId);

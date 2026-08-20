@@ -21,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.server.ResponseStatusException;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,6 +32,8 @@ class AdminServiceTest {
   @Mock private AdminValidator adminValidator;
 
   @InjectMocks private com.school.hei.service.services.AdminService adminService;
+
+  @Mock private PasswordEncoder passwordEncoder;
 
   private UUID adminId;
   private Admin admin;
@@ -51,6 +54,7 @@ class AdminServiceTest {
             .email("john.doe@hei.school")
             .role(Role.ADMIN)
             .adminReference("ADM-001")
+            .password("Password123!")
             .build();
 
     jAdmin =
@@ -65,6 +69,8 @@ class AdminServiceTest {
             .role(Role.ADMIN)
             .adminReference("ADM-001")
             .build();
+
+    lenient().when(passwordEncoder.encode(any(String.class))).thenReturn("encoded-password");
   }
 
   @Test

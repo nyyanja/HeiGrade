@@ -1,5 +1,6 @@
 package com.school.hei.validator;
 
+import com.school.hei.enums.Role;
 import com.school.hei.model.Admin;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,9 @@ public class AdminValidator implements SaveValidator<Admin> {
     userValidator.validateCommonFields(admin);
     if (admin.getAdminReference() == null || admin.getAdminReference().isBlank()) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "admin reference is required");
+    }
+    if (admin.getRole() != Role.ADMIN) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "admin role must be ADMIN");
     }
   }
 }
