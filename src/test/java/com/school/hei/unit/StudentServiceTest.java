@@ -28,6 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.server.ResponseStatusException;
 
 @ExtendWith(MockitoExtension.class)
@@ -49,9 +50,12 @@ class StudentServiceTest {
 
   @InjectMocks private StudentService studentService;
 
+  @Mock private PasswordEncoder passwordEncoder;
+
   @BeforeEach
   void setUp() {
     lenient().when(courseAccessService.isAdmin()).thenReturn(true);
+    lenient().when(passwordEncoder.encode(any(String.class))).thenReturn("encoded-password");
   }
 
   @Test
@@ -253,7 +257,7 @@ class StudentServiceTest {
   void should_save_student_without_group() {
     UUID studentId = UUID.randomUUID();
 
-    Student student = Student.builder().reference("STU001").build();
+    Student student = Student.builder().reference("STU001").password("Password123!").build();
 
     JStudent savedStudent =
         JStudent.builder().id(studentId).reference("STU001").group(null).build();
@@ -524,6 +528,7 @@ class StudentServiceTest {
         .firstName("John")
         .lastName("Doe")
         .reference(reference)
+        .password("Password123!")
         .group(Group.builder().id(groupId).name("Group A").build())
         .build();
   }
